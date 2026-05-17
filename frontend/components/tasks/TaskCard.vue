@@ -1,12 +1,13 @@
 <template>
   <div
     :class="[
-      'group flex items-start gap-3 px-3 py-2.5 rounded cursor-pointer border',
+      'group flex items-start gap-3 px-3 py-2.5 rounded cursor-pointer border border-l-[3px]',
       isSelected
         ? 'bg-accent-subtle border-accent/30'
         : 'bg-surface-1 border-border hover:border-border hover:bg-surface-2',
       task.completed ? 'opacity-60' : '',
     ]"
+    :style="{ borderLeftColor: listColor }"
     @click="tasksStore.selectTask(task.id)"
   >
     <!-- Checkbox -->
@@ -44,35 +45,47 @@
         >
           {{ formatDate(task.dueDate) }}
         </span>
-        <span v-if="task.longDescription" class="text-text-faint text-xs">· note</span>
       </div>
+      <MarkdownContent
+        v-if="task.longDescription"
+        :content="task.longDescription"
+        compact
+        class-name="mt-2"
+        :interactive-checklists="!task.completed"
+        :task-id="task.id"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Task } from '~/stores/tasks'
+import MarkdownContent from '~/components/common/MarkdownContent.vue'
 
 const props = defineProps<{ task: Task }>()
 
 const tasksStore = useTasksStore()
 const api = useApi()
+const toast = useToast()
+const { requireEdit } = useListPermission()
+const { colorForTask } = useListColor()
 
 const isSelected = computed(() => tasksStore.selectedTaskId === props.task.id)
+const listColor = computed(() => colorForTask(props.task))
 
-const isOverdue = computed(() => new Date(props.task.dueDate) < new Date())
+const isOverdue = computed(() => parseDueDate(props.task.dueDate) < startOfDay(new Date()))
 
 function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
+  return parseDueDate(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })
 }
 
 async function toggleComplete() {
+  if (!requireEdit(props.task.listId, 'modifier cette tâche')) return
   try {
     const updated = await api.patch<any>(`/tasks/${props.task.id}/toggle`)
-    // Mise à jour locale immédiate (WebSocket propagera aux autres onglets)
     tasksStore.updateTask(updated)
   } catch (e) {
-    console.error(e)
+    toast.fromApiError(e)
   }
 }
 </script>

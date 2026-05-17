@@ -1,6 +1,5 @@
 <template>
   <div class="mb-3">
-    <!-- Bouton d'ouverture -->
     <button
       v-if="!open"
       @click="open = true"
@@ -12,12 +11,7 @@
       Ajouter une tâche
     </button>
 
-    <!-- Formulaire déplié -->
-    <div
-      v-else
-      class="bg-surface-1 border border-accent/40 rounded p-3 space-y-3"
-    >
-      <!-- Description courte (obligatoire) -->
+    <div v-else class="bg-surface-1 border border-accent/40 rounded p-3 space-y-3">
       <div>
         <input
           ref="shortDescRef"
@@ -31,18 +25,16 @@
         />
       </div>
 
-      <!-- Description longue (optionnelle) -->
       <div>
         <textarea
           v-model="form.longDescription"
-          placeholder="Notes (optionnel)"
-          rows="2"
+          placeholder="Notes Markdown : - [ ] tâche, **gras**, listes…"
+          rows="3"
           maxlength="2000"
           class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2 text-text placeholder-text-faint focus:outline-none focus:border-accent resize-none"
         />
       </div>
 
-      <!-- Date d'échéance (obligatoire) -->
       <div>
         <input
           v-model="form.dueDate"
@@ -57,7 +49,6 @@
         {{ error }}
       </div>
 
-      <!-- Actions -->
       <div class="flex gap-2">
         <button
           @click="submit"
@@ -84,6 +75,8 @@ const emit = defineEmits(['created'])
 const listsStore = useListsStore()
 const tasksStore = useTasksStore()
 const api = useApi()
+const toast = useToast()
+const { requireEdit } = useListPermission()
 
 const open = ref(false)
 const loading = ref(false)
@@ -105,6 +98,7 @@ watch(open, (val) => {
 async function submit() {
   if (!form.shortDescription.trim() || !form.dueDate) return
   if (!listsStore.selectedListId) return
+  if (!requireEdit(listsStore.selectedListId, 'ajouter une tâche')) return
 
   error.value = ''
   loading.value = true
@@ -115,12 +109,13 @@ async function submit() {
       longDescription: form.longDescription.trim() || undefined,
       dueDate: form.dueDate,
     })
-    // Ajout local immédiat (le WebSocket propagera aux autres onglets)
     tasksStore.addTask(task)
+    toast.success('Tâche créée')
     emit('created')
     cancel()
-  } catch (e: any) {
-    error.value = e.message || 'Erreur lors de la création'
+  } catch (e: unknown) {
+    error.value = parseApiError(e, 'Erreur lors de la création')
+    toast.fromApiError(e, 'Erreur lors de la création')
   } finally {
     loading.value = false
   }
