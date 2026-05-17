@@ -2,7 +2,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copie intégrale depuis l'image qui fonctionnait (sources + node_modules verrouillés)
+COPY package*.json ./
+RUN npm ci
+
 COPY . .
 
 EXPOSE 3000
