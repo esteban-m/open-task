@@ -3,25 +3,40 @@
 
 export function useApi() {
   const config = useRuntimeConfig()
-  const authStore = useAuthStore()
   const router = useRouter()
+  const { getToken, setToken, clearToken } = useAccessToken()
 
-  let isRefreshing = false
-  let refreshQueue: Array<(token: string) => void> = []
+  let refreshPromise: Promise<string | null> | null = null
 
   async function refreshAccessToken(): Promise<string | null> {
-    try {
-      const response = await $fetch<{ accessToken: string }>(
-        `${config.public.apiBase}/auth/refresh`,
-        { method: 'POST', credentials: 'include' }
-      )
-      authStore.setAccessToken(response.accessToken)
-      return response.accessToken
-    } catch {
-      authStore.clear()
-      router.push('/login')
-      return null
-    }
+    if (refreshPromise) return refreshPromise
+
+    refreshPromise = (async () => {
+      try {
+        const response = await $fetch<{ accessToken: string }>(
+          `${config.public.apiBase}/auth/refresh`,
+          { method: 'POST', credentials: 'include' }
+        )
+        setToken(response.accessToken)
+        return response.accessToken
+      } catch {
+        clearToken()
+        try {
+          await $fetch(`${config.public.apiBase}/auth/logout`, {
+            method: 'POST',
+            credentials: 'include',
+          })
+        } catch {
+          /* ignore */
+        }
+        router.push('/login')
+        return null
+      } finally {
+        refreshPromise = null
+      }
+    })()
+
+    return refreshPromise
   }
 
   async function request<T>(
@@ -29,7 +44,7 @@ export function useApi() {
     options: RequestInit & { params?: Record<string, string> } = {}
   ): Promise<T> {
     const url = `${config.public.apiBase}${path}`
-    const token = authStore.accessToken
+    const token = getToken()
 
     const fetchOptions: RequestInit = {
       ...options,
@@ -45,54 +60,30 @@ export function useApi() {
 
     // Tentative de refresh si 401
     if (response.status === 401 && token) {
-      if (!isRefreshing) {
-        isRefreshing = true
-        const newToken = await refreshAccessToken()
-        isRefreshing = false
-
-        if (newToken) {
-          // Rejouer les requêtes en attente
-          refreshQueue.forEach((cb) => cb(newToken))
-          refreshQueue = []
-
-          // Rejouer cette requête avec le nouveau token
-          response = await fetch(url, {
-            ...fetchOptions,
-            headers: {
-              ...fetchOptions.headers,
-              Authorization: `Bearer ${newToken}`,
-            },
-          })
-        } else {
-          return Promise.reject(new Error('Session expirée'))
-        }
-      } else {
-        // Attendre que le refresh en cours se termine
-        return new Promise<T>((resolve, reject) => {
-          refreshQueue.push(async (newToken: string) => {
-            try {
-              const r = await fetch(url, {
-                ...fetchOptions,
-                headers: {
-                  ...fetchOptions.headers,
-                  Authorization: `Bearer ${newToken}`,
-                },
-              })
-              resolve(await r.json())
-            } catch (e) {
-              reject(e)
-            }
-          })
-        })
+      const newToken = await refreshAccessToken()
+      if (!newToken) {
+        return Promise.reject(new Error('Session expirée'))
       }
+      response = await fetch(url, {
+        ...fetchOptions,
+        headers: {
+          ...fetchOptions.headers,
+          Authorization: `Bearer ${newToken}`,
+        },
+      })
     }
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ message: 'Erreur réseau' }))
-      throw { status: response.status, message: error.message || 'Erreur' }
+      const raw = error.message
+      const message = Array.isArray(raw)
+        ? raw.join(', ')
+        : typeof raw === 'string'
+          ? raw
+          : 'Erreur'
+      throw { status: response.status, message }
     }
 
-    // Réponse vide (ex: 204)
     const text = await response.text()
     return text ? JSON.parse(text) : ({} as T)
   }
