@@ -1,49 +1,69 @@
 <template>
-  <div class="flex h-screen bg-surface overflow-hidden">
-    <!-- Left Sidebar -->
-    <LeftSidebar />
-
-    <!-- Main Content -->
-    <MainContent />
-
-    <!-- Right Sidebar (panneau de détail) -->
-    <RightSidebar />
+  <div class="min-h-screen bg-surface">
+    <div class="flex h-screen overflow-hidden">
+      <LeftSidebar />
+      <MainContent />
+      <RightSidebar />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import LeftSidebar from '~/components/layout/LeftSidebar.vue'
+import RightSidebar from '~/components/layout/RightSidebar.vue'
+import MainContent from '~/components/layout/MainContent.vue'
+
 definePageMeta({ middleware: 'auth' })
 
 const api = useApi()
-const authStore = useAuthStore()
-const listsStore = useListsStore()
 const socket = useSocket()
+const listsStore = useListsStore()
+const tasksStore = useTasksStore()
+const { loadTasksForList, switchList } = useListTasks()
+const { syncListRooms } = useRealtimeSync()
 
-// Chargement initial
 onMounted(async () => {
-  // Récupérer le profil si manquant
-  if (!authStore.user) {
-    try {
-      const user = await api.get<any>('/auth/me')
-      authStore.setUser(user)
-    } catch {
-      // Le middleware redirigera si nécessaire
-    }
-  }
-
-  // Charger les listes
   try {
     const lists = await api.get<any[]>('/lists')
     listsStore.setLists(lists)
+    syncListRooms()
+
+    if (typeof window !== 'undefined') {
+      const savedId = localStorage.getItem('selectedListId')
+      const listId = savedId && lists.some((l) => l.id === savedId) ? savedId : lists[0]?.id
+      if (listId) {
+        listsStore.selectList(listId)
+      }
+    }
   } catch (e) {
     console.error('Erreur chargement listes', e)
   }
 
-  // Connexion WebSocket
-  socket.connect()
+  await socket.connect()
+  syncListRooms()
+
+  const savedView = typeof window !== 'undefined' ? localStorage.getItem('mainContentView') : null
+  if (savedView === 'calendar' || savedView === 'kanban') {
+    await loadAllTasksForCalendar()
+  }
 })
 
-onUnmounted(() => {
-  // Ne pas déconnecter le socket ici car Nuxt peut re-monter le composant
-})
+watch(
+  () => listsStore.selectedListId,
+  async (listId, prev) => {
+    if (!listId || listId === prev) return
+    switchList(listId, prev ?? null)
+    await loadTasksForList(listId)
+    const stillVisible = tasksStore.tasks.some((t) => t.id === tasksStore.selectedTaskId)
+    if (tasksStore.selectedTaskId && !stillVisible) {
+      const inAll = tasksStore.allTasks.some((t) => t.id === tasksStore.selectedTaskId)
+      if (!inAll) tasksStore.selectTask(null)
+    }
+  }
+)
+
+watch(
+  () => listsStore.lists.map((l) => l.id).join(','),
+  () => syncListRooms()
+)
 </script>
