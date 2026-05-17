@@ -37,10 +37,6 @@
               />
             </div>
 
-            <div v-if="error" class="text-danger text-sm bg-danger-subtle rounded px-3 py-2">
-              {{ error }}
-            </div>
-
             <button
               type="submit"
               :disabled="loading"
@@ -70,12 +66,11 @@ const socket = useSocket()
 const { bind: bindRealtime } = useRealtimeSync()
 const { setToken, setUser } = useAuth()
 
+const toast = useToast()
 const form = reactive({ email: '', password: '' })
-const error = ref('')
 const loading = ref(false)
 
 async function handleLogin() {
-  error.value = ''
   loading.value = true
   try {
     const { accessToken } = await api.post<{ accessToken: string }>('/auth/login', form)
@@ -87,8 +82,8 @@ async function handleLogin() {
     bindRealtime()
     await socket.connect()
     router.push('/')
-  } catch (e: any) {
-    error.value = e.message || 'Identifiants incorrects'
+  } catch (e: unknown) {
+    toast.fromApiError(e, 'Identifiants incorrects')
   } finally {
     loading.value = false
   }

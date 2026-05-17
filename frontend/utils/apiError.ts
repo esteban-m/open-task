@@ -12,7 +12,10 @@ export function parseApiError(e: unknown, fallback = 'Une erreur est survenue'):
   if (status === 403 || lower.includes('droits insuffisants') || lower.includes('accès interdit')) {
     return 'Vous n\'avez pas les droits pour effectuer cette action.'
   }
-  if (status === 401 || lower.includes('session expirée')) {
+  if (status === 401) {
+    return raw || fallback || 'Session expirée. Veuillez vous reconnecter.'
+  }
+  if (lower.includes('session expirée')) {
     return 'Session expirée. Veuillez vous reconnecter.'
   }
   if (status === 404) {
