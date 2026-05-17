@@ -5,11 +5,13 @@ import { UsersModule } from './users/users.module';
 import { ListsModule } from './lists/lists.module';
 import { TasksModule } from './tasks/tasks.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ListAccessModule } from './common/list-access/list-access.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
+    ListAccessModule,
     AuthModule,
     UsersModule,
     ListsModule,
