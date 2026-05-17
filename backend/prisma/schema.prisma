@@ -17,8 +17,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  lists        TaskList[]
+  lists         TaskList[]
   refreshTokens RefreshToken[]
+  userLists     UserList[]
 }
 
 model RefreshToken {
@@ -34,18 +35,50 @@ model RefreshToken {
 model TaskList {
   id        String   @id @default(uuid())
   name      String
+  color     String?  @default("#3B82F6")
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tasks Task[]
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks        Task[]
+  members      UserList[]
+  invitations  ShareInvitation[]
 
   @@unique([name, userId])
 }
 
+model UserList {
+  id        String   @id @default(uuid())
+  userId    String
+  listId    String
+  role      String   @default("viewer")
+  status    String   @default("accepted")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  list TaskList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listId])
+}
+
+model ShareInvitation {
+  id           String   @id @default(uuid())
+  listId       String
+  invitedEmail String
+  shareRole    String   @default("viewer")
+  status       String   @default("pending")
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  list TaskList @relation(fields: [listId], references: [id], onDelete: Cascade)
+
+  @@unique([listId, invitedEmail])
+}
+
 model Task {
-  id              String    @id @default(uuid())
+  id               String    @id @default(uuid())
   shortDescription String
   longDescription  String?
   dueDate          DateTime
