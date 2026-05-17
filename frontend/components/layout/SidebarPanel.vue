@@ -124,7 +124,8 @@
       </template>
     </div>
 
-    <div class="flex-shrink-0 mt-auto border-t border-border p-3">
+    <div class="flex-shrink-0 mt-auto border-t border-border p-3 space-y-1">
+      <ThemePicker :collapsed="collapsed" />
       <button
         type="button"
         :class="[
@@ -144,6 +145,7 @@
 </template>
 
 <script setup lang="ts">
+import ThemePicker from '~/components/ui/ThemePicker.vue'
 import type { TaskList as StoreTaskList } from '~/stores/lists'
 
 const props = defineProps<{
