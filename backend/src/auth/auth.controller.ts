@@ -16,10 +16,11 @@ import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 
+// sameSite=none requis : frontend (:3000) et API (:4000) sont des origines différentes
 const REFRESH_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  secure: true,
+  sameSite: 'none' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
   path: '/',
 };
