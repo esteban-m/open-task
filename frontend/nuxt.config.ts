@@ -1,37 +1,40 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
+import { defineNuxtConfig } from 'nuxt/config'
+
 export default defineNuxtConfig({
-  devtools: { enabled: false },
-
-  modules: [
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-  ],
-
-  runtimeConfig: {
-    public: {
-      apiBase: process.env.API_BASE_URL || 'http://localhost:4000',
-      wsBase: process.env.WS_BASE_URL || 'http://localhost:4000',
-    },
-  },
-
-  typescript: {
-    strict: true,
-  },
-
   app: {
     head: {
       title: 'Open-Task',
-      meta: [
-        { name: 'description', content: 'Gestionnaire de tâches Open-Task' },
-      ],
-      link: [
-        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-        { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        {
-          rel: 'stylesheet',
-          href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap',
-        },
-      ],
+      meta: [{ charset: 'utf-8', name: 'viewport', content: 'width=device-width, initial-scale=1' }],
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }]
+    }
+  },
+
+  css: ['~/assets/main.css'],
+
+  runtimeConfig: {
+    public: {
+      apiBase: process.env.NUXT_PUBLIC_API_BASE_URL || 'http://localhost:4000',
+      wsBase: process.env.NUXT_PUBLIC_WS_BASE_URL || 'http://localhost:4000',
     },
   },
+
+  devtools: { enabled: false },
+
+  postcss: {
+    plugins: {
+      tailwindcss: {},
+      autoprefixer: {}
+    }
+  },
+
+  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
+
+  // Auth via localStorage + cookie : pas de SSR sur les pages app pour éviter les mismatches d'hydratation
+  routeRules: {
+    '/': { ssr: false },
+    '/login': { ssr: false },
+    '/register': { ssr: false },
+  },
+
+  compatibilityDate: '2026-05-15',
 })
