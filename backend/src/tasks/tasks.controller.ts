@@ -28,6 +28,12 @@ export class TasksController {
     private tasksGateway: TasksGateway,
   ) {}
 
+  @Get('tasks')
+  @ApiOperation({ summary: 'Récupérer toutes les tâches de l\'utilisateur' })
+  findAllForUser(@CurrentUser('id') userId: string) {
+    return this.tasksService.findAllForUser(userId);
+  }
+
   @Get('lists/:listId/tasks')
   @ApiOperation({ summary: 'Récupérer toutes les tâches d\'une liste' })
   findAll(@Param('listId') listId: string, @CurrentUser('id') userId: string) {
@@ -59,8 +65,12 @@ export class TasksController {
     @Body() dto: UpdateTaskDto,
     @CurrentUser('id') userId: string,
   ) {
-    const task = await this.tasksService.update(id, dto, userId);
-    this.tasksGateway.emitTaskUpdated(task.listId, task);
+    const { task, previousListId } = await this.tasksService.update(id, dto, userId);
+    if (dto.listId && previousListId !== task.listId) {
+      this.tasksGateway.emitTaskMoved(previousListId, task.listId, task);
+    } else {
+      this.tasksGateway.emitTaskUpdated(task.listId, task);
+    }
     return task;
   }
 

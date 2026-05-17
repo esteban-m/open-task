@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsDateString, MinLength, MaxLength } from 'class-validator';
+import { IsString, IsOptional, IsDateString, IsUUID, MinLength, MaxLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateTaskDto {
@@ -37,4 +37,9 @@ export class UpdateTaskDto {
   @IsOptional()
   @IsDateString()
   dueDate?: string;
+
+  @ApiPropertyOptional({ description: 'Déplacer la tâche vers une autre liste' })
+  @IsOptional()
+  @IsUUID('4', { message: 'listId invalide' })
+  listId?: string;
 }
