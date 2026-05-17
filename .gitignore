@@ -1,0 +1,34 @@
+# Dépendances
+node_modules/
+.pnp
+.pnp.js
+
+# Build
+dist/
+.output/
+.nuxt/
+.next/
+
+# Environnement — NE JAMAIS COMMITER
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Coverage
+coverage/
+
+# Prisma
+prisma/migrations/*/migration_lock.toml

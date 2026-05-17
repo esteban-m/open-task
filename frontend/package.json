@@ -1,0 +1,24 @@
+{
+  "name": "open-task-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "preview": "nuxt preview",
+    "generate": "nuxt generate",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "nuxt": "^3.10.0",
+    "vue": "^3.4.0",
+    "pinia": "^2.1.7",
+    "@pinia/nuxt": "^0.5.1",
+    "socket.io-client": "^4.6.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/tailwindcss": "^6.11.0",
+    "typescript": "^5.0.0",
+    "vue-tsc": "^2.0.0"
+  }
+}
