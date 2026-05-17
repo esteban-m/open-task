@@ -79,10 +79,6 @@
               />
             </div>
 
-            <div v-if="error" class="text-danger text-sm bg-danger-subtle rounded px-3 py-2">
-              {{ error }}
-            </div>
-
             <button
               type="submit"
               :disabled="loading"
@@ -112,6 +108,7 @@ const socket = useSocket()
 const { bind: bindRealtime } = useRealtimeSync()
 const { setToken, setUser } = useAuth()
 
+const toast = useToast()
 const form = reactive({
   firstName: '',
   lastName: '',
@@ -120,22 +117,19 @@ const form = reactive({
   password: '',
   passwordConfirm: '',
 })
-const error = ref('')
 const loading = ref(false)
 
 async function handleRegister() {
-  error.value = ''
-
   if (form.email !== form.emailConfirm) {
-    error.value = 'Les adresses email ne correspondent pas'
+    toast.error('Les adresses email ne correspondent pas')
     return
   }
   if (form.password !== form.passwordConfirm) {
-    error.value = 'Les mots de passe ne correspondent pas'
+    toast.error('Les mots de passe ne correspondent pas')
     return
   }
   if (form.password.length < 8) {
-    error.value = 'Le mot de passe doit contenir au moins 8 caractères'
+    toast.error('Le mot de passe doit contenir au moins 8 caractères')
     return
   }
 
@@ -155,8 +149,8 @@ async function handleRegister() {
     bindRealtime()
     await socket.connect()
     router.push('/')
-  } catch (e: any) {
-    error.value = e.message || 'Erreur lors de la création du compte'
+  } catch (e: unknown) {
+    toast.fromApiError(e, 'Erreur lors de la création du compte')
   } finally {
     loading.value = false
   }

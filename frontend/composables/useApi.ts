@@ -44,7 +44,8 @@ export function useApi() {
     options: RequestInit & { params?: Record<string, string> } = {}
   ): Promise<T> {
     const url = `${config.public.apiBase}${path}`
-    const token = getToken()
+    const isPublicAuth = path === '/auth/login' || path === '/auth/register'
+    const token = isPublicAuth ? null : getToken()
 
     const fetchOptions: RequestInit = {
       ...options,
@@ -58,11 +59,14 @@ export function useApi() {
 
     let response = await fetch(url, fetchOptions)
 
-    // Tentative de refresh si 401
-    if (response.status === 401 && token) {
+    // Tentative de refresh si 401 (pas sur login/register : 401 = identifiants invalides)
+    if (response.status === 401 && token && !isPublicAuth) {
       const newToken = await refreshAccessToken()
       if (!newToken) {
-        return Promise.reject(new Error('Session expirée'))
+        return Promise.reject({
+          status: 401,
+          message: 'Session expirée. Veuillez vous reconnecter.',
+        })
       }
       response = await fetch(url, {
         ...fetchOptions,
