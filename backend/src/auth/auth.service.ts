@@ -81,8 +81,14 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token révoqué ou expiré');
     }
 
-    // Rotation du refresh token
-    await this.prisma.refreshToken.delete({ where: { token: refreshToken } });
+    // Rotation du refresh token (deleteMany évite l'erreur si requêtes parallèles)
+    const { count } = await this.prisma.refreshToken.deleteMany({
+      where: { token: refreshToken },
+    });
+
+    if (count === 0) {
+      throw new UnauthorizedException('Refresh token révoqué ou expiré');
+    }
 
     return this.generateTokens(payload.sub, payload.email);
   }
