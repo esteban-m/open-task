@@ -64,10 +64,11 @@
 <script setup lang="ts">
 definePageMeta({ middleware: 'auth' })
 
-const authStore = useAuthStore()
 const router = useRouter()
 const api = useApi()
 const socket = useSocket()
+const { bind: bindRealtime } = useRealtimeSync()
+const { setToken, setUser } = useAuth()
 
 const form = reactive({ email: '', password: '' })
 const error = ref('')
@@ -78,12 +79,13 @@ async function handleLogin() {
   loading.value = true
   try {
     const { accessToken } = await api.post<{ accessToken: string }>('/auth/login', form)
-    authStore.setAccessToken(accessToken)
+    setToken(accessToken)
 
     const user = await api.get<any>('/auth/me')
-    authStore.setUser(user)
+    setUser(user)
 
-    socket.connect()
+    bindRealtime()
+    await socket.connect()
     router.push('/')
   } catch (e: any) {
     error.value = e.message || 'Identifiants incorrects'

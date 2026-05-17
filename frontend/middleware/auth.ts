@@ -1,14 +1,14 @@
-// middleware/auth.ts
 export default defineNuxtRouteMiddleware((to) => {
-  const authStore = useAuthStore()
-
+  const { getToken } = useAccessToken()
+  const token = getToken()
   const publicRoutes = ['/login', '/register']
+  const isPublicRoute = publicRoutes.includes(to.path)
 
-  if (!authStore.isAuthenticated && !publicRoutes.includes(to.path)) {
+  if (!token && !isPublicRoute) {
     return navigateTo('/login')
   }
 
-  if (authStore.isAuthenticated && publicRoutes.includes(to.path)) {
+  if (token && isPublicRoute) {
     return navigateTo('/')
   }
 })
