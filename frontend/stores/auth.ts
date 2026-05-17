@@ -8,13 +8,8 @@ interface User {
   createdAt: string
 }
 
-interface AuthState {
-  user: User | null
-  accessToken: string | null
-}
-
 export const useAuthStore = defineStore('auth', {
-  state: (): AuthState => ({
+  state: (): { user: User | null; accessToken: string | null } => ({
     user: null,
     accessToken: null,
   }),
@@ -25,14 +20,12 @@ export const useAuthStore = defineStore('auth', {
   },
 
   actions: {
-    setAccessToken(token: string) {
+    setToken(token: string) {
       this.accessToken = token
     },
-
     setUser(user: User) {
       this.user = user
     },
-
     clear() {
       this.user = null
       this.accessToken = null
