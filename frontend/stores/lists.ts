@@ -1,11 +1,16 @@
 import { defineStore } from 'pinia'
 
+export type ListRole = 'owner' | 'admin' | 'editor' | 'viewer'
+
 export interface TaskList {
   id: string
   name: string
   userId: string
   createdAt: string
   updatedAt: string
+  color?: string
+  myRole?: ListRole | string
+  isShared?: boolean
   _count?: { tasks: number }
 }
 
@@ -33,7 +38,18 @@ export const useListsStore = defineStore('lists', {
     },
 
     addList(list: TaskList) {
-      this.lists.push(list)
+      if (!this.lists.find((l) => l.id === list.id)) {
+        this.lists.push(list)
+      }
+    },
+
+    upsertList(list: TaskList) {
+      const idx = this.lists.findIndex((l) => l.id === list.id)
+      if (idx === -1) {
+        this.lists.push(list)
+      } else {
+        this.lists[idx] = { ...this.lists[idx], ...list }
+      }
     },
 
     updateList(updated: TaskList) {
