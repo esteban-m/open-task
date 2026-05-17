@@ -6,7 +6,7 @@ export function useAccessToken() {
     maxAge: MAX_AGE,
     sameSite: 'lax',
     path: '/',
-    secure: import.meta.prod,
+    secure: import.meta.env.PROD,
     default: () => null,
   })
 
