@@ -1,62 +1,135 @@
-// composables/useSocket.ts
-// Gestion de la connexion WebSocket Socket.io
-
-import { io, Socket } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 
 let socket: Socket | null = null
+const joinedListIds = new Set<string>()
+
+type EventHandler = (...args: unknown[]) => void
+const eventHandlers = new Map<string, Set<EventHandler>>()
+
+function attachAllHandlers(s: Socket) {
+  for (const [event, handlers] of eventHandlers) {
+    for (const handler of handlers) {
+      s.off(event, handler)
+      s.on(event, handler)
+    }
+  }
+}
+
+function rejoinLists() {
+  for (const id of joinedListIds) {
+    socket?.emit('join:list', id)
+  }
+}
 
 export function useSocket() {
-  const config = useRuntimeConfig()
-  const authStore = useAuthStore()
-  const tasksStore = useTasksStore()
+  const noop = () => {}
 
-  function connect() {
-    if (socket?.connected) return
+  async function connect(): Promise<void> {
+    if (import.meta.server) return
+
+    const token = useAccessToken().getToken()
+    if (!token) return
+
+    if (socket?.connected) {
+      rejoinLists()
+      return
+    }
+
+    if (socket && !socket.connected) {
+      socket.auth = { token }
+      socket.connect()
+      return
+    }
+
+    const { io } = await import('socket.io-client')
+    const config = useRuntimeConfig()
 
     socket = io(config.public.wsBase as string, {
-      auth: { token: authStore.accessToken },
-      transports: ['websocket'],
+      auth: { token },
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
+      reconnectionAttempts: Infinity,
     })
 
+    attachAllHandlers(socket)
+
     socket.on('connect', () => {
-      console.log('[WS] Connecté')
+      console.log('[WS] Connecté', socket?.id)
+      rejoinLists()
     })
 
     socket.on('disconnect', (reason) => {
       console.log('[WS] Déconnecté:', reason)
     })
 
-    socket.on('task:created', (task) => {
-      tasksStore.addTask(task)
-    })
-
-    socket.on('task:updated', (task) => {
-      tasksStore.updateTask(task)
-    })
-
-    socket.on('task:deleted', ({ id }: { id: string }) => {
-      tasksStore.removeTask(id)
-    })
-
-    socket.on('task:completed', (task) => {
-      tasksStore.updateTask(task)
+    socket.on('connect_error', (err) => {
+      console.warn('[WS] Erreur connexion:', err.message)
     })
   }
 
   function disconnect() {
-    socket?.disconnect()
-    socket = null
+    if (socket) {
+      socket.disconnect()
+      socket = null
+      joinedListIds.clear()
+    }
   }
 
   function joinList(listId: string) {
-    socket?.emit('join:list', listId)
+    if (!listId) return
+    joinedListIds.add(listId)
+    if (socket?.connected) {
+      socket.emit('join:list', listId)
+    }
   }
 
   function leaveList(listId: string) {
-    socket?.emit('leave:list', listId)
+    if (!listId) return
+    joinedListIds.delete(listId)
+    if (socket?.connected) {
+      socket.emit('leave:list', listId)
+    }
   }
 
-  return { connect, disconnect, joinList, leaveList }
+  function joinLists(listIds: string[]) {
+    for (const id of listIds) {
+      joinList(id)
+    }
+  }
+
+  function on<T = unknown>(event: string, handler: (payload: T) => void) {
+    const wrapped = handler as EventHandler
+    if (!eventHandlers.has(event)) {
+      eventHandlers.set(event, new Set())
+    }
+    eventHandlers.get(event)!.add(wrapped)
+
+    if (socket) {
+      socket.on(event, wrapped)
+    }
+
+    return () => {
+      eventHandlers.get(event)?.delete(wrapped)
+      socket?.off(event, wrapped)
+    }
+  }
+
+  function isConnected() {
+    return Boolean(socket?.connected)
+  }
+
+  if (import.meta.server) {
+    return {
+      connect: async () => {},
+      disconnect: noop,
+      joinList: noop,
+      leaveList: noop,
+      joinLists: noop,
+      on: () => noop,
+      isConnected: () => false,
+    }
+  }
+
+  return { connect, disconnect, joinList, leaveList, joinLists, on, isConnected }
 }
