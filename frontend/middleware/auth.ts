@@ -1,14 +1,20 @@
-export default defineNuxtRouteMiddleware((to) => {
-  const { getToken } = useAccessToken()
-  const token = getToken()
+export default defineNuxtRouteMiddleware(async (to) => {
+  if (import.meta.client) {
+    await ensureSession()
+  }
+
+  const pinia = useNuxtApp().$pinia
+  if (!pinia) return
+
+  const authStore = useAuthStore(pinia)
   const publicRoutes = ['/login', '/register']
   const isPublicRoute = publicRoutes.includes(to.path)
 
-  if (!token && !isPublicRoute) {
+  if (!authStore.accessToken && !isPublicRoute) {
     return navigateTo('/login')
   }
 
-  if (token && isPublicRoute) {
+  if (authStore.accessToken && isPublicRoute) {
     return navigateTo('/')
   }
 })

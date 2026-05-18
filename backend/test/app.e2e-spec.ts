@@ -3,13 +3,11 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import * as cookieParser from 'cookie-parser';
 import { AppModule } from '../src/app.module';
+import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
 
 /**
  * Test E2E : flux complet
- * Connexion → création d'une liste → création d'une tâche → suppression
- *
- * Prérequis : une base de données PostgreSQL de test doit être disponible
- * via la variable d'environnement DATABASE_URL
+ * Inscription → connexion → création liste → création tâche → suppression
  */
 describe('Flux complet (e2e)', () => {
   let app: INestApplication;
@@ -25,18 +23,24 @@ describe('Flux complet (e2e)', () => {
   };
 
   beforeAll(async () => {
+    process.env.JWT_SECRET = process.env.JWT_SECRET || 'e2e_test_secret';
+    process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'e2e_test_refresh';
+
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalPipes(
+      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
+    );
+    app.useGlobalFilters(new AllExceptionsFilter());
     await app.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) await app.close();
   });
 
   it('1. Devrait créer un compte utilisateur', async () => {
@@ -110,8 +114,6 @@ describe('Flux complet (e2e)', () => {
   });
 
   it('8. Devrait refuser l\'accès sans token', async () => {
-    await request(app.getHttpServer())
-      .get('/lists')
-      .expect(401);
+    await request(app.getHttpServer()).get('/lists').expect(401);
   });
 });

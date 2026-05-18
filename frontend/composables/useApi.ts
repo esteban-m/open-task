@@ -20,6 +20,7 @@ export function useApi() {
         setToken(response.accessToken)
         return response.accessToken
       } catch {
+        resetSessionInit()
         clearToken()
         try {
           await $fetch(`${config.public.apiBase}/auth/logout`, {

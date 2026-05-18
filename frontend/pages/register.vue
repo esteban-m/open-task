@@ -143,7 +143,7 @@ async function handleRegister() {
     })
     setToken(accessToken)
 
-    const user = await api.get<any>('/auth/me')
+    const user = await api.get<{ id: string; email: string; firstName: string; lastName: string }>('/auth/me')
     setUser(user)
 
     bindRealtime()

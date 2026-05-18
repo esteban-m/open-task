@@ -30,9 +30,8 @@ L'application est disponible sur :
 open-task/
 ├── backend/                  # NestJS
 │   ├── src/
-│   │   ├── auth/             # Module authentification (JWT, refresh token)
-│   │   ├── users/            # Module utilisateurs
-│   │   ├── lists/            # Module listes de tâches
+│   │   ├── auth/             # Module authentification (JWT, refresh token, profil /auth/me)
+│   │   ├── lists/            # Module listes de tâches (+ partage)
 │   │   ├── tasks/            # Module tâches + WebSocket Gateway
 │   │   ├── prisma/           # Service Prisma (accès BDD)
 │   │   └── common/           # Guards, décorateurs, filtres d'exception
@@ -44,10 +43,11 @@ open-task/
 ├── frontend/                 # Nuxt 3
 │   ├── pages/                # login.vue · register.vue · index.vue
 │   ├── components/
-│   │   ├── layout/           # LeftSidebar · MainContent · RightSidebar · ConfirmModal
-│   │   └── tasks/            # TaskCard · TaskForm
-│   ├── stores/               # Pinia : auth · lists · tasks
-│   ├── composables/          # useApi (fetch + refresh) · useSocket (Socket.io)
+│   │   ├── layout/           # Sidebars · ConfirmModal · vues liste/kanban/calendrier
+│   │   ├── tasks/            # TaskCard · TaskForm
+│   │   └── ui/               # ToastContainer · ThemePicker
+│   ├── stores/               # Pinia : auth (session) · lists · tasks
+│   ├── composables/          # useApi · useSocket · useRealtimeSync · useTheme
 │   └── middleware/           # auth.ts (protection des routes)
 │
 ├── docker-compose.yml
@@ -99,10 +99,12 @@ Prisma offre un ORM typé avec génération automatique du client TypeScript dep
 
 | Token | Durée | Stockage | Usage |
 |---|---|---|---|
-| Access token | 15 minutes | Mémoire côté client (store Pinia) | Authentification de chaque requête HTTP |
+| Access token | 15 minutes | Mémoire Pinia (non persisté en localStorage) | Authentification de chaque requête HTTP |
 | Refresh token | 7 jours | Cookie `httpOnly` + BDD | Renouvellement silencieux de l'access token |
 
-Le refresh token est stocké en cookie `httpOnly` : il n'est pas accessible en JavaScript, ce qui protège contre les attaques XSS. Il est également persisté en base avec sa date d'expiration pour permettre la révocation (déconnexion).
+Le refresh token est stocké en cookie `httpOnly` : il n'est pas accessible en JavaScript. L'access token reste en mémoire (store Pinia) et est restauré au chargement via `/auth/refresh`. En production, définir `COOKIE_SECURE=true` et des secrets JWT forts (voir `.env.example`).
+
+**Durcissements** : Helmet (headers HTTP), rate limiting sur `/auth/*` (`@nestjs/throttler`), filtre d'exceptions global, validation stricte des DTOs.
 
 ### Rotation du refresh token
 
@@ -112,9 +114,9 @@ Le refresh token est stocké en cookie `httpOnly` : il n'est pas accessible en J
 
 Le composable `useApi` gère automatiquement le cas 401 : il appelle `/auth/refresh`, met à jour le store, et rejoue la requête originale — **sans déconnexion visible** pour l'utilisateur. Les requêtes concurrentes sont mises en file d'attente pendant le refresh pour éviter les conditions de course.
 
-### Isolation stricte par userId
+### Isolation des données
 
-Côté service NestJS, **chaque opération vérifie que la ressource appartient à l'utilisateur authentifié** (`list.userId !== userId` → `ForbiddenException`). Même avec un ID valide, un utilisateur ne peut pas accéder aux données d'un autre.
+`ListAccessService` vérifie l'accès à chaque liste/tâche (propriétaire ou membre invité avec rôle). Un utilisateur ne peut pas lire ni modifier les listes d'un autre sans partage explicite. Couvert par des tests e2e d'isolation (`test/app-isolation.e2e-spec.ts`).
 
 ---
 
@@ -139,25 +141,33 @@ DATABASE_URL=postgresql://user:pass@localhost:5432/opentask_test npm run test:e2
 
 - **`AuthService`** : register (succès, email dupliqué, hachage du mot de passe), login (succès, utilisateur inconnu, mauvais mot de passe), refresh (token manquant, token invalide).
 - **`TasksService`** : findAllByList (succès, liste inexistante, accès interdit), create (succès, accès interdit), toggleComplete (vers terminée, vers active, tâche inexistante), remove (succès, accès interdit).
-- **Test e2e** : flux complet — inscription → connexion → création liste → création tâche → toggle completed → suppression tâche → suppression liste → refus sans token.
+- **Tests e2e** : flux complet (`test/app.e2e-spec.ts`) + isolation multi-utilisateurs (`test/app-isolation.e2e-spec.ts`).
+- **CI GitHub Actions** : lint backend + frontend, tests unitaires, migrations Prisma, tests e2e avec PostgreSQL.
+
+---
+
+## Fonctionnalités additionnelles (hors cahier des charges minimal)
+
+- Partage de listes par email avec rôles (viewer / editor / admin)
+- Vues **Kanban** et **calendrier**
+- **10 thèmes** complets (clair/sombre) via variables CSS
+- Toasts pour erreurs et confirmations
+- Rendu **Markdown** dans les descriptions de tâches
 
 ---
 
 ## Ce qui aurait été fait différemment avec plus de temps
 
-- **Refresh token côté frontend** : implémenter un vrai lock avec `Promise` partagée plutôt qu'une queue simple, pour être encore plus robuste en cas de nombreuses requêtes concurrentes.
 - **Pagination** des tâches côté API et scroll infini côté frontend pour les listes très chargées.
-- **Édition inline des tâches** dans le panneau de détail (RightSidebar), avec sauvegarde automatique.
-- **Notifications toast** pour les erreurs et confirmations d'actions.
-- **Tri et filtres** des tâches (par échéance, par statut).
+- **Tri et filtres** avancés des tâches (par échéance, par statut, recherche full-text).
 - **Tests de composants Vue** avec Vitest et Vue Test Utils.
-- **Rate limiting** sur les endpoints d'authentification (`@nestjs/throttler`).
-- **Refresh automatique** du WebSocket en cas de reconnexion avec reprise de la room active.
+- **Access token httpOnly** côté API (BFF) pour éliminer totalement l'exposition JS du JWT court.
+- **WebSocket e2e** automatisés (deux clients, propagation temps réel).
 
 ## Ce qui aurait été testé en priorité avec plus de temps
 
-1. **Tests e2e complets** sur les WebSockets (vérification de la propagation temps réel entre deux clients).
-2. **Tests d'intégration** sur l'isolation des données (un utilisateur ne peut pas accéder aux listes d'un autre même en forçant les IDs).
-3. **Tests de composants** Vue pour `TaskCard`, `TaskForm` et `LeftSidebar` (interactions, états, émission d'événements).
-4. **Tests du mécanisme de refresh token** end-to-end : expiration de l'access token → renouvellement silencieux → requête rejouée.
-5. **Tests de charge** basiques sur le Gateway WebSocket pour valider la gestion des rooms sous charge.
+1. **Tests e2e WebSocket** : deux clients sur la même liste, vérification des événements `task:*` sans re-fetch.
+2. **Tests du refresh token** front : expiration simulée → `/auth/refresh` → requête rejouée.
+3. **Tests de composants** Vue (`TaskCard`, `TaskForm`, sidebars).
+4. **Tests de charge** basiques sur le Gateway WebSocket (rooms, reconnexions).
+5. **Audit sécurité** automatisé (OWASP ZAP, dépendances).

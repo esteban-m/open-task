@@ -14,6 +14,7 @@ import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { ListsService } from './lists.service';
 import { CreateListDto, UpdateListDto } from './dto/list.dto';
 import { ShareListDto, resolveShareRole } from './dto/share-list.dto';
+import { RevokeShareDto } from './dto/revoke-share.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TasksGateway } from '../tasks/tasks.gateway';
@@ -96,7 +97,7 @@ export class ListsController {
   @ApiOperation({ summary: 'Révoquer l\'accès (legacy)' })
   async revokeAccessLegacy(
     @Param('id') listId: string,
-    @Body() dto: { userIdToRevoke: string },
+    @Body() dto: RevokeShareDto,
     @CurrentUser('id') userId: string,
   ) {
     const result = await this.listsService.revokeAccess(listId, dto.userIdToRevoke, userId);
