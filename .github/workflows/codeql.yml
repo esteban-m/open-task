@@ -1,0 +1,77 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/**'
+
+jobs:
+  changes:
+    name: Détecter les changements
+    runs-on: ubuntu-latest
+    outputs:
+      typescript: ${{ steps.filter.outputs.typescript }}
+      actions: ${{ steps.filter.outputs.actions }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            typescript:
+              - 'backend/**'
+              - 'frontend/**'
+            actions:
+              - '.github/workflows/**'
+
+  analyze-typescript:
+    name: CodeQL — Backend & Frontend (TypeScript)
+    needs: changes
+    if: needs.changes.outputs.typescript == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      # NestJS + Nuxt : pas de build compilé requis (pas de binaire C/Java).
+      # CodeQL analyse le JS/TS source directement.
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: javascript-typescript
+          build-mode: none
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: typescript
+
+  analyze-actions:
+    name: CodeQL — Workflows GitHub Actions
+    needs: changes
+    if: needs.changes.outputs.actions == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: actions
+          build-mode: none
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: actions

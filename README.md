@@ -5,6 +5,7 @@
 **Gestionnaire de tâches collaboratif en temps réel**
 
 [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
