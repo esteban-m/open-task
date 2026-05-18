@@ -15,17 +15,11 @@ import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-
-// sameSite=none requis : frontend (:3000) et API (:4000) sont des origines différentes
-const REFRESH_COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
-  path: '/',
-};
+import { REFRESH_COOKIE_OPTIONS, REFRESH_COOKIE_CLEAR_OPTIONS } from './auth-cookie';
+import { Throttle } from '@nestjs/throttler';
 
 @ApiTags('auth')
+@Throttle({ default: { limit: 10, ttl: 60_000 } })
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -68,7 +62,7 @@ export class AuthController {
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const refreshToken = req.cookies?.refresh_token;
     await this.authService.logout(refreshToken);
-    res.clearCookie('refresh_token', { path: '/' });
+    res.clearCookie('refresh_token', REFRESH_COOKIE_CLEAR_OPTIONS);
     return { message: 'Déconnexion réussie' };
   }
 
