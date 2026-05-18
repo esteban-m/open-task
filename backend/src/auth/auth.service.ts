@@ -116,6 +116,9 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
+    // Évite les doublons si register puis login génèrent le même JWT (même iat)
+    await this.prisma.refreshToken.deleteMany({ where: { userId } });
+
     await this.prisma.refreshToken.create({
       data: {
         token: refreshToken,
