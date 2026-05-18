@@ -18,6 +18,8 @@ jobs:
   changes:
     name: Détecter les changements
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       typescript: ${{ steps.filter.outputs.typescript }}
       actions: ${{ steps.filter.outputs.actions }}
