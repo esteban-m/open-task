@@ -1,8 +1,11 @@
+import type { Pinia } from 'pinia'
+
 /** Restaure la session après initialisation de Pinia. */
 export default defineNuxtPlugin({
   name: 'auth-init',
   dependsOn: ['pinia'],
   async setup(nuxtApp) {
-    await ensureSession(nuxtApp.$pinia)
+    const pinia = nuxtApp.$pinia as Pinia | undefined
+    if (pinia) await ensureSession(pinia)
   },
 })
