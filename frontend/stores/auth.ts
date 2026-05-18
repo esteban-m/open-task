@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
-interface User {
+export interface User {
   id: string
   email: string
   firstName: string
   lastName: string
-  createdAt: string
+  createdAt?: string
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -16,7 +16,8 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.accessToken,
-    fullName: (state) => state.user ? `${state.user.firstName} ${state.user.lastName}` : '',
+    fullName: (state) =>
+      state.user ? `${state.user.firstName} ${state.user.lastName}` : '',
   },
 
   actions: {

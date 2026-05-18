@@ -76,7 +76,7 @@ async function handleLogin() {
     const { accessToken } = await api.post<{ accessToken: string }>('/auth/login', form)
     setToken(accessToken)
 
-    const user = await api.get<any>('/auth/me')
+    const user = await api.get<{ id: string; email: string; firstName: string; lastName: string }>('/auth/me')
     setUser(user)
 
     bindRealtime()

@@ -1,30 +1,18 @@
+import type { User } from '~/stores/auth'
+
 export function useAuth() {
-  const { getToken, setToken, clearToken } = useAccessToken()
-
-  const setUser = (user: unknown) => {
-    if (import.meta.client) {
-      localStorage.setItem('user', JSON.stringify(user))
-    }
-  }
-
-  const getUser = () => {
-    if (import.meta.client) {
-      const stored = localStorage.getItem('user')
-      if (stored) return JSON.parse(stored)
-    }
-    return null
-  }
-
-  const clear = () => {
-    clearToken()
-  }
+  const pinia = useNuxtApp().$pinia
+  const authStore = pinia ? useAuthStore(pinia) : null
 
   return {
-    getToken,
-    setToken,
-    setUser,
-    getUser,
-    clear,
-    isAuthenticated: !!getToken(),
+    getToken: () => authStore?.accessToken ?? null,
+    setToken: (token: string) => authStore?.setToken(token),
+    setUser: (user: User) => authStore?.setUser(user),
+    getUser: () => authStore?.user ?? null,
+    clear: () => {
+      resetSessionInit()
+      authStore?.clear()
+    },
+    isAuthenticated: !!authStore?.accessToken,
   }
 }
