@@ -1,54 +1,118 @@
+<div align="center">
+
 # Open-Task
 
-[![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
+**Gestionnaire de tâches collaboratif en temps réel**
 
-Gestionnaire de tâches temps réel — NestJS · Nuxt 3 · Tailwind CSS · PostgreSQL · WebSocket
+[![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
+[![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
+[![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![Pinia](https://img.shields.io/badge/Pinia-state-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
+
+[Démarrage rapide](#-démarrage-rapide) · [Fonctionnalités](#-fonctionnalités) · [Architecture](#-architecture) · [Sécurité](#-sécurité) · [Tests](#-tests) · [API Swagger](http://localhost:4000/api)
+
+</div>
 
 ---
 
-## Démarrage rapide (3 commandes)
+## Sommaire
+
+- [Démarrage rapide](#-démarrage-rapide)
+- [Fonctionnalités](#-fonctionnalités)
+- [Stack technique](#-stack-technique)
+- [Architecture](#-architecture)
+- [Choix techniques](#-choix-techniques)
+- [Sécurité](#-sécurité)
+- [Tests](#-tests)
+- [Pistes d'amélioration](#-pistes-damélioration)
+
+---
+
+## Démarrage rapide
+
+Trois commandes pour lancer l'ensemble de la stack (API, frontend, base de données) :
 
 ```bash
 git clone https://github.com/esteban-m/open-task.git && cd open-task
 
 cp .env.example .env
-# Éditez .env : renseignez des secrets JWT forts (voir commentaires dans le fichier)
+# Éditez .env : secrets JWT forts obligatoires en production (voir commentaires)
 
-docker-compose up --build
+docker compose up --build
 ```
 
-L'application est disponible sur :
-- **Frontend** → http://localhost:3000
-- **API** → http://localhost:4000
-- **Swagger** → http://localhost:4000/api
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| API REST | http://localhost:4000 |
+| Swagger | http://localhost:4000/api |
+
+> En production : définir `COOKIE_SECURE=true` et remplacer les secrets `changeme_*` du fichier `.env.example`.
 
 ---
 
-## Architecture globale
+## Fonctionnalités
+
+### Cœur métier (cahier des charges)
+
+- Authentification **email / mot de passe** (inscription avec confirmations)
+- **JWT** dual-token : access (15 min) + refresh (7 j, cookie httpOnly)
+- Listes de tâches : création, sélection, suppression avec confirmation
+- Tâches : description courte / longue, échéance, statut terminé, section repliable
+- **WebSocket** : synchronisation temps réel par liste (`task:created`, `updated`, `deleted`, `completed`)
+- Panneau de détail latéral avec suppression confirmée
+
+### Extensions
+
+| Fonctionnalité | Description |
+|----------------|-------------|
+| Partage de listes | Invitation par email, rôles viewer / editor / admin |
+| Vues multiples | Liste, **Kanban**, **calendrier** |
+| Thèmes | 10 palettes complètes (clair & sombre) |
+| Toasts | Retours utilisateur sur erreurs et succès |
+| Markdown | Descriptions de tâches enrichies |
+
+---
+
+## Stack technique
+
+| Couche | Technologies |
+|--------|----------------|
+| **Frontend** | Nuxt 3, Vue 3, Pinia, Tailwind CSS, socket.io-client |
+| **Backend** | NestJS 10, Prisma, PostgreSQL, Passport JWT, Socket.io |
+| **Ops** | Docker multi-stage, Docker Compose, GitHub Actions |
+| **Qualité** | Jest (unit + e2e), ESLint, `nuxt typecheck` |
+
+---
+
+## Architecture
 
 ```
 open-task/
-├── backend/                  # NestJS
+├── backend/                  # API NestJS
 │   ├── src/
-│   │   ├── auth/             # Module authentification (JWT, refresh token, profil /auth/me)
-│   │   ├── lists/            # Module listes de tâches (+ partage)
-│   │   ├── tasks/            # Module tâches + WebSocket Gateway
-│   │   ├── prisma/           # Service Prisma (accès BDD)
-│   │   └── common/           # Guards, décorateurs, filtres d'exception
-│   ├── prisma/
-│   │   ├── schema.prisma     # Modèles de données
-│   │   └── migrations/       # Migrations SQL versionnées
-│   └── test/                 # Tests e2e (Supertest)
+│   │   ├── auth/             # JWT, refresh, profil /auth/me
+│   │   ├── lists/            # Listes + partage
+│   │   ├── tasks/            # Tâches + WebSocket Gateway
+│   │   ├── prisma/           # Service Prisma
+│   │   └── common/           # Guards, filtres, ListAccessService
+│   ├── prisma/               # Schéma + migrations
+│   └── test/                 # e2e Supertest
 │
 ├── frontend/                 # Nuxt 3
-│   ├── pages/                # login.vue · register.vue · index.vue
-│   ├── components/
-│   │   ├── layout/           # Sidebars · ConfirmModal · vues liste/kanban/calendrier
-│   │   ├── tasks/            # TaskCard · TaskForm
-│   │   └── ui/               # ToastContainer · ThemePicker
-│   ├── stores/               # Pinia : auth (session) · lists · tasks
+│   ├── pages/                # login · register · index
+│   ├── components/           # layout · tasks · ui
+│   ├── stores/               # Pinia : auth · lists · tasks
 │   ├── composables/          # useApi · useSocket · useRealtimeSync · useTheme
-│   └── middleware/           # auth.ts (protection des routes)
+│   └── middleware/           # Protection des routes
 │
 ├── docker-compose.yml
 ├── .env.example
@@ -57,117 +121,100 @@ open-task/
 
 ### Couches back-end
 
-Chaque module NestJS suit la séparation **Controller → Service → Prisma** :
+| Couche | Rôle |
+|--------|------|
+| **Controller** | HTTP, validation des entrées (DTOs) |
+| **Service** | Logique métier, contrôle d'accès |
+| **Prisma** | Persistance typée |
+| **Gateway** | Temps réel Socket.io, rooms par liste |
 
-| Couche | Responsabilité |
-|---|---|
-| Controller | Réception HTTP, extraction des paramètres, appel du service |
-| Service | Logique métier, vérification de propriété (isolation userId) |
-| Prisma | Accès base de données, requêtes typées |
-| Gateway (WebSocket) | Handshake JWT, rooms Socket.io, émission d'événements |
+### Flux temps réel
 
----
+```mermaid
+sequenceDiagram
+  participant Client as Client Nuxt
+  participant API as API NestJS
+  participant WS as TasksGateway
+  participant DB as PostgreSQL
 
-## Justification des choix techniques
-
-### Pourquoi Nuxt plutôt qu'une SPA Vue pure ?
-
-Nuxt apporte le **routing fichier** (convention over configuration), les **middlewares de navigation** (protection des routes authentifiées déclarative), et le **SSR optionnel** pour de meilleures performances perçues. Pour une application avec authentification et navigation structurée, c'est plus adapté qu'une SPA Vue avec vue-router configuré manuellement.
-
-### Pourquoi Pinia ?
-
-Pinia est la solution de gestion d'état officielle pour Vue 3. Contrairement à Vuex, elle est typée nativement avec TypeScript, sans mutations boilerplate. Les trois stores (`auth`, `lists`, `tasks`) sont clairs et indépendants — le WebSocket met à jour le store tasks directement sans re-fetch HTTP.
-
-### Architecture WebSocket
-
-Le Gateway NestJS (`@WebSocketGateway`) avec Socket.io est organisé en **rooms par liste** (`list:{listId}`). Le flux est :
-
-1. À la connexion WebSocket : vérification du JWT dans le handshake (`auth.token`) — toute connexion sans token valide est rejetée immédiatement.
-2. Quand l'utilisateur sélectionne une liste : le client rejoint `join:list:{id}` et quitte l'ancienne room.
-3. À chaque mutation (create/update/delete/toggle) : le contrôleur HTTP appelle le gateway qui émet vers la room — **tous les onglets et clients connectés sur cette liste voient la mise à jour en temps réel** sans re-fetch.
-4. Côté Nuxt, le composable `useSocket` s'abonne aux événements (`task:created`, `task:updated`, `task:deleted`, `task:completed`) et applique les changements directement sur le store Pinia.
-
-### Pourquoi Prisma ?
-
-Prisma offre un ORM typé avec génération automatique du client TypeScript depuis le schéma. Les migrations versionnées (`prisma migrate`) garantissent la cohérence du schéma entre environnements. Les suppressions en cascade (liste → tâches, utilisateur → listes) sont déclarées dans le schéma, pas dans le code.
+  Client->>API: POST /tasks (JWT)
+  API->>DB: create task
+  API->>WS: emit task:created
+  WS-->>Client: event (room list:id)
+  Note over Client: Mise à jour Pinia sans re-fetch
+```
 
 ---
 
-## Approche sécurité
+## Choix techniques
 
-### JWT dual-token
+### Nuxt plutôt qu'une SPA Vue pure
 
-| Token | Durée | Stockage | Usage |
-|---|---|---|---|
-| Access token | 15 minutes | Mémoire Pinia (non persisté en localStorage) | Authentification de chaque requête HTTP |
-| Refresh token | 7 jours | Cookie `httpOnly` + BDD | Renouvellement silencieux de l'access token |
+Routing fichier, middlewares de navigation pour l'auth, et SSR optionnel sur les pages publiques. Structure adaptée à une app authentifiée multi-vues.
 
-Le refresh token est stocké en cookie `httpOnly` : il n'est pas accessible en JavaScript. L'access token reste en mémoire (store Pinia) et est restauré au chargement via `/auth/refresh`. En production, définir `COOKIE_SECURE=true` et des secrets JWT forts (voir `.env.example`).
+### Pinia
 
-**Durcissements** : Helmet (headers HTTP), rate limiting sur `/auth/*` (`@nestjs/throttler`), filtre d'exceptions global, validation stricte des DTOs.
+État global typé (`auth`, `lists`, `tasks`). Les événements WebSocket mettent à jour le store `tasks` directement, sans rechargement HTTP.
 
-### Rotation du refresh token
+### Prisma
 
-À chaque appel `/auth/refresh`, l'ancien refresh token est supprimé de la base et un nouveau est émis. Cela détecte les tentatives de réutilisation d'un token volé.
+ORM typé, migrations versionnées, cascades déclaratives dans le schéma (suppression liste → tâches).
 
-### Renouvellement transparent (intercepteur)
+---
 
-Le composable `useApi` gère automatiquement le cas 401 : il appelle `/auth/refresh`, met à jour le store, et rejoue la requête originale — **sans déconnexion visible** pour l'utilisateur. Les requêtes concurrentes sont mises en file d'attente pendant le refresh pour éviter les conditions de course.
+## Sécurité
 
-### Isolation des données
+| Mesure | Détail |
+|--------|--------|
+| **Access token** | 15 min, mémoire Pinia uniquement |
+| **Refresh token** | 7 j, cookie `httpOnly`, rotation à chaque refresh |
+| **Intercepteur** | Renouvellement transparent via `useApi` |
+| **Isolation** | `ListAccessService` — accès propriétaire ou membre invité |
+| **Durcissement** | Helmet, rate limiting `/auth/*`, filtre d'exceptions global, DTOs validés |
 
-`ListAccessService` vérifie l'accès à chaque liste/tâche (propriétaire ou membre invité avec rôle). Un utilisateur ne peut pas lire ni modifier les listes d'un autre sans partage explicite. Couvert par des tests e2e d'isolation (`test/app-isolation.e2e-spec.ts`).
+Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/app-isolation.e2e-spec.ts`).
 
 ---
 
 ## Tests
 
-### Lancer les tests unitaires
+### Commandes
 
 ```bash
-cd backend
-npm test
-```
+# Unit tests (backend)
+cd backend && npm test
 
-### Lancer les tests e2e
-
-```bash
+# e2e (PostgreSQL requis)
 cd backend
-# Requis : une base PostgreSQL de test accessible via DATABASE_URL
 DATABASE_URL=postgresql://user:pass@localhost:5432/opentask_test npm run test:e2e
+
+# Lint
+cd backend && npm run lint
+cd frontend && npm run lint
 ```
 
-### Ce qui est couvert
+### Couverture actuelle
 
-- **`AuthService`** : register (succès, email dupliqué, hachage du mot de passe), login (succès, utilisateur inconnu, mauvais mot de passe), refresh (token manquant, token invalide).
-- **`TasksService`** : findAllByList (succès, liste inexistante, accès interdit), create (succès, accès interdit), toggleComplete (vers terminée, vers active, tâche inexistante), remove (succès, accès interdit).
-- **Tests e2e** : flux complet (`test/app.e2e-spec.ts`) + isolation multi-utilisateurs (`test/app-isolation.e2e-spec.ts`).
-- **CI GitHub Actions** : lint backend + frontend, tests unitaires, migrations Prisma, tests e2e avec PostgreSQL.
-
----
-
-## Fonctionnalités additionnelles (hors cahier des charges minimal)
-
-- Partage de listes par email avec rôles (viewer / editor / admin)
-- Vues **Kanban** et **calendrier**
-- **10 thèmes** complets (clair/sombre) via variables CSS
-- Toasts pour erreurs et confirmations
-- Rendu **Markdown** dans les descriptions de tâches
+| Suite | Contenu |
+|-------|---------|
+| `AuthService` | register, login, refresh, erreurs |
+| `TasksService` | CRUD, accès, toggle, suppressions |
+| **e2e flux complet** | register → login → liste → tâche → toggle → delete |
+| **e2e isolation** | Utilisateur B ne accède pas aux données de A |
+| **CI** | Lint, unit, migrations Prisma, e2e sur PostgreSQL |
 
 ---
 
-## Ce qui aurait été fait différemment avec plus de temps
+## Pistes d'amélioration
 
-- **Pagination** des tâches côté API et scroll infini côté frontend pour les listes très chargées.
-- **Tri et filtres** avancés des tâches (par échéance, par statut, recherche full-text).
-- **Tests de composants Vue** avec Vitest et Vue Test Utils.
-- **Access token httpOnly** côté API (BFF) pour éliminer totalement l'exposition JS du JWT court.
-- **WebSocket e2e** automatisés (deux clients, propagation temps réel).
+**Avec plus de temps (dev)** — pagination, filtres avancés, tests composants Vue (Vitest), BFF pour access token httpOnly, e2e WebSocket multi-clients.
 
-## Ce qui aurait été testé en priorité avec plus de temps
+**Avec plus de temps (tests)** — propagation WS entre deux clients, refresh token front de bout en bout, tests de charge sur les rooms, audit OWASP / dépendances.
 
-1. **Tests e2e WebSocket** : deux clients sur la même liste, vérification des événements `task:*` sans re-fetch.
-2. **Tests du refresh token** front : expiration simulée → `/auth/refresh` → requête rejouée.
-3. **Tests de composants** Vue (`TaskCard`, `TaskForm`, sidebars).
-4. **Tests de charge** basiques sur le Gateway WebSocket (rooms, reconnexions).
-5. **Audit sécurité** automatisé (OWASP ZAP, dépendances).
+---
+
+<div align="center">
+
+Projet réalisé dans le cadre d'un cahier des charges **NestJS · Nuxt · PostgreSQL · WebSocket**
+
+</div>
