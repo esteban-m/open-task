@@ -10,7 +10,7 @@
     "lint": "nuxt typecheck"
   },
   "dependencies": {
-    "@pinia/nuxt": "^0.5.1",
+    "@pinia/nuxt": "^0.11.3",
     "dompurify": "^3.4.5",
     "marked": "^18.0.4",
     "pinia": "^2.1.7",
