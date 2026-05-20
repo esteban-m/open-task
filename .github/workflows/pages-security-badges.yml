@@ -7,8 +7,8 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 6 * * *'
+  # Toute branche (push = PR, feature, main, develop…)
   push:
-    branches: [main]
 
 permissions:
   contents: read
@@ -36,6 +36,11 @@ jobs:
         run: |
           chmod +x scripts/generate-security-badges.sh
           ./scripts/generate-security-badges.sh site/badges
+
+          # Copie par branche (slug) pour usage optionnel ; défaut = site/badges/
+          slug="${GITHUB_REF_NAME//\//-}"
+          mkdir -p "site/badges/branches/${slug}"
+          cp site/badges/*.json "site/badges/branches/${slug}/"
 
       - name: Upload artifact Pages
         uses: actions/upload-pages-artifact@v3
