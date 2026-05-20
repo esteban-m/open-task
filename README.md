@@ -9,16 +9,17 @@
 [![Dependabot](https://img.shields.io/badge/Dependabot-actif-026e2c?logo=dependabot&logoColor=white)](https://github.com/esteban-m/open-task/security/dependabot)
 [![Security](https://img.shields.io/badge/Security-advisories-181717?logo=github&logoColor=white)](https://github.com/esteban-m/open-task/security)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
-[![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
-[![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![Nuxt](https://img.shields.io/badge/Nuxt-3.21-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
+[![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Pinia](https://img.shields.io/badge/Pinia-state-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
+[![Pinia](https://img.shields.io/badge/Pinia-2-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
 
 [Démarrage rapide](#-démarrage-rapide) · [Fonctionnalités](#-fonctionnalités) · [Architecture](#-architecture) · [Sécurité](#-sécurité) · [Tests](#-tests) · [API Swagger](http://localhost:4000/api)
 
@@ -89,9 +90,9 @@ docker compose up --build
 
 | Couche | Technologies |
 |--------|----------------|
-| **Frontend** | Nuxt 3, Vue 3, Pinia, Tailwind CSS, socket.io-client |
-| **Backend** | NestJS 10, Prisma, PostgreSQL, Passport JWT, Socket.io |
-| **Ops** | Docker multi-stage, Docker Compose, GitHub Actions |
+| **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 2, Vite 6, Tailwind CSS, socket.io-client |
+| **Backend** | NestJS 11, Prisma 5, PostgreSQL 16, Passport JWT, Socket.io |
+| **Ops** | Docker (Node 20), Docker Compose, GitHub Actions (CI + CodeQL) |
 | **Qualité** | Jest (unit + e2e), ESLint, `nuxt typecheck` |
 
 ---
@@ -110,7 +111,7 @@ open-task/
 │   ├── prisma/               # Schéma + migrations
 │   └── test/                 # e2e Supertest
 │
-├── frontend/                 # Nuxt 3
+├── frontend/                 # Nuxt 3.21
 │   ├── pages/                # login · register · index
 │   ├── components/           # layout · tasks · ui
 │   ├── stores/               # Pinia : auth · lists · tasks
@@ -119,7 +120,7 @@ open-task/
 │
 ├── docker-compose.yml
 ├── .env.example
-└── .github/workflows/ci.yml
+└── .github/workflows/        # ci.yml · codeql.yml
 ```
 
 ### Couches back-end
@@ -222,6 +223,6 @@ cd frontend && npm run lint
 
 <div align="center">
 
-Projet réalisé dans le cadre d'un cahier des charges **NestJS · Nuxt · PostgreSQL · WebSocket**
+Projet réalisé dans le cadre d'un cahier des charges **NestJS 11 · Nuxt 3 · PostgreSQL · WebSocket**
 
 </div>
