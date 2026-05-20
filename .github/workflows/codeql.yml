@@ -16,6 +16,9 @@ on:
       - '.github/workflows/**'
       - '.github/codeql/**'
 
+permissions:
+  contents: read
+
 jobs:
   analyze:
     name: CodeQL
@@ -25,7 +28,7 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       # Un seul job : TS (NestJS + Nuxt) + workflows Actions (évite 2 jobs parallèles redondants).
       - uses: github/codeql-action/init@v4
