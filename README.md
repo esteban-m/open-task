@@ -177,7 +177,7 @@ ORM typé, migrations versionnées, cascades déclaratives dans le schéma (supp
 | **CI / CodeQL** | Lint, tests e2e, analyse statique (`security-extended`) sur chaque PR |
 | **Dependabot** | Mises à jour hebdo npm (backend + frontend) et GitHub Actions |
 
-Les badges **Dependabot** et **Code scanning** sont alimentés en direct par l’API GitHub (compteurs au niveau du **dépôt**, identiques sur toutes les branches), publiés sur [GitHub Pages](https://esteban-m.github.io/open-task/badges/) à chaque push sur n’importe quelle branche ([workflow](.github/workflows/pages-security-badges.yml), script `scripts/generate-security-badges.sh`).
+Les badges **Dependabot** et **Code scanning** sont alimentés par l’API GitHub et publiés sur [GitHub Pages](https://esteban-m.github.io/open-task/badges/) à chaque push sur `main` ([workflow](.github/workflows/pages-security-badges.yml), script `scripts/generate-security-badges.sh`).
 
 Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/app-isolation.e2e-spec.ts`).
 
