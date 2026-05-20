@@ -1,0 +1,6 @@
+name: Open-Task
+
+# Suite par défaut + règles étendues (XSS, injection, etc.)
+queries:
+  - uses: security-and-quality
+  - uses: security-extended
