@@ -19,7 +19,7 @@
 [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Pinia](https://img.shields.io/badge/Pinia-2-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
+[![Pinia](https://img.shields.io/badge/Pinia-3-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/)
 
 [Démarrage rapide](#-démarrage-rapide) · [Fonctionnalités](#-fonctionnalités) · [Architecture](#-architecture) · [Sécurité](#-sécurité) · [Tests](#-tests) · [API Swagger](http://localhost:4000/api)
 
@@ -90,7 +90,7 @@ docker compose up --build
 
 | Couche | Technologies |
 |--------|----------------|
-| **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 2, Vite 6, Tailwind CSS, socket.io-client |
+| **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 3, Vite 6, Tailwind CSS, socket.io-client |
 | **Backend** | NestJS 11, Prisma 5, PostgreSQL 16, Passport JWT, Socket.io |
 | **Ops** | Docker (Node 20), Docker Compose, GitHub Actions (CI + CodeQL) |
 | **Qualité** | Jest (unit + e2e), ESLint, `nuxt typecheck` |
