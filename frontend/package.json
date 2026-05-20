@@ -12,7 +12,7 @@
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
     "dompurify": "^3.4.3",
-    "marked": "^18.0.3",
+    "marked": "^18.0.4",
     "pinia": "^2.1.7",
     "socket.io-client": "^4.6.0",
     "vue": "^3.4.0"
