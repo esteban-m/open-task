@@ -38,7 +38,7 @@ jobs:
           ./scripts/generate-security-badges.sh site/badges
 
       - name: Upload artifact Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site
 
