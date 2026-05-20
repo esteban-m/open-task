@@ -5,6 +5,9 @@
 **Gestionnaire de tâches collaboratif en temps réel**
 
 [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml)
+[![Dependabot](https://img.shields.io/endpoint?url=https%3A%2F%2Festeban-m.github.io%2Fopen-task%2Fbadges%2Fdependabot.json)](https://github.com/esteban-m/open-task/security/dependabot)
+[![Code scanning](https://img.shields.io/endpoint?url=https%3A%2F%2Festeban-m.github.io%2Fopen-task%2Fbadges%2Fcode-scanning.json)](https://github.com/esteban-m/open-task/security/code-scanning)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
@@ -171,6 +174,10 @@ ORM typé, migrations versionnées, cascades déclaratives dans le schéma (supp
 | **Intercepteur** | Renouvellement transparent via `useApi` |
 | **Isolation** | `ListAccessService` — accès propriétaire ou membre invité |
 | **Durcissement** | Helmet, rate limiting `/auth/*`, filtre d'exceptions global, DTOs validés |
+| **CI / CodeQL** | Lint, tests e2e, analyse statique (`security-extended`) sur chaque PR |
+| **Dependabot** | Mises à jour hebdo npm (backend + frontend) et GitHub Actions |
+
+Les badges **Dependabot** et **Code scanning** sont alimentés par l’API GitHub et publiés sur [GitHub Pages](https://esteban-m.github.io/open-task/badges/) à chaque push sur `main` ([workflow](.github/workflows/pages-security-badges.yml), script `scripts/generate-security-badges.sh`).
 
 Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/app-isolation.e2e-spec.ts`).
 
