@@ -17,30 +17,8 @@ on:
       - '.github/codeql/**'
 
 jobs:
-  analyze-typescript:
-    name: CodeQL — Backend & Frontend (TypeScript)
-    runs-on: ubuntu-latest
-    permissions:
-      security-events: write
-      contents: read
-    steps:
-      - uses: actions/checkout@v5
-
-      # NestJS + Nuxt : pas de build compilé requis (pas de binaire C/Java).
-      # CodeQL analyse tout le JS/TS du repo, pas seulement les fichiers modifiés dans la PR.
-      - uses: github/codeql-action/init@v4
-        with:
-          languages: javascript-typescript
-          build-mode: none
-          config-file: ./.github/codeql/codeql-config.yml
-
-      - uses: github/codeql-action/analyze@v4
-        with:
-          category: typescript
-          wait-for-processing: true
-
-  analyze-actions:
-    name: CodeQL — Workflows GitHub Actions
+  analyze:
+    name: CodeQL
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -49,13 +27,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Un seul job : TS (NestJS + Nuxt) + workflows Actions (évite 2 jobs parallèles redondants).
       - uses: github/codeql-action/init@v4
         with:
-          languages: actions
+          languages: javascript-typescript, actions
           build-mode: none
           config-file: ./.github/codeql/codeql-config.yml
 
       - uses: github/codeql-action/analyze@v4
         with:
-          category: actions
+          category: open-task
           wait-for-processing: true

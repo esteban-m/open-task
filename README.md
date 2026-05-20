@@ -6,6 +6,8 @@
 
 [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml)
+[![Dependabot](https://img.shields.io/github/dependabot-alerts/esteban-m/open-task)](https://github.com/esteban-m/open-task/security/dependabot)
+[![Code scanning](https://img.shields.io/github/code-scanning-alert/esteban-m/open-task?label=code%20scanning)](https://github.com/esteban-m/open-task/security/code-scanning)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
@@ -172,6 +174,10 @@ ORM typé, migrations versionnées, cascades déclaratives dans le schéma (supp
 | **Intercepteur** | Renouvellement transparent via `useApi` |
 | **Isolation** | `ListAccessService` — accès propriétaire ou membre invité |
 | **Durcissement** | Helmet, rate limiting `/auth/*`, filtre d'exceptions global, DTOs validés |
+| **CI / CodeQL** | Lint, tests e2e, analyse statique (`security-extended`) sur chaque PR |
+| **Dependabot** | Mises à jour hebdo npm (backend + frontend) et GitHub Actions |
+
+Les badges **Dependabot** et **Code scanning** en tête de README affichent le nombre d’alertes ouvertes (mis à jour après merge sur `main`).
 
 Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/app-isolation.e2e-spec.ts`).
 
