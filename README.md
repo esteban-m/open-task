@@ -6,8 +6,8 @@
 
 [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml)
-[![Dependabot](https://img.shields.io/github/dependabot-alerts/esteban-m/open-task)](https://github.com/esteban-m/open-task/security/dependabot)
-[![Code scanning](https://img.shields.io/github/code-scanning-alert/esteban-m/open-task?label=code%20scanning)](https://github.com/esteban-m/open-task/security/code-scanning)
+[![Dependabot](https://img.shields.io/endpoint?url=https%3A%2F%2Festeban-m.github.io%2Fopen-task%2Fbadges%2Fdependabot.json)](https://github.com/esteban-m/open-task/security/dependabot)
+[![Code scanning](https://img.shields.io/endpoint?url=https%3A%2F%2Festeban-m.github.io%2Fopen-task%2Fbadges%2Fcode-scanning.json)](https://github.com/esteban-m/open-task/security/code-scanning)
 [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-10-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/)
 [![Nuxt](https://img.shields.io/badge/Nuxt-3-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/)
@@ -177,7 +177,7 @@ ORM typé, migrations versionnées, cascades déclaratives dans le schéma (supp
 | **CI / CodeQL** | Lint, tests e2e, analyse statique (`security-extended`) sur chaque PR |
 | **Dependabot** | Mises à jour hebdo npm (backend + frontend) et GitHub Actions |
 
-Les badges **Dependabot** et **Code scanning** en tête de README affichent le nombre d’alertes ouvertes (mis à jour après merge sur `main`).
+Les badges **Dependabot** et **Code scanning** sont alimentés en direct par l’API GitHub, publiés sur [GitHub Pages](https://esteban-m.github.io/open-task/badges/) (workflow [pages-security-badges](.github/workflows/pages-security-badges.yml), script `scripts/generate-security-badges.sh`). Shields.io n’a plus de badge Dependabot natif ([déprécié 2021](https://github.com/badges/shields/issues/7274)).
 
 Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/app-isolation.e2e-spec.ts`).
 
