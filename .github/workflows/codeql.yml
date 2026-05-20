@@ -22,7 +22,7 @@ jobs:
       security-events: write
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # NestJS + Nuxt : pas de build compilé requis (pas de binaire C/Java).
       # CodeQL analyse tout le JS/TS du repo, pas seulement les fichiers modifiés dans la PR.
@@ -43,7 +43,7 @@ jobs:
       actions: read
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: github/codeql-action/init@v4
         with:
