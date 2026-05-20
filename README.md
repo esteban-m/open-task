@@ -15,7 +15,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
 [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
@@ -90,7 +90,7 @@ docker compose up --build
 
 | Couche | Technologies |
 |--------|----------------|
-| **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 3, Vite 6, Tailwind CSS, socket.io-client |
+| **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 3, Vite 8, Tailwind CSS, socket.io-client |
 | **Backend** | NestJS 11, Prisma 5, PostgreSQL 16, Passport JWT, Socket.io |
 | **Ops** | Docker (Node 20), Docker Compose, GitHub Actions (CI + CodeQL) |
 | **Qualité** | Jest (unit + e2e), ESLint, `nuxt typecheck` |
