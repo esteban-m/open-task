@@ -1,0 +1,107 @@
+[
+  {
+    "text": "Accueil",
+    "items": [
+      {
+        "text": "Introduction",
+        "link": "/"
+      }
+    ]
+  },
+  {
+    "text": "Guide",
+    "collapsed": false,
+    "items": [
+      {
+        "text": "Démarrage rapide",
+        "link": "/guide/getting-started"
+      },
+      {
+        "text": "Introduction",
+        "link": "/generated/guide/introduction"
+      }
+    ]
+  },
+  {
+    "text": "Comprendre le système",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Architecture système",
+        "link": "/generated/architecture"
+      },
+      {
+        "text": "Modèle de données (ERD)",
+        "link": "/generated/database"
+      },
+      {
+        "text": "Temps réel (WebSocket)",
+        "link": "/generated/explanation/realtime"
+      }
+    ]
+  },
+  {
+    "text": "Backend (NestJS)",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Authentification",
+        "link": "/generated/backend/authentication"
+      },
+      {
+        "text": "Listes & partage",
+        "link": "/generated/backend/lists-and-sharing"
+      },
+      {
+        "text": "Tâches",
+        "link": "/generated/backend/tasks"
+      },
+      {
+        "text": "Sécurité transverse",
+        "link": "/generated/backend/security"
+      }
+    ]
+  },
+  {
+    "text": "Frontend (Nuxt)",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Application Nuxt",
+        "link": "/generated/frontend/application"
+      },
+      {
+        "text": "État Pinia",
+        "link": "/generated/frontend/state-management"
+      },
+      {
+        "text": "Vues & interface",
+        "link": "/generated/frontend/views"
+      }
+    ]
+  },
+  {
+    "text": "Référence",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Variables d'environnement",
+        "link": "/reference/environment"
+      },
+      {
+        "text": "API REST",
+        "link": "/generated/api-reference"
+      }
+    ]
+  },
+  {
+    "text": "Exploitation",
+    "collapsed": true,
+    "items": [
+      {
+        "text": "Docker & services",
+        "link": "/operations/docker"
+      }
+    ]
+  }
+]

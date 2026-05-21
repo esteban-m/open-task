@@ -1,0 +1,110 @@
+# Documentation automatique + GitHub Pages
+# - Diagramme : GitDiagram (logique) + OpenRouter
+# - Modules : Docudoodle (équivalent TS) + OpenRouter
+# - BDD : ERD Prisma (Mermaid)
+# - Site : VitePress (thème moderne + Mermaid) → Pages
+#
+# Secret requis : OPENROUTER_API_KEY (Settings → Secrets → Actions)
+# Ne jamais committer de clé API dans le dépôt.
+
+name: Documentation & GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      skip_ai:
+        description: 'Ignorer la génération IA (diagramme + modules)'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: docs-pages
+  cancel-in-progress: false
+
+jobs:
+  generate-docs:
+    name: Générer la documentation
+    runs-on: ubuntu-latest
+    outputs:
+      has_site: ${{ steps.check-site.outputs.has_site }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Installer les scripts docs
+        working-directory: scripts/docs
+        run: npm install
+
+      - name: Vérifier secret OpenRouter
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
+        run: |
+          if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then
+            echo "::error::Ajoutez le secret OPENROUTER_API_KEY dans Settings → Secrets → Actions."
+            exit 1
+          fi
+
+      - name: Générer contenu (BDD, API, IA)
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'openai/gpt-4o-mini' }}
+          OPENROUTER_SITE_URL: https://github.com/${{ github.repository }}
+          OPENROUTER_APP_NAME: Open-Task Docs CI
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_ACTIONS: 'true'
+          SKIP_AI: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_ai == true && 'true' || '' }}
+          DOCUDOODLE_MAX_FILES: ${{ vars.DOCUDOODLE_MAX_FILES || '12' }}
+        working-directory: scripts/docs
+        run: npm run generate
+
+      - name: Assembler sidebar VitePress
+        run: node scripts/docs/assemble-summary.mjs
+
+      - name: Build site VitePress
+        working-directory: docs
+        env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DOCS_BASE: /${{ github.event.repository.name }}/
+        run: |
+          npm ci
+          npm run build
+
+      - name: Vérifier artefact site
+        id: check-site
+        run: |
+          if [ -d docs-site ]; then
+            echo "has_site=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_site=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload artefact Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs-site
+
+  deploy-pages:
+    name: Déployer GitHub Pages
+    needs: generate-docs
+    if: needs.generate-docs.outputs.has_site == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

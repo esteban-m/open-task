@@ -1,0 +1,10 @@
+{
+  "name": "open-task-docs-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Pipeline doc-as-code : GitDiagram, Docudoodle, Prisma ERD, Honkit",
+  "scripts": {
+    "generate": "node run-pipeline.mjs",
+    "build:site": "cd ../../docs && npm run build"
+  }
+}
