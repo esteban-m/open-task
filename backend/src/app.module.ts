@@ -7,6 +7,7 @@ import { ListsModule } from './lists/lists.module';
 import { TasksModule } from './tasks/tasks.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ListAccessModule } from './common/list-access/list-access.module';
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ListAccessModule } from './common/list-access/list-access.module';
     ListsModule,
     TasksModule,
   ],
+  controllers: [HealthController],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],

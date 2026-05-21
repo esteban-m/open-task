@@ -48,7 +48,7 @@
   <ConfirmModal
     v-if="confirmDeleteList"
     title="Supprimer la liste"
-    :message="`Supprimer &quot;${confirmDeleteList.name}&quot; ? Toutes les tâches seront perdues.`"
+    :message="`Supprimer « ${confirmDeleteList.name} » ? Toutes les tâches seront perdues.`"
     confirm-label="Supprimer"
     @confirm="confirmDelete"
     @cancel="confirmDeleteList = null"

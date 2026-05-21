@@ -138,7 +138,7 @@
   <ConfirmModal
     v-if="confirmDelete && task"
     title="Supprimer la tâche"
-    :message="`Supprimer &quot;${task.shortDescription}&quot; ?`"
+    :message="`Supprimer « ${task.shortDescription} » ?`"
     confirm-label="Supprimer"
     @confirm="deleteTask"
     @cancel="confirmDelete = false"

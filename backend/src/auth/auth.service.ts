@@ -1,6 +1,6 @@
 import {
   Injectable,
-  ConflictException,
+  BadRequestException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
+import { hashRefreshToken } from './refresh-token-hash';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +24,11 @@ export class AuthService {
     });
 
     if (existing) {
-      throw new ConflictException('Un compte avec cet email existe déjà');
+      // Mitigation timing + message générique (pas d'énumération d'emails)
+      await bcrypt.hash(dto.password, 10);
+      throw new BadRequestException(
+        'Impossible de créer le compte avec ces informations. Vérifiez vos données.',
+      );
     }
 
     const hashedPassword = await bcrypt.hash(dto.password, 10);
@@ -72,8 +77,10 @@ export class AuthService {
       throw new UnauthorizedException('Refresh token invalide ou expiré');
     }
 
+    const tokenHash = hashRefreshToken(refreshToken);
+
     const stored = await this.prisma.refreshToken.findUnique({
-      where: { token: refreshToken },
+      where: { token: tokenHash },
     });
 
     if (!stored || stored.expiresAt < new Date()) {
@@ -82,7 +89,7 @@ export class AuthService {
 
     // Rotation du refresh token (deleteMany évite l'erreur si requêtes parallèles)
     const { count } = await this.prisma.refreshToken.deleteMany({
-      where: { token: refreshToken },
+      where: { token: tokenHash },
     });
 
     if (count === 0) {
@@ -95,7 +102,7 @@ export class AuthService {
   async logout(refreshToken: string) {
     if (refreshToken) {
       await this.prisma.refreshToken.deleteMany({
-        where: { token: refreshToken },
+        where: { token: hashRefreshToken(refreshToken) },
       });
     }
   }
@@ -121,7 +128,7 @@ export class AuthService {
 
     await this.prisma.refreshToken.create({
       data: {
-        token: refreshToken,
+        token: hashRefreshToken(refreshToken),
         userId,
         expiresAt,
       },

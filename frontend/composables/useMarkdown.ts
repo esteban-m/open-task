@@ -1,19 +1,20 @@
 import { marked } from 'marked'
-import DOMPurify from 'dompurify'
+import DOMPurify from 'isomorphic-dompurify'
 
 marked.setOptions({
   gfm: true,
   breaks: true,
 })
 
+const SANITIZE_OPTIONS = {
+  ADD_TAGS: ['input'],
+  ADD_ATTR: ['type', 'checked', 'disabled'],
+}
+
 export function renderMarkdown(source: string | null | undefined): string {
   if (!source?.trim()) return ''
   const raw = marked.parse(source, { async: false }) as string
-  if (import.meta.server) return raw
-  return DOMPurify.sanitize(raw, {
-    ADD_TAGS: ['input'],
-    ADD_ATTR: ['type', 'checked', 'disabled'],
-  })
+  return DOMPurify.sanitize(raw, SANITIZE_OPTIONS)
 }
 
 /** Bascule une case à cocher GFM (- [ ] / - [x]) et renvoie le markdown mis à jour. */

@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateListDto, UpdateListDto } from './dto/list.dto';
@@ -123,7 +124,9 @@ export class ListsService {
     });
 
     if (!invitedUser) {
-      throw new NotFoundException('Utilisateur introuvable — il doit d\'abord créer un compte');
+      throw new BadRequestException(
+        'Impossible d\'ajouter cet utilisateur à la liste. Vérifiez l\'adresse email.',
+      );
     }
 
     if (invitedUser.id === userId) {

@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import { ConflictException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
 const mockPrismaService = {
@@ -68,10 +68,13 @@ describe('AuthService', () => {
       expect(mockPrismaService.user.create).toHaveBeenCalledTimes(1);
     });
 
-    it('devrait lever une ConflictException si l\'email est déjà utilisé', async () => {
+    it('devrait lever une BadRequestException générique si l\'email est déjà utilisé', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue({ id: 'existing' });
 
-      await expect(service.register(registerDto)).rejects.toThrow(ConflictException);
+      await expect(service.register(registerDto)).rejects.toThrow(BadRequestException);
+      await expect(service.register(registerDto)).rejects.toThrow(
+        /Impossible de créer le compte/,
+      );
     });
 
     it('devrait hacher le mot de passe avant de le sauvegarder', async () => {
