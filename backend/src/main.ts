@@ -5,8 +5,11 @@ import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { validateProductionSecrets } from './common/config/validate-production-secrets';
 
 async function bootstrap() {
+  validateProductionSecrets();
+
   const app = await NestFactory.create(AppModule);
 
   app.use(cookieParser());
@@ -27,15 +30,17 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  const config = new DocumentBuilder()
-    .setTitle('Open-Task API')
-    .setDescription('API de gestion de tâches Open-Task')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
+  if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true') {
+    const config = new DocumentBuilder()
+      .setTitle('Open-Task API')
+      .setDescription('API de gestion de tâches Open-Task')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api', app, document);
+  }
 
   await app.listen(process.env.PORT || 4000);
   console.log(`Open-Task backend démarré sur le port ${process.env.PORT || 4000}`);

@@ -9,7 +9,7 @@
         <!-- Header -->
         <div class="px-5 pt-5 pb-3">
           <h2 class="text-sm font-semibold text-text">{{ title }}</h2>
-          <p class="text-text-muted text-sm mt-2 leading-relaxed" v-html="message" />
+          <p class="text-text-muted text-sm mt-2 leading-relaxed">{{ message }}</p>
         </div>
 
         <!-- Actions -->

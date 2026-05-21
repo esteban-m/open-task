@@ -27,7 +27,7 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Créer un compte' })
   @ApiResponse({ status: 201, description: 'Compte créé avec succès' })
-  @ApiResponse({ status: 409, description: 'Email déjà utilisé' })
+  @ApiResponse({ status: 400, description: 'Données invalides ou compte existant' })
   async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const { accessToken, refreshToken } = await this.authService.register(dto);
     res.cookie('refresh_token', refreshToken, REFRESH_COOKIE_OPTIONS);

@@ -174,7 +174,9 @@ ORM typé, migrations versionnées, cascades déclaratives dans le schéma (supp
 | **Refresh token** | 7 j, cookie `httpOnly`, rotation à chaque refresh |
 | **Intercepteur** | Renouvellement transparent via `useApi` |
 | **Isolation** | `ListAccessService` — accès propriétaire ou membre invité |
-| **Durcissement** | Helmet, rate limiting `/auth/*`, filtre d'exceptions global, DTOs validés |
+| **Durcissement** | Helmet, rate limiting `/auth/*`, filtre d'exceptions global, DTOs validés, refresh token hashé (SHA-256), Swagger off en prod |
+| **Anti-énumération** | Messages génériques à l'inscription et au partage de liste |
+| **XSS** | Markdown sanitizé (client + SSR), modales de confirmation sans `v-html` |
 | **CI / CodeQL** | Lint, tests e2e, analyse statique (`security-extended`) sur chaque PR |
 | **Dependabot** | Mises à jour hebdo npm (backend + frontend) et GitHub Actions |
 
