@@ -1,0 +1,93 @@
+name: Bug
+description: Comportement incorrect ou régression
+title: "[Bug] "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de décrire le problème le plus précisément possible. Pour une **faille de sécurité**, n’utilisez pas ce formulaire : voir la [politique de sécurité](https://github.com/esteban-m/open-task/security/policy).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Que s’est-il passé ?
+      placeholder: Après connexion, la liste X ne se charge plus…
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      description: Numérotez les actions (1, 2, 3…)
+      placeholder: |
+        1. Aller sur /login
+        2. Se connecter avec …
+        3. Cliquer sur …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportement observé
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Zone concernée
+      options:
+        - Frontend (Nuxt)
+        - Backend (NestJS)
+        - WebSocket / temps réel
+        - Base de données / Prisma
+        - Docker / déploiement
+        - Documentation
+        - Autre
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Commit ou version
+      description: Branche, tag, ou hash de commit si connu
+      placeholder: main @ abc1234
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environnement
+      description: OS, Node, Docker, navigateur
+      placeholder: |
+        macOS 14, Docker Compose, Node 20
+        Chrome 124
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / captures
+      description: Messages console, réponse API (sans tokens ni mots de passe)
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J’ai cherché des issues similaires déjà ouvertes
+          required: true
