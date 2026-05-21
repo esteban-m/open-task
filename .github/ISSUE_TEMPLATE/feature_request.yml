@@ -1,0 +1,65 @@
+name: Fonctionnalité
+description: Proposer une amélioration ou une nouvelle capacité
+title: "[Feature] "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Décrivez le besoin et la solution envisagée. Pour les changements larges, une discussion préalable aide à valider le périmètre.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème ou besoin
+      description: Quel cas d’usage n’est pas couvert aujourd’hui ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Comportement UX, endpoints API, événements WebSocket, etc.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: Autres approches ou compromis acceptables
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Zone concernée
+      options:
+        - Frontend (Nuxt)
+        - Backend (NestJS)
+        - WebSocket / temps réel
+        - Schéma Prisma / données
+        - DevOps / CI
+        - Documentation
+        - Autre
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: impact
+    attributes:
+      label: Impact technique (cochez si applicable)
+      options:
+        - label: Changement de schéma Prisma / migration
+        - label: Changement d’API REST (breaking)
+        - label: Nouveau ou changement d’événement WebSocket
+        - label: Changement d’auth / permissions
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J’ai vérifié que cette idée n’est pas déjà couverte par une issue ouverte
+          required: true

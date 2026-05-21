@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Politique de sécurité
+    url: https://github.com/esteban-m/open-task/security/policy
+    about: Signaler une vulnérabilité de façon privée (pas d’issue publique)
+  - name: Guide de contribution
+    url: https://github.com/esteban-m/open-task/blob/main/CONTRIBUTING.md
+    about: Setup local, conventions et workflow PR

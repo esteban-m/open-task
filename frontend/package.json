@@ -1,6 +1,7 @@
 {
   "name": "open-task-frontend",
   "version": "1.0.0",
+  "license": "CC0-1.0",
   "private": true,
   "scripts": {
     "dev": "nuxt dev",
