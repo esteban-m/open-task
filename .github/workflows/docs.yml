@@ -7,7 +7,7 @@
 # Secret requis : OPENROUTER_API_KEY (Settings → Secrets → Actions)
 # Ne jamais committer de clé API dans le dépôt.
 
-name: Documentation & GitHub Pages
+name: Docs
 
 on:
   push:
@@ -31,7 +31,7 @@ concurrency:
 
 jobs:
   generate-docs:
-    name: Générer la documentation
+    name: Build
     runs-on: ubuntu-latest
     outputs:
       has_site: ${{ steps.check-site.outputs.has_site }}
@@ -97,7 +97,7 @@ jobs:
           path: docs-site
 
   deploy-pages:
-    name: Déployer GitHub Pages
+    name: Deploy
     needs: generate-docs
     if: needs.generate-docs.outputs.has_site == 'true'
     runs-on: ubuntu-latest

@@ -6,12 +6,16 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   backend:
-    name: Backend — Lint, tests & e2e
+    name: Backend
     runs-on: ubuntu-latest
 
     services:
@@ -71,7 +75,7 @@ jobs:
         run: npm run test:e2e
 
   frontend:
-    name: Frontend — Lint
+    name: Frontend
     runs-on: ubuntu-latest
 
     steps:
