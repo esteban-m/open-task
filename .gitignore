@@ -35,9 +35,11 @@ docs-site/
 docs/_book/
 docs/.vitepress/dist/
 docs/.vitepress/cache/
+docs/.vitepress/sidebar.generated.json
 docs/node_modules/
 docs/generated/*
 !docs/generated/.gitkeep
+docs/generated/.doc-manifest.json
 
 # Prisma
 prisma/migrations/*/migration_lock.toml
