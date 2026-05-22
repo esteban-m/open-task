@@ -42,6 +42,8 @@ Sans Docker, lancez PostgreSQL localement et suivez les variables du `.env.examp
    ```
 4. Ouvrez une **pull request** vers `main` : le modèle [.github/pull_request_template.md](.github/pull_request_template.md) est pré-rempli (résumé, `Fixes #123`, checklist tests / secrets).
 
+**Ne poussez pas directement sur `main`.** Une [ruleset dépôt](.github/rulesets/protect-main.json) impose une PR (merge squash/rebase/merge), interdit le force-push et exige CodeQL — sans bypass (y compris pour `github-actions[bot]` sur cette branche).
+
 La CI (lint, unit, e2e, CodeQL) doit passer ; les revues peuvent demander des ajustements.
 
 ## Conventions de code
