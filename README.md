@@ -91,7 +91,7 @@ docker compose up --build
 | **Frontend** | Nuxt 3.21, Vue 3.5, Pinia 3, Vite 8, Tailwind CSS, socket.io-client |
 | **Backend** | NestJS 11, Prisma 5, PostgreSQL 16, Passport JWT, Socket.io |
 | **Ops** | Docker (Node 20), Docker Compose, GitHub Actions (CI, CodeQL, Docs → Pages, Codecov) |
-| **Qualité** | Jest (unit + e2e, coverage), ESLint, `nuxt typecheck` |
+| **Qualité** | Jest + Vitest (coverage Codecov), ESLint, `nuxt typecheck` |
 
 ---
 
@@ -209,37 +209,23 @@ cd frontend && npm run lint
 | `TasksService` | CRUD, accès, toggle, suppressions |
 | **e2e flux complet** | register → login → liste → tâche → toggle → delete |
 | **e2e isolation** | Utilisateur B ne accède pas aux données de A |
-| **CI** | Lint, unit (coverage → Codecov), migrations Prisma, e2e sur PostgreSQL |
+| **CI** | Lint, unit backend + frontend (coverage → Codecov), migrations Prisma, e2e sur PostgreSQL |
 
-#### Codecov (backend)
+#### Codecov
 
-<p align="center">
-  <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://codecov.io/gh/esteban-m/open-task/branch/main/graphs/sunburst-dark.svg" />
-      <img
-        src="https://codecov.io/gh/esteban-m/open-task/branch/main/graphs/sunburst.svg"
-        alt="Répartition de la couverture par dossier (sunburst Codecov)"
-        width="720"
-      />
-    </picture>
-  </a>
-</p>
+Couverture publiée par flag : **backend** (`backend/src`, tests Jest) et **frontend** (`composables`, `config`, `stores`, tests Vitest). Le graphique global agrège les deux après chaque CI.
 
-<details>
-<summary>Arborescence de couverture (tree)</summary>
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
     <img
-      src="https://codecov.io/gh/esteban-m/open-task/branch/main/graphs/tree.svg"
-      alt="Arbre de couverture par fichier (Codecov)"
+      src="https://codecov.io/gh/esteban-m/open-task/branch/main/graphs/icicle.svg"
+      alt="Couverture du dépôt — icicle Codecov (backend + frontend)"
       width="720"
     />
   </a>
 </p>
-</details>
 
-> Les graphiques Codecov se remplissent après le premier upload CI (`CODECOV_TOKEN` + job `ci.yml`). Voir aussi le [tableau de bord interactif](https://app.codecov.io/gh/esteban-m/open-task).
+> La couverture reste faible sur le backend (peu de tests unitaires hors `auth` / `tasks`). Les graphiques et le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se mettent à jour via `CODECOV_TOKEN` dans `ci.yml`.
 
 ---
 
