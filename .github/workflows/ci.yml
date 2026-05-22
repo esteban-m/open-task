@@ -91,9 +91,9 @@ jobs:
         with:
           name: coverage-backend
           retention-days: 1
+          if-no-files-found: error
           path: |
-            backend/coverage/lcov.info
-            backend/coverage/coverage-summary.json
+            backend/coverage/
             backend/coverage-e2e/lcov.info
 
   frontend:
@@ -130,9 +130,8 @@ jobs:
         with:
           name: coverage-frontend
           retention-days: 1
-          path: |
-            frontend/coverage/lcov.info
-            frontend/coverage/coverage-summary.json
+          if-no-files-found: error
+          path: frontend/coverage/
 
   scripts:
     name: Scripts · pipeline docs
@@ -160,9 +159,8 @@ jobs:
         with:
           name: coverage-scripts
           retention-days: 1
-          path: |
-            scripts/docs/coverage/lcov.info
-            scripts/docs/coverage/coverage-summary.json
+          if-no-files-found: error
+          path: scripts/docs/coverage/
 
   report:
     name: Rapports · Codecov & Wiki
@@ -174,11 +172,20 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Télécharger les rapports coverage
+      - name: Télécharger coverage backend
         uses: actions/download-artifact@v4
         with:
-          pattern: coverage-*
-          merge-multiple: true
+          name: coverage-backend
+
+      - name: Télécharger coverage frontend
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-frontend
+
+      - name: Télécharger coverage scripts
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-scripts
 
       - name: Fusionner résumé monorepo
         run: |
