@@ -1,0 +1,19 @@
+# PostgreSQL dédié aux tests (unit+e2e coverage). Ne pas confondre avec docker-compose.yml (dev).
+# Port 5433 pour éviter le conflit avec Postgres dev sur 5432.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: open-task-postgres-test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: opentask_test
+    ports:
+      - '127.0.0.1:5433:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U test -d opentask_test']
+      interval: 3s
+      timeout: 3s
+      retries: 15
+    tmpfs:
+      - /var/lib/postgresql/data

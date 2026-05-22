@@ -84,6 +84,24 @@ describe('useRealtimeSync', () => {
     expect(tasks.allTasks).toHaveLength(0)
   })
 
+  it('bind applique task:updated et list:deleted', () => {
+    const lists = useListsStore()
+    lists.lists = [mockList('l1', 'Liste')]
+    const tasks = useTasksStore()
+    const task = mockTask('t1', 'l1', 'T')
+    tasks.setAllTasks([task])
+    tasks.setTasks([task])
+
+    const { bind } = useRealtimeSync()
+    bind()
+    handlers.get('task:updated')?.({ ...task, shortDescription: 'Modifiée' })
+    expect(tasks.allTasks[0].shortDescription).toBe('Modifiée')
+
+    handlers.get('list:deleted')?.({ listId: 'l1' })
+    expect(lists.lists).toHaveLength(0)
+    expect(tasks.allTasks).toHaveLength(0)
+  })
+
   it('syncListRooms appelle joinLists', () => {
     const lists = useListsStore()
     lists.lists = [mockList('l1', 'A'), mockList('l2', 'B')]

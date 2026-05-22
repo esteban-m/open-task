@@ -186,18 +186,39 @@ Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/ap
 
 ## Tests
 
-### Commandes
+### Couverture complète (recommandé)
+
+La couverture **backend e2e** exécute de vrais flux HTTP contre **PostgreSQL** (comme en CI). Sans base, seuls les tests unitaires mockés tournent — les chiffres sont trompeurs.
 
 ```bash
-# Unit tests (backend)
+# Depuis la racine : Postgres Docker (port 5433) + migrations + unit+e2e+frontend+scripts
+npm run test:coverage
+
+# Garder le conteneur Postgres pour enchaîner plusieurs runs
+npm run test:coverage:keep-db
+```
+
+Équivalent manuel :
+
+```bash
+docker compose -f docker-compose.test.yml -p opentask-test up -d --wait
+export DATABASE_URL=postgresql://test:test@127.0.0.1:5433/opentask_test
+cd backend && npx prisma migrate deploy && npm run test:coverage:ci
+```
+
+> **Dev local** : `docker-compose.yml` utilise Postgres sur le port **5432**. Les tests utilisent **`docker-compose.test.yml`** sur le port **5433** pour éviter le conflit.
+
+### Autres commandes
+
+```bash
+# Unit tests backend seuls (sans Postgres)
 cd backend && npm test
 
-# e2e (PostgreSQL requis)
-cd backend
-DATABASE_URL=postgresql://user:pass@localhost:5432/opentask_test npm run test:e2e
+# e2e seuls (PostgreSQL requis — voir DATABASE_URL ci-dessus)
+cd backend && npm run test:e2e
 
-# Coverage complète backend (unit + e2e, PostgreSQL requis pour e2e)
-cd backend && npm run test:coverage:ci
+# Coverage backend sans e2e (mocks uniquement, incomplet)
+cd backend && npm run test:coverage:unit-only
 
 # Tests frontend (Vitest + Nuxt test utils)
 cd frontend && npm test

@@ -1,17 +1,18 @@
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import {
-  DEFAULT_SEE_ALSO,
   applyLinkRewrites,
+  buildDocTitleMaps,
   extractInternalDocPath,
   fixLinksInDir,
   normalizeMarkdownLink,
   normalizeRelativeHref,
   repairVoirAussiSection,
 } from '../src/services/links.mjs'
+import { loadConfig, resetConfigCache } from '../src/core/config.mjs'
 
 describe('links', () => {
   const validLinks = new Set([
@@ -21,8 +22,18 @@ describe('links', () => {
     '/reference/environment',
     '/generated/frontend/state-management',
     '/generated/backend/authentication',
+    '/generated/backend/security',
   ]);
   const rewrites = { '/generated/authentication': '/generated/backend/authentication' };
+  let docMaps;
+  let defaultSeeAlso;
+
+  beforeAll(async () => {
+    resetConfigCache();
+    const config = await loadConfig();
+    docMaps = buildDocTitleMaps(config);
+    defaultSeeAlso = config.defaultSeeAlso;
+  });
 
   describe('extractInternalDocPath', () => {
     it('returns null for anchors, mailto and empty', () => {
@@ -102,18 +113,47 @@ describe('links', () => {
 - [Architecture système](https://example.com/generated/architecture)
 - [API Reference](https://github.com/ahmedkhaleel2004/gitdiagram)
 `;
-      const out = repairVoirAussiSection(input, validLinks, rewrites);
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
       expect(out).toContain('[Architecture système](/generated/architecture)');
       expect(out).not.toContain('example.com');
       expect(out).not.toContain('gitdiagram');
     });
 
-    it('injects DEFAULT_SEE_ALSO when section has no valid links', () => {
+    it('turns bare paths into clickable links', () => {
+      const input = `## Voir aussi
+/generated/backend/authentication
+/generated/backend/security
+/generated/api-reference
+/guide/getting-started
+`;
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
+      expect(out).toContain('[Authentification](/generated/backend/authentication)');
+      expect(out).toContain('[Sécurité transverse](/generated/backend/security)');
+      expect(out).toContain('[API REST](/generated/api-reference)');
+      expect(out).not.toMatch(/^\/generated/m);
+    });
+
+    it('turns plain labels into clickable links and deduplicates', () => {
+      const input = `## Voir aussi
+- Architecture système
+- API Reference
+- Getting Started
+- [Architecture système](/generated/architecture)
+- [API REST](/generated/api-reference)
+`;
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
+      const archCount = (out.match(/\/generated\/architecture/g) ?? []).length;
+      expect(archCount).toBe(1);
+      expect(out).toContain('[Architecture système](/generated/architecture)');
+      expect(out).toContain('[Démarrage rapide](/guide/getting-started)');
+    });
+
+    it('injects defaultSeeAlso from config when section has no valid links', () => {
       const input = `## Voir aussi
 - Broken only
 `;
-      const out = repairVoirAussiSection(input, validLinks, rewrites);
-      for (const { label, href } of DEFAULT_SEE_ALSO) {
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
+      for (const { label, href } of defaultSeeAlso) {
         if (validLinks.has(href)) {
           expect(out).toContain(`[${label}](${href})`);
         }
@@ -128,7 +168,7 @@ Note intro
 
 ## Suite
 `;
-      const out = repairVoirAussiSection(input, validLinks, rewrites);
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
       expect(out).toContain('Note intro');
       expect(out).toContain('[API REST](/generated/api-reference)');
       expect(out).toContain('## Suite');

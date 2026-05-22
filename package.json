@@ -1,0 +1,9 @@
+{
+  "name": "open-task",
+  "private": true,
+  "description": "Monorepo Open-Task — scripts racine",
+  "scripts": {
+    "test:coverage": "bash scripts/coverage-with-db.sh",
+    "test:coverage:keep-db": "bash scripts/coverage-with-db.sh --keep-db"
+  }
+}
