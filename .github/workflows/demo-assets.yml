@@ -99,17 +99,17 @@ jobs:
             assets/demo/mobile/
             assets/demo/INDEX.md
 
-      - name: Auto-merge de la PR GIF
+      - name: Fusionner la PR GIF après CodeQL
         if: steps.publish-pr.outputs.pull-request-number != ''
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           PR="${{ steps.publish-pr.outputs.pull-request-number }}"
-          if gh pr merge "$PR" --squash --auto 2>/dev/null; then
-            echo "PR #$PR : auto-merge activé (après CodeQL)."
-          else
-            echo "::notice::Activer l'auto-merge du dépôt ou merger manuellement la PR #$PR (CodeQL doit passer)."
-          fi
+          echo "Attente des checks sur PR #$PR…"
+          gh pr checks "$PR" --watch --fail-fast --interval 20
+          gh pr merge "$PR" --squash
+          echo "PR #$PR fusionnée sur main (GIF dans assets/demo/)."
 
       - name: Artefact GIF (téléchargement)
         if: always()
