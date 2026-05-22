@@ -56,8 +56,10 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          # PR : SHA de la branche. main : branche (pas github.sha → detached HEAD → git push impossible).
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v6
         with:
@@ -75,32 +77,19 @@ jobs:
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker
 
       - name: Commit assets/demo sur main
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main
           git add assets/demo/
           if git diff --staged --quiet; then
             echo "GIF déjà à jour."
             exit 0
           fi
           git commit -m "assets: démos Playwright (desktop + mobile GIF)"
-          git push
-
-      - name: Commit assets/demo (workflow_dispatch)
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/demo/
-          if git diff --staged --quiet; then
-            echo "GIF déjà à jour."
-            exit 0
-          fi
-          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
-          git push
+          git push origin main
 
       - name: Artefact GIF (téléchargement)
         if: always()
