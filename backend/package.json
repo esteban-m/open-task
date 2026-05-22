@@ -11,8 +11,10 @@
     "lint": "eslint \"src/**/*.ts\"",
     "test": "jest",
     "test:coverage": "jest --coverage --passWithNoTests",
+    "test:coverage:ci": "npm run test:coverage && npm run test:e2e:coverage",
     "test:watch": "jest --watch",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:e2e:coverage": "jest --config ./test/jest-e2e.json --coverage",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy"
   },
@@ -83,7 +85,15 @@
     },
     "collectCoverageFrom": [
       "**/*.service.ts",
-      "!**/prisma/prisma.service.ts"
+      "!**/prisma/prisma.service.ts",
+      "**/*.controller.ts",
+      "**/common/guards/**/*.ts",
+      "**/common/pipes/**/*.ts",
+      "**/common/filters/**/*.ts",
+      "**/auth/refresh-token-hash.ts",
+      "!**/*.gateway.ts",
+      "!**/main.ts",
+      "!**/app.module.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageProvider": "v8",

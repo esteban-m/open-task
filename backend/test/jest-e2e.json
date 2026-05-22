@@ -5,5 +5,19 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "collectCoverage": true,
+  "collectCoverageFrom": [
+    "../src/**/*.service.ts",
+    "!../src/prisma/prisma.service.ts",
+    "../src/**/*.controller.ts",
+    "!../src/**/*.gateway.ts",
+    "!../src/main.ts",
+    "!../src/app.module.ts",
+    "!../src/**/*.module.ts",
+    "!../src/**/dto/**"
+  ],
+  "coverageDirectory": "../coverage-e2e",
+  "coverageProvider": "v8",
+  "coverageReporters": ["text", "lcov"]
 }

@@ -196,6 +196,13 @@ cd backend && npm test
 cd backend
 DATABASE_URL=postgresql://user:pass@localhost:5432/opentask_test npm run test:e2e
 
+# Coverage complète backend (unit + e2e, PostgreSQL requis pour e2e)
+cd backend && npm run test:coverage:ci
+
+# Tests frontend (Vitest + Nuxt test utils)
+cd frontend && npm test
+cd frontend && npm run test:coverage
+
 # Lint
 cd backend && npm run lint
 cd frontend && npm run lint
@@ -209,6 +216,8 @@ cd frontend && npm run lint
 | `TasksService` | CRUD, accès, toggle, suppressions |
 | `ListsService` | findAll, create, conflit de nom |
 | `ListAccessService` | rôles, accès owner / interdit |
+| **Controllers / pipes** | auth, lists, health, validation couleur, filtre HTTP |
+| **Composables / utils** | thème, dates, markdown, toast, erreurs API (Vitest + Nuxt) |
 | **Stores Pinia** | auth, lists, tasks (Vitest) |
 | **e2e flux complet** | register → login → liste → tâche → toggle → delete |
 | **e2e isolation** | Utilisateur B ne accède pas aux données de A |
@@ -218,10 +227,8 @@ cd frontend && npm run lint
 
 | Flag | Périmètre mesuré | Tests |
 |------|------------------|-------|
-| **backend** | `*.service.ts` (logique métier, hors controllers/gateways/DTO) | Jest unitaires |
-| **frontend** | Fichiers importés par les tests (`stores`, `config`, `composables` ciblés) | Vitest |
-
-Les e2e backend (Supertest) ne sont pas inclus dans le rapport Codecov — seulement les tests unitaires CI.
+| **backend** | Services, controllers, guards, pipes, filtres (+ e2e Supertest fusionné) | Jest unit + e2e |
+| **frontend** | Composables, stores, utils, composants Vue, middleware | Vitest + `@nuxt/test-utils` (env `nuxt`) |
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
@@ -233,7 +240,7 @@ Les e2e backend (Supertest) ne sont pas inclus dans le rapport Codecov — seule
   </a>
 </p>
 
-> Objectif : un score **représentatif** (services / stores testés), pas un pourcentage gonflé par des fichiers non testés. Le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se met à jour via `CODECOV_TOKEN` dans `ci.yml`.
+> Le score Codecov agrège **unit + e2e** côté NestJS et l’environnement Nuxt officiel côté Vitest. Le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se met à jour via `CODECOV_TOKEN` dans `ci.yml`.
 
 ---
 

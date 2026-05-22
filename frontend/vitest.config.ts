@@ -1,16 +1,38 @@
-import { defineConfig } from 'vitest/config'
+import { defineVitestConfig } from '@nuxt/test-utils/config'
 
-export default defineConfig({
+export default defineVitestConfig({
   test: {
-    environment: 'node',
+    environment: 'nuxt',
     include: ['tests/**/*.test.ts'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'lcov'],
-      reportsDirectory: './coverage',
-      include: ['composables/**/*.ts', 'config/**/*.ts', 'stores/**/*.ts'],
-      // Ne compte que les fichiers réellement importés par les tests (évite 0 % artificiel).
-      all: false,
+    environmentOptions: {
+      nuxt: {
+        mock: {
+          intersectionObserver: true,
+          matchMedia: true,
+        },
+      },
     },
+  },
+  coverage: {
+    provider: 'v8',
+    reporter: ['text', 'lcov'],
+    reportsDirectory: './coverage',
+    include: [
+      'components/**/*.vue',
+      'composables/**/*.ts',
+      'config/**/*.ts',
+      'stores/**/*.ts',
+      'utils/**/*.ts',
+      'middleware/**/*.ts',
+    ],
+    exclude: [
+      '**/*.d.ts',
+      'tests/**',
+      '.nuxt/**',
+      '.output/**',
+      'pages/**',
+      'plugins/**',
+    ],
+    all: true,
   },
 })

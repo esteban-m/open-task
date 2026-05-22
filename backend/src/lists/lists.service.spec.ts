@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, ForbiddenException } from '@nestjs/common';
 import { ListsService } from './lists.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ListAccessService } from '../common/list-access/list-access.service';
@@ -9,6 +9,7 @@ const mockPrismaService = {
     findMany: jest.fn(),
     findFirst: jest.fn(),
     create: jest.fn(),
+    delete: jest.fn(),
   },
   userList: {
     findMany: jest.fn(),
@@ -17,6 +18,7 @@ const mockPrismaService = {
 
 const mockListAccessService = {
   requireAccess: jest.fn(),
+  getAccess: jest.fn(),
 };
 
 describe('ListsService', () => {
@@ -85,6 +87,29 @@ describe('ListsService', () => {
       await expect(service.create({ name: 'Projets' }, 'user-1')).rejects.toThrow(
         ConflictException,
       );
+    });
+  });
+
+  describe('remove', () => {
+    it('allows owner to delete list', async () => {
+      mockListAccessService.getAccess.mockResolvedValue({
+        list: { id: 'list-1', userId: 'user-1' },
+        role: 'owner',
+      });
+      mockPrismaService.taskList.delete.mockResolvedValue({ id: 'list-1' });
+
+      const result = await service.remove('list-1', 'user-1');
+
+      expect(result).toEqual({ message: 'Liste supprimée' });
+    });
+
+    it('forbids non-owner delete', async () => {
+      mockListAccessService.getAccess.mockResolvedValue({
+        list: { id: 'list-1', userId: 'other' },
+        role: 'editor',
+      });
+
+      await expect(service.remove('list-1', 'user-1')).rejects.toThrow(ForbiddenException);
     });
   });
 });

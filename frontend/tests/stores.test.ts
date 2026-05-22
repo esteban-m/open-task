@@ -74,5 +74,35 @@ describe('Pinia stores', () => {
       expect(store.tasks).toHaveLength(0)
       expect(store.allTasks).toHaveLength(0)
     })
+
+    it('addTask pushes to active list tasks', () => {
+      const lists = useListsStore()
+      lists.setLists([
+        {
+          id: 'l1',
+          name: 'Todo',
+          userId: 'u1',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ])
+      lists.selectList('l1')
+
+      const store = useTasksStore()
+      store.addTask({
+        id: 't2',
+        shortDescription: 'Nouvelle',
+        longDescription: null,
+        dueDate: '2026-06-01',
+        completed: false,
+        completedAt: null,
+        listId: 'l1',
+        createdAt: '',
+        updatedAt: '',
+      })
+
+      expect(store.tasks).toHaveLength(1)
+      expect(store.allTasks).toHaveLength(1)
+    })
   })
 })
