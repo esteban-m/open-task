@@ -176,16 +176,32 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: coverage-backend
+          path: _cov/backend
 
       - name: Télécharger coverage frontend
         uses: actions/download-artifact@v4
         with:
           name: coverage-frontend
+          path: _cov/frontend
 
       - name: Télécharger coverage scripts
         uses: actions/download-artifact@v4
         with:
           name: coverage-scripts
+          path: _cov/scripts
+
+      # Artefacts isolés dans _cov/* pour éviter que plusieurs dossiers « coverage/ » s’écrasent à la racine.
+      - name: Restaurer l’arborescence coverage
+        run: |
+          set -euo pipefail
+          [ -d _cov/backend/backend ] && cp -a _cov/backend/backend/. backend/
+          [ -d _cov/frontend/frontend ] && cp -a _cov/frontend/frontend/. frontend/
+          [ -d _cov/scripts/scripts ] && mkdir -p scripts && cp -a _cov/scripts/scripts/. scripts/
+          test -f backend/coverage/coverage-summary.json
+          test -f frontend/coverage/coverage-summary.json
+          test -f scripts/docs/coverage/coverage-summary.json
+          test -f backend/coverage/lcov.info
+          test -f backend/coverage-e2e/lcov.info
 
       - name: Fusionner résumé monorepo
         run: |
