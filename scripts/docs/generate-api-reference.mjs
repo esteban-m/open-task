@@ -21,20 +21,36 @@ async function walk(dir) {
   return files;
 }
 
+/** Parse ligne par ligne — évite ReDoS (CodeQL) sur regex globale. */
 function parseController(content, file) {
   const ctrl = content.match(/@Controller\(['"`]([^'"`]*)['"`]\)/);
   const prefix = ctrl?.[1] ?? '';
   const routes = [];
-  const re =
-    /@(Get|Post|Put|Patch|Delete)\(['"`]?([^'"`)\s]*)?['"`]?\)\s*\n\s*(?:@\w+\([^)]*\)\s*\n\s*)*async\s+(\w+)/g;
-  let m;
-  while ((m = re.exec(content)) !== null) {
-    const method = m[1].toUpperCase();
-    const sub = m[2] ?? '';
-    const handler = m[3];
+  const lines = content.split('\n');
+
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    const routeMatch = line.match(
+      /@(Get|Post|Put|Patch|Delete)\(\s*['"`]?([^'"`)\s]*)?['"`]?\s*\)/,
+    );
+    if (!routeMatch) continue;
+
+    let handler = null;
+    for (let j = i + 1; j < Math.min(i + 8, lines.length); j += 1) {
+      const asyncMatch = lines[j].match(/\basync\s+(\w+)\s*\(/);
+      if (asyncMatch) {
+        handler = asyncMatch[1];
+        break;
+      }
+    }
+    if (!handler) continue;
+
+    const method = routeMatch[1].toUpperCase();
+    const sub = routeMatch[2] ?? '';
     const fullPath = `/${[prefix, sub].filter(Boolean).join('/').replace(/\/+/g, '/')}`;
     routes.push({ method, path: fullPath || '/', handler });
   }
+
   return { file: path.relative(REPO_ROOT, file), prefix, routes };
 }
 

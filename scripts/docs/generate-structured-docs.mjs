@@ -4,6 +4,7 @@
  * Remplace l'ancienne génération fichier par fichier.
  */
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { writeGeneratedDoc } from './lib/safe-write.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 

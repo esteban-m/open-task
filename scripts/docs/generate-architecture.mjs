@@ -3,7 +3,8 @@
  * Diagramme d'architecture principal — inspiré de GitDiagram
  * @see https://github.com/ahmedkhaleel2004/gitdiagram
  */
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir } from 'node:fs/promises';
+import { writeGeneratedDoc } from './lib/safe-write.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -93,8 +94,8 @@ ${mermaid}
 \`\`\`
 `;
 
-  await writeFile(path.join(OUT_DIR, 'architecture.md'), md, 'utf8');
-  await writeFile(path.join(OUT_DIR, 'architecture.mmd'), mermaid, 'utf8');
+  await writeGeneratedDoc(path.join(OUT_DIR, 'architecture.md'), md);
+  await writeGeneratedDoc(path.join(OUT_DIR, 'architecture.mmd'), mermaid);
   console.log('[gitdiagram] Écrit docs/generated/architecture.md');
 }
 
