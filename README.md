@@ -17,7 +17,7 @@
 | **Backend** | [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/) |
 | **Frontend** | [![Nuxt](https://img.shields.io/badge/Nuxt-3.21-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/) [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/) [![Pinia](https://img.shields.io/badge/Pinia-3-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/) [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/) |
 
-[Démarrage rapide](#démarrage-rapide) · [Documentation](https://esteban-m.github.io/open-task/) · [Fonctionnalités](#fonctionnalités) · [Architecture](#architecture) · [Sécurité](#sécurité) · [Tests](#tests) · [Contribuer](#contribuer)
+[Démarrage rapide](#démarrage-rapide) · [Guide d’utilisation](docs/USAGE.md) · [Documentation](https://esteban-m.github.io/open-task/) · [Fonctionnalités](#fonctionnalités) · [Architecture](#architecture) · [Sécurité](#sécurité) · [Tests](#tests) · [Contribuer](#contribuer)
 
 </div>
 
@@ -26,6 +26,7 @@
 ## Sommaire
 
 - [Démarrage rapide](#démarrage-rapide)
+- [Guide d’utilisation (GIF)](#guide-dutilisation-gif)
 - [Documentation](#documentation-github-pages)
 - [Fonctionnalités](#fonctionnalités)
 - [Stack technique](#stack-technique)
@@ -58,6 +59,22 @@ docker compose up --build
 | Swagger | http://localhost:4000/api |
 
 > En production : définir `COOKIE_SECURE=true` et remplacer les secrets `changeme_*` du fichier `.env.example`.
+
+---
+
+## Guide d’utilisation (GIF)
+
+Parcours illustrés **desktop et mobile**, enregistrés par Playwright en CI et convertis en GIF (`assets/demo/`).
+
+Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues Kanban/Calendrier, connexion, navigation mobile).
+
+<p align="center">
+  <img src="assets/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />
+  <br />
+  <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour automatiquement sur <code>main</code></sub>
+</p>
+
+> Tant que le workflow **Demo assets** n’a pas tourné sur `main`, les GIF peuvent être absents en clone frais — lancer `npm run test:e2e:demo` en local (avec ffmpeg).
 
 ---
 

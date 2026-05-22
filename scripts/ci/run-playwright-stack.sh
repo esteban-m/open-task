@@ -84,6 +84,15 @@ npx wait-on -t 120000 \
 
 log "Playwright"
 npx playwright install chromium
-npm test
+
+if [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
+  export PLAYWRIGHT_DEMO=1
+  npm test -- --project=demo-desktop --project=demo-mobile
+  log "Conversion vidéos → GIF (assets/demo)"
+  cd "${ROOT}"
+  node scripts/ci/playwright-videos-to-gifs.mjs "${ROOT}/e2e/test-results" "${ROOT}/assets/demo"
+else
+  npm test -- --project=smoke-desktop
+fi
 
 log "Terminé."

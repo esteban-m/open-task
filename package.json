@@ -6,6 +6,8 @@
     "test:coverage": "bash scripts/coverage-with-db.sh",
     "test:coverage:keep-db": "bash scripts/coverage-with-db.sh --keep-db",
     "test:e2e:playwright": "bash scripts/ci/run-playwright-stack.sh",
-    "test:e2e:playwright:ci": "bash scripts/ci/run-playwright-stack.sh --skip-docker"
+    "test:e2e:playwright:ci": "bash scripts/ci/run-playwright-stack.sh --skip-docker",
+    "test:e2e:demo": "PLAYWRIGHT_DEMO=1 bash scripts/ci/run-playwright-stack.sh",
+    "test:e2e:demo:ci": "PLAYWRIGHT_DEMO=1 bash scripts/ci/run-playwright-stack.sh --skip-docker"
   }
 }

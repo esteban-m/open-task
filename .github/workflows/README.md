@@ -4,6 +4,7 @@
 |----------|-------------|------|
 | [**CI**](ci.yml) | PR + push `main` / `develop` | Lint, tests, coverage, Codecov, wiki (main) |
 | [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Génération doc IA + VitePress → GitHub Pages |
+| [**Demo assets**](demo-assets.yml) | Push `main`, `workflow_dispatch` | Playwright desktop/mobile → GIF dans `assets/demo/` |
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
 
 ## CI (`ci.yml`)
@@ -23,7 +24,16 @@ e2e-playwright ───► Playwright (backend build + preview Nuxt + navigateu
 
 Backend e2e (Jest) : `test/app-*.e2e-spec.ts` — auth (refresh, logout, `/me`), API (update, partage, révocation), flux existants. Garde-fou : `scripts/ci/assert-e2e-coverage.mjs` (≥ 55 % lignes e2e).
 
-Local : `npm run test:e2e:playwright` (Docker Postgres 5433) ou `npm run test:e2e:playwright:ci` si Postgres déjà prêt.
+Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, ffmpeg requis).
+
+## Demo assets (`demo-assets.yml`)
+
+1. Même stack que Playwright (Postgres + backend + Nuxt preview).
+2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile** (vidéo `on`).
+3. `ffmpeg` → GIF dans `assets/demo/{desktop,mobile}/`.
+4. Commit automatique sur `main` si les fichiers changent.
+
+Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 
 ## Docs (`docs.yml`)
 
