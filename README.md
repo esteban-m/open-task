@@ -250,7 +250,12 @@ cd frontend && npm run lint
 
 #### Wiki GitHub — couverture
 
-Sur chaque push sur `main`, le workflow [`.github/workflows/wiki-coverage.yml`](.github/workflows/wiki-coverage.yml) exécute les suites avec `json-summary`, fusionne les rapports (`scripts/ci/merge-coverage-summaries.mjs`), formate des tableaux via [Coverage Summary Markdown](https://github.com/marketplace/actions/coverage-summary-markdown), puis publie la page **[Couverture des tests](https://github.com/esteban-m/open-task/wiki/Couverture-des-tests)** sur le **wiki GitHub** (dépôt `open-task.wiki`, pas GitHub Pages).
+Sur chaque push sur `main`, le workflow [`.github/workflows/wiki-coverage.yml`](.github/workflows/wiki-coverage.yml) exécute les suites avec `json-summary`, fusionne les rapports (`scripts/ci/merge-coverage-summaries.mjs`), formate synthèse + badges via [Coverage Summary Markdown](https://github.com/marketplace/actions/coverage-summary-markdown), ajoute un tableau par fichier (`scripts/ci/build-wiki-coverage-pages.mjs`), puis publie **4 pages** sur le **wiki GitHub** (dépôt `open-task.wiki`, pas GitHub Pages) :
+
+- [Couverture des tests](https://github.com/esteban-m/open-task/wiki/Couverture-des-tests) (index monorepo)
+- [Couverture Backend](https://github.com/esteban-m/open-task/wiki/Couverture-Backend)
+- [Couverture Frontend](https://github.com/esteban-m/open-task/wiki/Couverture-Frontend)
+- [Couverture Scripts](https://github.com/esteban-m/open-task/wiki/Couverture-Scripts)
 
 ---
 

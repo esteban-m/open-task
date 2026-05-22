@@ -40,11 +40,13 @@ jobs:
       FRONTEND_URL: http://localhost:3000
 
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea3d9b9e9a8796a8494a # v4.2.2
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '20'
           cache: npm
           cache-dependency-path: |
             backend/package-lock.json
@@ -100,9 +102,10 @@ jobs:
             frontend/coverage/coverage-summary.json \
             scripts/docs/coverage/coverage-summary.json
 
+      # L’action ne produit qu’un tableau + badge à partir de jsonData.total.lines
       - name: Coverage markdown (global)
         id: cov_global
-        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: coverage-summary.wiki.json
           warning_threshold: 65
@@ -110,7 +113,7 @@ jobs:
 
       - name: Coverage markdown (backend)
         id: cov_backend
-        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: backend/coverage/coverage-summary.json
           warning_threshold: 65
@@ -118,7 +121,7 @@ jobs:
 
       - name: Coverage markdown (frontend)
         id: cov_frontend
-        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: frontend/coverage/coverage-summary.json
           warning_threshold: 65
@@ -126,31 +129,44 @@ jobs:
 
       - name: Coverage markdown (scripts)
         id: cov_scripts
-        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: scripts/docs/coverage/coverage-summary.json
           warning_threshold: 40
           good_threshold: 55
 
-      - name: Build wiki page
+      - name: Persist action markdown outputs
         env:
-          COV_GLOBAL: ${{ steps.cov_global.outputs.lines }}
-          COV_BACKEND: ${{ steps.cov_backend.outputs.lines }}
-          COV_FRONTEND: ${{ steps.cov_frontend.outputs.lines }}
-          COV_SCRIPTS: ${{ steps.cov_scripts.outputs.lines }}
+          GLOBAL_LINES: ${{ steps.cov_global.outputs.lines }}
+          GLOBAL_BADGE: ${{ steps.cov_global.outputs.lines_badge }}
+          BACKEND_LINES: ${{ steps.cov_backend.outputs.lines }}
+          BACKEND_BADGE: ${{ steps.cov_backend.outputs.lines_badge }}
+          FRONTEND_LINES: ${{ steps.cov_frontend.outputs.lines }}
+          FRONTEND_BADGE: ${{ steps.cov_frontend.outputs.lines_badge }}
+          SCRIPTS_LINES: ${{ steps.cov_scripts.outputs.lines }}
+          SCRIPTS_BADGE: ${{ steps.cov_scripts.outputs.lines_badge }}
         run: |
-          printf '%s\n' "$COV_GLOBAL" > /tmp/cov-global.md
-          printf '%s\n' "$COV_BACKEND" > /tmp/cov-backend.md
-          printf '%s\n' "$COV_FRONTEND" > /tmp/cov-frontend.md
-          printf '%s\n' "$COV_SCRIPTS" > /tmp/cov-scripts.md
-          node scripts/ci/build-wiki-coverage-page.mjs \
-            --global /tmp/cov-global.md \
-            --backend /tmp/cov-backend.md \
-            --frontend /tmp/cov-frontend.md \
-            --scripts /tmp/cov-scripts.md \
+          mkdir -p wiki-fragments
+          printf '%s\n' "$GLOBAL_LINES" > wiki-fragments/global-lines.md
+          printf '%s\n' "$GLOBAL_BADGE" > wiki-fragments/global-badge.md
+          printf '%s\n' "$BACKEND_LINES" > wiki-fragments/backend-lines.md
+          printf '%s\n' "$BACKEND_BADGE" > wiki-fragments/backend-badge.md
+          printf '%s\n' "$FRONTEND_LINES" > wiki-fragments/frontend-lines.md
+          printf '%s\n' "$FRONTEND_BADGE" > wiki-fragments/frontend-badge.md
+          printf '%s\n' "$SCRIPTS_LINES" > wiki-fragments/scripts-lines.md
+          printf '%s\n' "$SCRIPTS_BADGE" > wiki-fragments/scripts-badge.md
+
+      - name: Build wiki markdown pages
+        run: |
+          node scripts/ci/build-wiki-coverage-pages.mjs \
+            --out-dir wiki-out \
             --sha "${{ github.sha }}" \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            -o Couverture-des-tests.md
+            --repo-root "${{ github.workspace }}" \
+            --package "Couverture-des-tests:Vue d'ensemble (monorepo):coverage-summary.wiki.json:wiki-fragments/global-lines.md:wiki-fragments/global-badge.md" \
+            --package "Couverture-Backend:Backend (NestJS):backend/coverage/coverage-summary.json:wiki-fragments/backend-lines.md:wiki-fragments/backend-badge.md" \
+            --package "Couverture-Frontend:Frontend (Nuxt / Vitest):frontend/coverage/coverage-summary.json:wiki-fragments/frontend-lines.md:wiki-fragments/frontend-badge.md" \
+            --package "Couverture-Scripts:Scripts (pipeline docs):scripts/docs/coverage/coverage-summary.json:wiki-fragments/scripts-lines.md:wiki-fragments/scripts-badge.md"
 
       - name: Push to GitHub Wiki
         env:
@@ -159,11 +175,14 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           WIKI_URL="https://x-access-token:${WIKI_TOKEN}@github.com/${{ github.repository }}.wiki.git"
-          git clone --depth 1 "$WIKI_URL" wiki-repo
-          cp Couverture-des-tests.md wiki-repo/
+          git clone --depth 1 "$WIKI_URL" wiki-repo || {
+            echo "::warning::Clone wiki échoué — crée une page initiale sur le wiki du dépôt puis relance."
+            exit 1
+          }
+          cp wiki-out/*.md wiki-repo/
           cd wiki-repo
           if git status --porcelain | grep -q .; then
-            git add Couverture-des-tests.md
+            git add Couverture-des-tests.md Couverture-Backend.md Couverture-Frontend.md Couverture-Scripts.md
             git commit -m "ci: mise à jour couverture (${GITHUB_SHA:0:7})"
             git push
           else
