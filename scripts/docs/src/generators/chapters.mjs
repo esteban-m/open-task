@@ -5,6 +5,7 @@ import { bundleSources } from '../services/sources.mjs';
 import { injectDiagram } from '../services/diagrams.mjs';
 import { chatCompletion } from '../services/openrouter.mjs';
 import { buildAllowedLinksForPrompt } from '../services/navigation.mjs';
+import { writeGeneratedDoc } from '../services/writer.mjs';
 
 function interpolate(template, vars) {
   return template.replace(/\{(\w+)\}/g, (_, key) => vars[key] ?? `{${key}}`);
@@ -89,7 +90,8 @@ ${body}
       });
     }
 
-    await writeFile(outPath, md, 'utf8');
+    // codeql[js/http-to-file-access]: chapter markdown sanitized in writeGeneratedDoc
+    await writeGeneratedDoc(outPath, md, { baseDir: paths.generatedDir });
     manifest.push({
       category: chapter.category,
       path: chapter.path,

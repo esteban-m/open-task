@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 
 import { buildLocalFileTree, fetchGithubTree, readReadme } from '../services/github.mjs';
+import { parseGithubRepository, sanitizeApiText } from '../services/sanitize.mjs';
 import {
   chatCompletion,
   extractMermaidBlock,
@@ -18,7 +19,9 @@ export async function generateArchitecture(config, paths, env) {
   if (!apiKey) throw new Error('OPENROUTER_API_KEY manquant');
 
   const model = env.OPENROUTER_MODEL ?? config.openrouter.defaultModel;
-  const [owner, repo] = (env.GITHUB_REPOSITORY ?? config.project.repository).split('/');
+  const { owner, repo } = parseGithubRepository(
+    env.GITHUB_REPOSITORY ?? config.project.repository,
+  );
 
   let fileTree;
   let readme;
@@ -37,7 +40,7 @@ export async function generateArchitecture(config, paths, env) {
     readme = await readReadme(paths.repoRoot);
   }
 
-  const context = `Repository: ${owner}/${repo}\n\n## File tree\n\`\`\`\n${fileTree}\n\`\`\`\n\n## README\n${readme.slice(0, 12000)}`;
+  const context = `Repository: ${owner}/${repo}\n\n## File tree\n\`\`\`\n${sanitizeApiText(fileTree)}\n\`\`\`\n\n## README\n${sanitizeApiText(readme).slice(0, 12000)}`;
   const vars = {
     projectName: config.project.name,
     stack: config.project.description,
@@ -89,7 +92,11 @@ ${mermaid}
 \`\`\`
 `;
 
-  await writeGeneratedDoc(paths.generatedFile('architecture.md'), md);
-  await writeGeneratedDoc(paths.generatedFile('architecture.mmd'), mermaid);
+  await writeGeneratedDoc(paths.generatedFile('architecture.md'), md, {
+    baseDir: paths.generatedDir,
+  });
+  await writeGeneratedDoc(paths.generatedFile('architecture.mmd'), mermaid, {
+    baseDir: paths.generatedDir,
+  });
   console.log('[architecture] docs/generated/architecture.md');
 }

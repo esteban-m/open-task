@@ -1,6 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import { assertGithubBranch, parseGithubRepository, sanitizeApiText } from './sanitize.mjs';
+
 const SKIP_DIRS = new Set([
   'node_modules',
   '.git',
@@ -66,19 +68,22 @@ export async function readReadme(repoRoot) {
 }
 
 export async function fetchGithubTree({ owner, repo, token, maxFiles = 400 }) {
+  const { owner: safeOwner, repo: safeRepo } = parseGithubRepository(`${owner}/${repo}`);
+
   const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const repoRes = await fetch(`https://api.github.com/repos/${owner}/${repo}`, { headers });
+  // codeql[js/file-access-to-http]: owner/repo validated; no local file data in URL
+  const repoRes = await fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}`, { headers });
   if (!repoRes.ok) throw new Error(`GitHub repo: ${repoRes.status}`);
   const meta = await repoRes.json();
 
-  const branch = meta.default_branch ?? 'main';
+  const branch = assertGithubBranch(meta.default_branch ?? 'main');
   const treeRes = await fetch(
-    `https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`,
+    `https://api.github.com/repos/${safeOwner}/${safeRepo}/git/trees/${branch}?recursive=1`,
     { headers },
   );
   if (!treeRes.ok) throw new Error(`GitHub tree: ${treeRes.status}`);
@@ -93,13 +98,14 @@ export async function fetchGithubTree({ owner, repo, token, maxFiles = 400 }) {
 
   let readme = '';
   try {
+    // codeql[js/file-access-to-http]: readme endpoint uses validated slugs only
     const readmeRes = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/readme`,
+      `https://api.github.com/repos/${safeOwner}/${safeRepo}/readme`,
       { headers },
     );
     if (readmeRes.ok) {
       const data = await readmeRes.json();
-      readme = Buffer.from(data.content ?? '', 'base64').toString('utf8');
+      readme = sanitizeApiText(Buffer.from(data.content ?? '', 'base64').toString('utf8'));
     }
   } catch {
     /* optional */

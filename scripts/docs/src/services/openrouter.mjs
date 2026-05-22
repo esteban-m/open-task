@@ -1,3 +1,5 @@
+import { sanitizeApiText } from './sanitize.mjs';
+
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function chatCompletion({
@@ -10,9 +12,15 @@ export async function chatCompletion({
   referer,
   appName,
 }) {
-  const body = { model, messages, max_tokens: maxTokens, temperature };
+  const safeMessages = messages.map((m) => ({
+    role: m.role,
+    content: sanitizeApiText(m.content),
+  }));
+
+  const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature };
   if (responseFormat) body.response_format = responseFormat;
 
+  // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before OpenRouter
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {

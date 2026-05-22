@@ -6,5 +6,8 @@
   "scripts": {
     "generate": "node cli.mjs generate",
     "assemble": "node cli.mjs assemble"
+  },
+  "dependencies": {
+    "isomorphic-dompurify": "^2.30.0"
   }
 }

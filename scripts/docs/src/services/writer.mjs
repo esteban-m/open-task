@@ -1,12 +1,10 @@
 import { writeFile } from 'node:fs/promises';
 
-export function sanitizeGeneratedMarkdown(text) {
-  return text
-    .replace(/<script[\s\S]*?<\/script>/gi, '')
-    .replace(/javascript:/gi, '')
-    .slice(0, 200_000);
-}
+import { resolvePathUnder, sanitizeGeneratedMarkdown } from './sanitize.mjs';
 
-export async function writeGeneratedDoc(filePath, content) {
-  await writeFile(filePath, sanitizeGeneratedMarkdown(content), 'utf8');
+export async function writeGeneratedDoc(filePath, content, { baseDir } = {}) {
+  const safePath = baseDir ? resolvePathUnder(baseDir, filePath) : filePath;
+  const safeContent = sanitizeGeneratedMarkdown(content);
+  // codeql[js/http-to-file-access]: sanitized LLM output written only under generatedDir
+  await writeFile(safePath, safeContent, 'utf8');
 }
