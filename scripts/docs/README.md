@@ -21,6 +21,8 @@ npm run generate    # pipeline complet (CI)
 npm run assemble    # sidebar + liens + diagrammes (prebuild VitePress)
 ```
 
+Couverture avec Postgres (tout le monorepo, racine du dépôt) : `npm run test:coverage` — voir [README](../../README.md#couverture-complète-recommandé).
+
 ## Configuration
 
 Tout ce qui est spécifique au dépôt vit dans [`config/open-task.docs.json`](config/open-task.docs.json) :
