@@ -29,6 +29,9 @@ export default defineNuxtConfig({
 
   modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
 
+  // components/ui/AppLogo.vue → <AppLogo /> (sans préfixe Ui)
+  components: [{ path: '~/components/ui', pathPrefix: false }],
+
   // Auth via localStorage + cookie : pas de SSR sur les pages app pour éviter les mismatches d'hydratation
   routeRules: {
     '/': { ssr: false },

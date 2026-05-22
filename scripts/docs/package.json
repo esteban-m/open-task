@@ -5,9 +5,15 @@
   "description": "Pipeline doc-as-code : GitDiagram, chapitres IA, Prisma ERD, VitePress",
   "scripts": {
     "generate": "node cli.mjs generate",
-    "assemble": "node cli.mjs assemble"
+    "assemble": "node cli.mjs assemble",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "isomorphic-dompurify": "^2.30.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
   }
 }

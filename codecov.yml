@@ -9,6 +9,8 @@ fixes:
   - "components/::frontend/components/"
   - "middleware/::frontend/middleware/"
   - "plugins/::frontend/plugins/"
+  - "pages/::frontend/pages/"
+  - "scripts/docs/src/::scripts/docs/src/"
 
 flag_management:
   default_rules:

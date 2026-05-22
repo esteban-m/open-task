@@ -84,18 +84,14 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.service.ts",
-      "!**/prisma/prisma.service.ts",
-      "**/*.controller.ts",
-      "**/common/guards/**/*.ts",
-      "**/common/pipes/**/*.ts",
-      "**/common/filters/**/*.ts",
-      "**/auth/refresh-token-hash.ts",
-      "**/auth/auth-cookie.ts",
-      "**/common/config/**/*.ts",
+      "**/*.ts",
+      "!**/*.spec.ts",
+      "!**/*.module.ts",
       "!**/*.gateway.ts",
+      "!**/dto/**",
       "!**/main.ts",
-      "!**/app.module.ts"
+      "!**/app.module.ts",
+      "!**/prisma/prisma.service.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageProvider": "v8",
