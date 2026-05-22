@@ -8,31 +8,30 @@ export default defineVitestConfig({
       nuxt: {
         mock: {
           intersectionObserver: true,
-          matchMedia: true,
         },
       },
     },
-  },
-  coverage: {
-    provider: 'v8',
-    reporter: ['text', 'lcov'],
-    reportsDirectory: './coverage',
-    include: [
-      'components/**/*.vue',
-      'composables/**/*.ts',
-      'config/**/*.ts',
-      'stores/**/*.ts',
-      'utils/**/*.ts',
-      'middleware/**/*.ts',
-    ],
-    exclude: [
-      '**/*.d.ts',
-      'tests/**',
-      '.nuxt/**',
-      '.output/**',
-      'pages/**',
-      'plugins/**',
-    ],
-    all: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      reportsDirectory: './coverage',
+      include: [
+        'components/**/*.vue',
+        'composables/**/*.ts',
+        'config/**/*.ts',
+        'stores/**/*.ts',
+        'utils/**/*.ts',
+        'middleware/**/*.ts',
+      ],
+      exclude: [
+        '**/*.d.ts',
+        'tests/**',
+        '.nuxt/**',
+        '.output/**',
+        'pages/**',
+        'plugins/**',
+      ],
+      all: true,
+    },
   },
 })
