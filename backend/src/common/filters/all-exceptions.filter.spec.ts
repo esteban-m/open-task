@@ -1,5 +1,14 @@
-import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { AllExceptionsFilter } from './all-exceptions.filter';
+
+beforeAll(() => {
+  jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+  jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+});
+
+afterAll(() => {
+  jest.restoreAllMocks();
+});
 
 function mockHost() {
   const json = jest.fn();

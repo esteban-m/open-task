@@ -14,7 +14,7 @@ frontend ─┼──► report (Codecov + wiki sur main)
 scripts ──┘
 ```
 
-1. **backend** — Postgres service, Prisma, lint, Jest unit + e2e (`--silent` pour limiter le bruit des filtres testés).
+1. **backend** — Service Postgres (port 5432), Prisma migrate, tests unitaires puis **e2e avec `DATABASE_URL`** (sinon les tests passent mais la couverture e2e reste à 0 %). Vérification via `scripts/ci/assert-e2e-coverage.mjs`.
 2. **frontend** — `nuxt prepare`, lint, Vitest coverage.
 3. **scripts** — Vitest du pipeline `scripts/docs`.
 4. **report** — Télécharge les artefacts, fusionne les `coverage-summary.json`, publie Codecov et (sur `main` uniquement) le wiki.
