@@ -6,15 +6,12 @@ on:
     paths:
       - 'backend/**'
       - 'frontend/**'
+      - 'scripts/docs/**'
       - '.github/workflows/**'
       - '.github/codeql/**'
+  # Toujours sur les PR : la ruleset exige un résultat CodeQL même si seuls README/docs changent.
   pull_request:
     branches: [main]
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - '.github/workflows/**'
-      - '.github/codeql/**'
 
 concurrency:
   group: codeql-${{ github.ref }}
