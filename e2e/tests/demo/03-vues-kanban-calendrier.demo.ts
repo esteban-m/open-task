@@ -3,7 +3,8 @@ import { pauseDemoScene, pauseDemoStep } from '../../helpers/demo-pause';
 import { addTask, createList, registerAndLandOnHome, switchView } from '../../helpers/flows';
 
 test.describe('Démo — Vues Kanban et Calendrier', () => {
-  test('basculer entre liste, kanban et calendrier', async ({ page }) => {
+  /** Titre court : Playwright tronque les dossiers test-results (sinon pas de GIF). */
+  test('vues', async ({ page }) => {
     await registerAndLandOnHome(page);
     await createList(page, 'Planning');
     await addTask(page, 'Réunion équipe', '2026-06-15');
