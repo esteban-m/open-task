@@ -9,6 +9,8 @@ export default defineConfig({
       reporter: ['text', 'lcov'],
       reportsDirectory: './coverage',
       include: ['composables/**/*.ts', 'config/**/*.ts', 'stores/**/*.ts'],
+      // Ne compte que les fichiers réellement importés par les tests (évite 0 % artificiel).
+      all: false,
     },
   },
 })

@@ -82,7 +82,8 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "collectCoverageFrom": [
-      "**/*.(t|j)s"
+      "**/*.service.ts",
+      "!**/prisma/prisma.service.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageProvider": "v8",
