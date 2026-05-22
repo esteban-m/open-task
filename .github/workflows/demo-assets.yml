@@ -15,9 +15,10 @@ on:
 permissions:
   contents: write
 
+# Ne pas mélanger push main et workflow_dispatch dans le même group (sinon cancel-in-progress tue le push au merge).
 concurrency:
-  group: demo-assets-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: demo-assets-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   NODE_VERSION: '22'
