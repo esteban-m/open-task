@@ -25,6 +25,24 @@ function connectSocket(port: number, token: string): Promise<Socket> {
   });
 }
 
+/** Laisse le temps au handler serveur join:list (pas d'ack Socket.IO). */
+function joinListRoom(socket: Socket, listId: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(`join:list timeout for ${listId}`)), 5_000);
+    socket.emit('join:list', listId);
+    setTimeout(() => {
+      clearTimeout(timer);
+      resolve();
+    }, 250);
+  });
+}
+
+async function connectToList(port: number, token: string, listId: string): Promise<Socket> {
+  const socket = await connectSocket(port, token);
+  await joinListRoom(socket, listId);
+  return socket;
+}
+
 function waitForEvent<T>(socket: Socket, event: string, timeoutMs = 10_000): Promise<T> {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(`Timeout waiting for ${event}`)), timeoutMs);
@@ -100,7 +118,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
   });
 
   it('connecte avec JWT et reçoit task:created', async () => {
-    const socket = await connectSocket(port, token);
+    const socket = await connectToList(port, token, listId);
     const eventPromise = waitForEvent<{ id: string; shortDescription: string }>(
       socket,
       'task:created',
@@ -119,12 +137,9 @@ describe('WebSocket TasksGateway (e2e)', () => {
 
   it('join:list et leave:list', async () => {
     const socket = await connectSocket(port, token);
-    await new Promise<void>((resolve, reject) => {
-      socket.emit('join:list', listId);
-      socket.emit('leave:list', listId);
-      setTimeout(resolve, 300);
-      socket.once('connect_error', reject);
-    });
+    await joinListRoom(socket, listId);
+    socket.emit('leave:list', listId);
+    await new Promise<void>((resolve) => setTimeout(resolve, 100));
     socket.close();
   });
 
@@ -142,8 +157,8 @@ describe('WebSocket TasksGateway (e2e)', () => {
       .expect(201);
 
     const socket = await connectSocket(port, token);
-    socket.emit('join:list', listId);
-    socket.emit('join:list', list2.body.id);
+    await joinListRoom(socket, listId);
+    await joinListRoom(socket, list2.body.id);
     const eventPromise = waitForEvent<{ task: { id: string }; fromListId: string; toListId: string }>(
       socket,
       'task:moved',
@@ -186,8 +201,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
       .send({ shortDescription: 'À modifier', dueDate: '2026-12-03' })
       .expect(201);
 
-    const socket = await connectSocket(port, token);
-    socket.emit('join:list', listId);
+    const socket = await connectToList(port, token, listId);
     const eventPromise = waitForEvent<{ id: string; shortDescription: string }>(
       socket,
       'task:updated',
@@ -211,7 +225,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
       .send({ shortDescription: 'À terminer', dueDate: '2026-12-02' })
       .expect(201);
 
-    const socket = await connectSocket(port, token);
+    const socket = await connectToList(port, token, listId);
     const eventPromise = waitForEvent<{ id: string; completed: boolean }>(
       socket,
       'task:completed',
@@ -250,12 +264,10 @@ describe('WebSocket TasksGateway (e2e)', () => {
       .send({ invitedEmail: guest.email, role: 'viewer' })
       .expect(201);
 
-    const guestSocket = await connectSocket(port, guestToken);
-    guestSocket.emit('join:list', disposable.body.id);
+    const guestSocket = await connectToList(port, guestToken, disposable.body.id);
     const revokedPromise = waitForEvent<{ listId: string }>(guestSocket, 'list:revoked');
 
-    const ownerSocket = await connectSocket(port, token);
-    ownerSocket.emit('join:list', disposable.body.id);
+    const ownerSocket = await connectToList(port, token, disposable.body.id);
     const deletedPromise = waitForEvent<{ listId: string }>(ownerSocket, 'list:deleted');
 
     await request(app.getHttpServer())
