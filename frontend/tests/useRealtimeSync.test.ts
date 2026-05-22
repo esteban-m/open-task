@@ -86,21 +86,9 @@ describe('useRealtimeSync', () => {
 
   it('bind applique task:updated et list:deleted', () => {
     const lists = useListsStore()
-    lists.lists = [
-      { id: 'l1', name: 'Liste', color: null, userId: 'u1', createdAt: '', updatedAt: '' },
-    ]
+    lists.lists = [mockList('l1', 'Liste')]
     const tasks = useTasksStore()
-    const task = {
-      id: 't1',
-      listId: 'l1',
-      shortDescription: 'T',
-      longDescription: null,
-      dueDate: '2026-01-01',
-      completed: false,
-      completedAt: null,
-      createdAt: '',
-      updatedAt: '',
-    }
+    const task = mockTask('t1', 'l1', 'T')
     tasks.setAllTasks([task])
     tasks.setTasks([task])
 
