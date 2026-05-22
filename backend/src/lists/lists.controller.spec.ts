@@ -7,10 +7,19 @@ const mockListsService = {
   findAll: jest.fn(),
   findOne: jest.fn(),
   create: jest.fn(),
+  update: jest.fn(),
+  remove: jest.fn(),
+  shareList: jest.fn(),
+  getSharedUsers: jest.fn(),
+  revokeAccess: jest.fn(),
 };
 
 const mockTasksGateway = {
   emitListCreated: jest.fn(),
+  emitListUpdated: jest.fn(),
+  emitListDeleted: jest.fn(),
+  emitListShared: jest.fn(),
+  emitListRevoked: jest.fn(),
 };
 
 describe('ListsController', () => {
@@ -44,5 +53,35 @@ describe('ListsController', () => {
     const created = await controller.create({ name: 'Todo' }, 'user-1');
 
     expect(created.id).toBe('l1');
+  });
+
+  it('update emits list updated event', async () => {
+    const list = { id: 'l1', name: 'Renamed' };
+    mockListsService.update.mockResolvedValue(list);
+
+    const result = await controller.update('l1', { name: 'Renamed' }, 'user-1');
+
+    expect(result).toEqual(list);
+    expect(mockTasksGateway.emitListUpdated).toHaveBeenCalledWith('l1', list);
+  });
+
+  it('shareList emits shared event', async () => {
+    const list = { id: 'l1', name: 'Todo' };
+    mockListsService.shareList.mockResolvedValue({
+      membership: { userId: 'u2', role: 'editor' },
+      list,
+    });
+
+    await controller.shareList('l1', { invitedEmail: 'b@b.fr', role: 'editor' }, 'user-1');
+
+    expect(mockTasksGateway.emitListShared).toHaveBeenCalledWith('u2', list);
+  });
+
+  it('revokeShare emits revoked event', async () => {
+    mockListsService.revokeAccess.mockResolvedValue({ message: 'ok' });
+
+    await controller.revokeShare('l1', 'u2', 'user-1');
+
+    expect(mockTasksGateway.emitListRevoked).toHaveBeenCalledWith('u2', 'l1');
   });
 });

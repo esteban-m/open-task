@@ -8,6 +8,8 @@ describe('apiError', () => {
     expect(parseApiError({ status: 401 }, 'Session expirée')).toContain('Session expirée')
     expect(parseApiError({ status: 404 })).toContain('introuvable')
     expect(parseApiError({ status: 409 })).toContain('existe déjà')
+    expect(parseApiError({ status: 400 })).toContain('invalides')
+    expect(parseApiError({ message: 'Session expirée' })).toContain('reconnecter')
     expect(parseApiError({ message: 'Erreur custom' })).toBe('Erreur custom')
     expect(parseApiError(null)).toBe('Une erreur est survenue')
   })
