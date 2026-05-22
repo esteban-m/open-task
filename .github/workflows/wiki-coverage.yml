@@ -176,19 +176,35 @@ jobs:
         env:
           WIKI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          set -euo pipefail
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           WIKI_URL="https://x-access-token:${WIKI_TOKEN}@github.com/${{ github.repository }}.wiki.git"
-          git clone --depth 1 "$WIKI_URL" wiki-repo || {
-            echo "::warning::Clone wiki échoué — crée une page initiale sur le wiki du dépôt puis relance."
-            exit 1
-          }
+
+          if git clone --depth 1 "$WIKI_URL" wiki-repo 2>/dev/null; then
+            echo "Wiki cloné."
+          else
+            echo "::notice::Wiki absent — bootstrap git (branche master)."
+            mkdir -p wiki-repo
+            cd wiki-repo
+            git init -b master
+            git remote add origin "$WIKI_URL"
+            printf '%s\n' '# Open Task' '' 'Wiki du dépôt [open-task](https://github.com/esteban-m/open-task).' > Home.md
+            git add Home.md
+            git commit -m "ci: initialiser le wiki"
+            git push -u origin master
+            cd ..
+          fi
+
           cp wiki-out/*.md wiki-repo/
           cd wiki-repo
-          if git status --porcelain | grep -q .; then
-            git add Couverture-des-tests.md Couverture-Backend.md Couverture-Frontend.md Couverture-Scripts.md
-            git commit -m "ci: mise à jour couverture (${GITHUB_SHA:0:7})"
-            git push
-          else
+          git add Couverture-des-tests.md Couverture-Backend.md Couverture-Frontend.md Couverture-Scripts.md
+          if git diff --staged --quiet; then
             echo "Wiki déjà à jour."
+            exit 0
           fi
+          git commit -m "ci: mise à jour couverture (${GITHUB_SHA:0:7})"
+          git push origin HEAD || {
+            echo "::error::Push wiki impossible. Vérifie que « Wikis » est activé (Settings → General → Features)."
+            exit 1
+          }
