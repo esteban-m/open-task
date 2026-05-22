@@ -130,6 +130,21 @@ describe('ListsService', () => {
     });
   });
 
+  describe('acceptShare', () => {
+    it('accepts invitation for the invited user', async () => {
+      mockPrismaService.userList.findUnique.mockResolvedValue({
+        id: 'inv-1',
+        userId: 'user-2',
+        status: 'pending',
+      });
+      mockPrismaService.userList.update.mockResolvedValue({ id: 'inv-1', status: 'accepted' });
+
+      const result = await service.acceptShare('inv-1', 'user-2');
+
+      expect(result.status).toBe('accepted');
+    });
+  });
+
   describe('shareList', () => {
     it('creates membership for invited user', async () => {
       mockPrismaService.taskList.findUnique.mockResolvedValue({

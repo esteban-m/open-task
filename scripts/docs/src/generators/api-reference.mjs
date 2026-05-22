@@ -2,7 +2,7 @@ import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 /** Parse ligne par ligne — évite ReDoS (CodeQL) sur regex globale. */
-function parseController(content, file, repoRoot) {
+export function parseController(content, file, repoRoot) {
   const ctrl = content.match(/@Controller\(['"`]([^'"`]*)['"`]\)/);
   const prefix = ctrl?.[1] ?? '';
   const routes = [];

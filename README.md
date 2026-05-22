@@ -234,7 +234,7 @@ cd frontend && npm run lint
 |------|------------------|-------|
 | **backend** | Tout `backend/src` sauf modules, DTO, gateways, `main` (+ e2e) | Jest unit + e2e |
 | **frontend** | Pages, composants, composables, stores, utils, middleware, plugins | Vitest + `@nuxt/test-utils` (env `nuxt`) |
-| **scripts** | Pipeline `scripts/docs` (sanitize, chemins, générateurs) | Vitest (Node) |
+| **scripts** | Pipeline `scripts/docs` (sanitize, liens, navigation, diagrammes) | Vitest (Node) |
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">

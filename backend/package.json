@@ -90,8 +90,7 @@
       "!**/*.gateway.ts",
       "!**/dto/**",
       "!**/main.ts",
-      "!**/app.module.ts",
-      "!**/prisma/prisma.service.ts"
+      "!**/app.module.ts"
     ],
     "coverageDirectory": "../coverage",
     "coverageProvider": "v8",
