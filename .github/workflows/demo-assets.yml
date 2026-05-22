@@ -84,12 +84,16 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add assets/demo/
           if git diff --staged --quiet; then
-            echo "GIF déjà à jour."
+            echo "GIF déjà à jour — rien à pousser."
             exit 0
           fi
           git commit -m "assets: démos Playwright (desktop + mobile GIF)"
           git pull --rebase origin main
-          git push origin main
+          if git push origin main; then
+            echo "GIF publiés sur main."
+          else
+            echo "::warning::Push refusé (ruleset CodeQL sur main). GIF dans l'artefact demo-gifs — merge manuel si besoin."
+          fi
 
       - name: Artefact GIF (téléchargement)
         if: always()
