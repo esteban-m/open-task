@@ -2,6 +2,7 @@
   <div class="mb-3">
     <button
       v-if="!open"
+      data-testid="add-task-btn"
       @click="open = true"
       class="w-full flex items-center gap-2 text-text-faint hover:text-text-muted border border-dashed border-border hover:border-border-subtle rounded px-3 py-2.5 text-sm"
     >
@@ -17,6 +18,7 @@
           ref="shortDescRef"
           v-model="form.shortDescription"
           type="text"
+          data-testid="task-short-input"
           placeholder="Description courte *"
           maxlength="200"
           class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -39,6 +41,7 @@
         <input
           v-model="form.dueDate"
           type="date"
+          data-testid="task-due-date"
           class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2 text-text focus:outline-none focus:border-accent"
           :min="today"
         />
@@ -51,6 +54,7 @@
 
       <div class="flex gap-2">
         <button
+          data-testid="task-submit"
           @click="submit"
           :disabled="loading || !form.shortDescription.trim() || !form.dueDate"
           class="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-sm rounded py-1.5"

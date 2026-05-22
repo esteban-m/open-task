@@ -6,7 +6,7 @@
 import { readFileSync } from 'node:fs';
 
 const summaryPath = process.argv[2] || 'backend/coverage-e2e/coverage-summary.json';
-const minPct = Number(process.env.E2E_COVERAGE_MIN_PCT || '5');
+const minPct = Number(process.env.E2E_COVERAGE_MIN_PCT || '55');
 
 let data;
 try {

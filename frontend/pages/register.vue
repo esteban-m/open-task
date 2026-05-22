@@ -18,6 +18,7 @@
                 <input
                   v-model="form.firstName"
                   type="text"
+                  data-testid="register-firstName"
                   placeholder="Jean"
                   required
                   class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -28,6 +29,7 @@
                 <input
                   v-model="form.lastName"
                   type="text"
+                  data-testid="register-lastName"
                   placeholder="Dupont"
                   required
                   class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -40,6 +42,7 @@
               <input
                 v-model="form.email"
                 type="email"
+                data-testid="register-email"
                 placeholder="jean@exemple.fr"
                 required
                 class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -51,6 +54,7 @@
               <input
                 v-model="form.emailConfirm"
                 type="email"
+                data-testid="register-emailConfirm"
                 placeholder="jean@exemple.fr"
                 required
                 class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -62,6 +66,7 @@
               <input
                 v-model="form.password"
                 type="password"
+                data-testid="register-password"
                 placeholder="8 caractères minimum"
                 required
                 class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -73,6 +78,7 @@
               <input
                 v-model="form.passwordConfirm"
                 type="password"
+                data-testid="register-passwordConfirm"
                 placeholder="••••••••"
                 required
                 class="w-full bg-surface-2 border border-border rounded text-sm px-3 py-2.5 text-text placeholder-text-faint focus:outline-none focus:border-accent"
@@ -81,6 +87,7 @@
 
             <button
               type="submit"
+              data-testid="register-submit"
               :disabled="loading"
               class="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded py-2.5 mt-1"
             >

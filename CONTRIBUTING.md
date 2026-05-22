@@ -34,8 +34,11 @@ Sans Docker, lancez PostgreSQL localement et suivez les variables du `.env.examp
    ```bash
    cd backend && npm run lint && npm test
    npm run test:coverage
-   # ou : cd backend && DATABASE_URL=postgresql://test:test@127.0.0.1:5433/opentask_test npm run test:e2e
-   cd frontend && npm run lint
+   # e2e backend (PostgreSQL requis) :
+   DATABASE_URL=postgresql://test:test@127.0.0.1:5433/opentask_test npm run test:e2e
+   cd frontend && npm run lint && npm test
+   # e2e full-stack (Postgres + backend + frontend + Playwright) :
+   npm run test:e2e:playwright
    ```
 4. Ouvrez une **pull request** vers `main` : le modèle [.github/pull_request_template.md](.github/pull_request_template.md) est pré-rempli (résumé, `Fixes #123`, checklist tests / secrets).
 

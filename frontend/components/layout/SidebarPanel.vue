@@ -37,6 +37,7 @@
     <div v-if="!collapsed" class="px-3 pb-3 flex-shrink-0">
       <button
         type="button"
+        data-testid="create-list-btn"
         class="flex items-center justify-center gap-2 w-full bg-surface-2 hover:bg-surface-3 text-text-muted text-xs rounded px-3 py-2 transition-colors"
         @click="showCreateForm = !showCreateForm"
       >
@@ -50,6 +51,7 @@
         <input
           v-model="newListName"
           type="text"
+          data-testid="list-name-input"
           placeholder="Nom de la liste"
           class="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent"
           @keydown.enter="createList"
@@ -65,6 +67,7 @@
         <div class="flex gap-2">
           <button
             type="button"
+            data-testid="list-create-submit"
             :disabled="!newListName.trim()"
             class="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-xs rounded py-1.5"
             @click="createList"
@@ -128,6 +131,7 @@
       <ThemePicker :collapsed="collapsed" />
       <button
         type="button"
+        data-testid="logout-btn"
         :class="[
           'w-full flex items-center gap-2 text-text-muted hover:text-danger hover:bg-danger-subtle rounded px-3 py-2 text-sm transition-colors',
           collapsed ? 'justify-center px-2' : '',

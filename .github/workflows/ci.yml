@@ -2,6 +2,7 @@
 #
 # Jobs :
 #   backend / frontend / scripts — lint + tests + coverage (artefacts)
+#   e2e-playwright — backend + frontend réels + navigateur (Playwright)
 #   report — fusion, Codecov, wiki (push main uniquement)
 #
 # Workflows séparés : Docs (Pages + IA), CodeQL (sécurité).
@@ -182,6 +183,62 @@ jobs:
           retention-days: 1
           if-no-files-found: error
           path: scripts/docs/coverage/
+
+  e2e-playwright:
+    name: E2E · Playwright full-stack
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: opentask_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d opentask_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/opentask_test
+      JWT_SECRET: ci_playwright_jwt_secret_32chars_min_ok
+      JWT_REFRESH_SECRET: ci_playwright_refresh_secret_32chars_ok
+      FRONTEND_URL: http://127.0.0.1:3000
+      NODE_ENV: development
+      CI: true
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      - name: Dépendances Playwright (navigateur)
+        run: cd e2e && npm ci && npx playwright install --with-deps chromium
+
+      - name: Stack backend + frontend + tests Playwright
+        run: bash scripts/ci/run-playwright-stack.sh --skip-docker
+
+      - name: Artefacts Playwright (échec)
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-report
+          retention-days: 7
+          path: |
+            e2e/playwright-report/
+            e2e/test-results/
 
   report:
     name: Rapports · Codecov & Wiki
