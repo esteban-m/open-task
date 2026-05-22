@@ -11,6 +11,7 @@ fixes:
   - "plugins/::frontend/plugins/"
   - "pages/::frontend/pages/"
   - "scripts/docs/src/::scripts/docs/src/"
+  - "cli.mjs::scripts/docs/cli.mjs"
 
 flag_management:
   default_rules:
@@ -19,8 +20,17 @@ flag_management:
 coverage:
   status:
     project:
+      # Ne pas mélanger scripts (faible %) avec backend+frontend pour le gate principal
       default:
         target: auto
+        flags:
+          - backend
+          - frontend
+      scripts:
+        target: 10%
+        threshold: 1%
+        flags:
+          - scripts
     patch:
       default:
         target: auto
@@ -28,3 +38,4 @@ coverage:
 comment:
   layout: reach,diff,flags,files
   behavior: default
+  after_n_builds: 3
