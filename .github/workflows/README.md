@@ -49,3 +49,12 @@ Secret `OPENROUTER_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`
 ## CodeQL (`codeql.yml`)
 
 Toujours sur les PR (ruleset dépôt), même si seuls des fichiers markdown changent.
+
+## Branche `main`
+
+Ruleset **Protect main — PR obligatoire + CodeQL** (voir [.github/rulesets/protect-main.json](../rulesets/protect-main.json)) :
+
+- PR obligatoire avant merge (pas de push direct sur `main`)
+- Pas de force-push (`non_fast_forward`)
+- CodeQL requis
+- **Aucun bypass** (les GIF / Pages ne passent plus par un commit bot sur `main`)
