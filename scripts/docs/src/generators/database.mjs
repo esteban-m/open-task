@@ -34,6 +34,6 @@ ${crossLinkLines}
 
   const out = paths.generatedFile('database.md');
   await mkdir(paths.generatedDir, { recursive: true });
-  await writeGeneratedDoc(out, md);
+  await writeGeneratedDoc(out, md, { baseDir: paths.generatedDir });
   console.log('[database] docs/generated/database.md');
 }
