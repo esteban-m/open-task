@@ -3,8 +3,8 @@
     <div class="w-full max-w-sm">
       <!-- Logo / Titre -->
       <div class="mb-8 text-center">
-        <div class="inline-flex items-center gap-2 mb-3">
-          <span class="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white text-sm font-semibold">OT</span>
+        <div class="inline-flex items-center gap-2.5 mb-3">
+          <AppLogo />
           <span class="text-xl font-semibold tracking-tight">Open-Task</span>
         </div>
         <p class="text-text-muted text-sm">Bon retour parmi nous</p>
