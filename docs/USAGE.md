@@ -2,7 +2,7 @@
 
 Captures animées générées par la CI (Playwright → GIF). Chemins : `assets/demo/desktop/` et `assets/demo/mobile/`.
 
-> Les GIF sont générés par le workflow **Demo assets** (sur chaque PR vers `main` et sur `main`). En local : `npm run test:e2e:demo` (ffmpeg requis). Voir [`assets/demo/README.md`](../assets/demo/README.md).
+> Sur une **PR**, la CI valide les démos et publie l’artefact **demo-gifs** (sans commit sur la branche). Les GIF dans le repo sont mis à jour sur **`main`** après merge. En local : `npm run test:e2e:demo` (ffmpeg requis).
 
 ---
 

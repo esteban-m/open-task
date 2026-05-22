@@ -1,6 +1,9 @@
 # Démos visuelles (GIF)
 
-GIF générés par la CI ([`demo-assets.yml`](../../.github/workflows/demo-assets.yml)) sur chaque **PR vers `main`** et sur **`main`** (artefact **demo-gifs** si le commit auto est désactivé, ex. PR depuis un fork).
+GIF générés par la CI ([`demo-assets.yml`](../../.github/workflows/demo-assets.yml)) :
+
+- **PR** : tests + artefact **demo-gifs** (pas de commit sur la branche → merge possible).
+- **`main`** (après merge) : commit automatique dans `assets/demo/`.
 
 | Dossier | Viewport |
 |---------|----------|

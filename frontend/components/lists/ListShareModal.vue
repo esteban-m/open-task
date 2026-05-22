@@ -79,6 +79,7 @@
         <div class="px-5 pb-5 border-t border-border pt-3">
           <button
             type="button"
+            data-testid="share-modal-close"
             class="w-full bg-surface-2 hover:bg-surface-3 text-text-muted text-sm rounded-lg py-2"
             @click="emit('close')"
           >

@@ -1,6 +1,6 @@
 # Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/.
-# - PR vers main : commit sur la branche PR + artefact
-# - push main : commit sur main
+# - PR : validation + artefact demo-gifs (pas de commit → merge possible)
+# - push main / workflow_dispatch : commit sur main
 name: Demo assets (GIF)
 
 on:
@@ -8,10 +8,12 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    paths-ignore:
+      - 'assets/demo/**'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: ${{ github.event_name == 'pull_request' && 'read' || 'write' }}
 
 concurrency:
   group: demo-assets-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -71,10 +73,8 @@ jobs:
       - name: Playwright + conversion GIF
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker
 
-      - name: Commit assets/demo
-        if: >-
-          github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository
+      - name: Commit assets/demo sur main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -85,13 +85,24 @@ jobs:
             exit 0
           fi
           git commit -m "assets: démos Playwright (desktop + mobile GIF)"
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git push origin "HEAD:${{ github.head_ref }}"
-          else
-            git push
+          git push
+
+      - name: Commit assets/demo (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/demo/
+          if git diff --staged --quiet; then
+            echo "GIF déjà à jour."
+            exit 0
           fi
+          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
+          git push
 
       - name: Artefact GIF (téléchargement)
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: demo-gifs

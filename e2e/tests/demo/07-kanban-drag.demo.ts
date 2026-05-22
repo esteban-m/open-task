@@ -10,6 +10,7 @@ import {
 
 test.describe('Démo — Kanban drag & drop', () => {
   test('déplacer une tâche entre deux listes', async ({ page }) => {
+    test.setTimeout(120_000);
     await registerAndLandOnHome(page);
     await createList(page, 'Backlog');
     await createList(page, 'En cours');

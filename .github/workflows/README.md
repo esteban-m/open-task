@@ -4,7 +4,7 @@
 |----------|-------------|------|
 | [**CI**](ci.yml) | PR + push `main` / `develop` | Lint, tests, coverage, Codecov, wiki (main) |
 | [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Génération doc IA + VitePress → GitHub Pages |
-| [**Demo assets**](demo-assets.yml) | Push `main`, `workflow_dispatch` | Playwright desktop/mobile → GIF dans `assets/demo/` |
+| [**Demo assets**](demo-assets.yml) | PR + push `main`, `workflow_dispatch` | Playwright → GIF ; artefact sur PR, commit sur `main` |
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
 
 ## CI (`ci.yml`)
@@ -31,7 +31,8 @@ Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, f
 1. Même stack que Playwright (Postgres + backend + Nuxt preview).
 2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile** (vidéo `on`).
 3. `ffmpeg` → GIF dans `assets/demo/{desktop,mobile}/`.
-4. Commit automatique sur `main` si les fichiers changent.
+4. **PR** : artefact `demo-gifs` uniquement (pas de push bot → merge possible). Ignorer les changements sous `assets/demo/` pour éviter les boucles.
+5. **`main`** : commit automatique des GIF après merge.
 
 Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 
