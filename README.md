@@ -8,7 +8,7 @@
 
 | Catégories | Badges |
 |------------|--------|
-| **CI** | [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml) |
+| **CI** | [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/esteban-m/open-task/branch/main/graph/badge.svg)](https://codecov.io/gh/esteban-m/open-task/tree/main) |
 | **Sécurité** | [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml) [![Dependabot](https://img.shields.io/badge/Dependabot-actif-026e2c?logo=dependabot&logoColor=white)](https://github.com/esteban-m/open-task/security/dependabot) [![Security](https://img.shields.io/badge/Security-advisories-181717?logo=github&logoColor=white)](https://github.com/esteban-m/open-task/security) |
 | **Documentation** | [![Docs](https://github.com/esteban-m/open-task/actions/workflows/docs.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/docs.yml) [![Docs site](https://img.shields.io/badge/Docs-GitHub%20Pages-2563eb?style=flat-square)](https://esteban-m.github.io/open-task/) [![VitePress](https://img.shields.io/badge/VitePress-doc--as--code-646cff?style=flat-square)](https://vitepress.dev/) |
 | **Runtime** | [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/) |
@@ -211,8 +211,6 @@ cd frontend && npm run lint
 
 #### Codecov (backend)
 
-[![codecov](https://codecov.io/gh/esteban-m/open-task/branch/main/graph/badge.svg?flag=backend)](https://codecov.io/gh/esteban-m/open-task/tree/main)
-
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
     <picture>
@@ -275,7 +273,7 @@ Relance manuelle : *Actions → Docs → Run workflow*.
 
 Issues et PR : modèles GitHub dans [.github/ISSUE_TEMPLATE/](.github/ISSUE_TEMPLATE/) et [.github/pull_request_template.md](.github/pull_request_template.md).
 
-Les badges du bandeau (CI, sécurité, documentation) renvoient vers les workflows GitHub Actions ; la [couverture Codecov](#codecov-backend) et les graphiques associés sont dans la section [Tests](#tests).
+Les badges du bandeau (CI, couverture, sécurité, documentation) renvoient vers les workflows GitHub Actions et Codecov ; les [graphiques de couverture](#codecov-backend) sont dans la section [Tests](#tests).
 
 ---
 
