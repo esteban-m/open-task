@@ -71,7 +71,7 @@ log "Frontend : install + build + preview :${FRONTEND_PORT}"
   npm ci
   npx nuxt prepare
   npm run build
-  npx nuxt preview --port "${FRONTEND_PORT}" --host 127.0.0.1
+  HOST=0.0.0.0 PORT="${FRONTEND_PORT}" npx nuxt preview
 ) &
 FRONT_PID=$!
 
