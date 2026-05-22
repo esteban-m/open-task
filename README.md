@@ -207,13 +207,21 @@ cd frontend && npm run lint
 |-------|---------|
 | `AuthService` | register, login, refresh, erreurs |
 | `TasksService` | CRUD, accès, toggle, suppressions |
+| `ListsService` | findAll, create, conflit de nom |
+| `ListAccessService` | rôles, accès owner / interdit |
+| **Stores Pinia** | auth, lists, tasks (Vitest) |
 | **e2e flux complet** | register → login → liste → tâche → toggle → delete |
 | **e2e isolation** | Utilisateur B ne accède pas aux données de A |
 | **CI** | Lint, unit backend + frontend (coverage → Codecov), migrations Prisma, e2e sur PostgreSQL |
 
 #### Codecov
 
-Couverture publiée par flag : **backend** (`backend/src`, tests Jest) et **frontend** (`composables`, `config`, `stores`, tests Vitest). Le graphique global agrège les deux après chaque CI.
+| Flag | Périmètre mesuré | Tests |
+|------|------------------|-------|
+| **backend** | `*.service.ts` (logique métier, hors controllers/gateways/DTO) | Jest unitaires |
+| **frontend** | Fichiers importés par les tests (`stores`, `config`, `composables` ciblés) | Vitest |
+
+Les e2e backend (Supertest) ne sont pas inclus dans le rapport Codecov — seulement les tests unitaires CI.
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
@@ -225,7 +233,7 @@ Couverture publiée par flag : **backend** (`backend/src`, tests Jest) et **fron
   </a>
 </p>
 
-> La couverture reste faible sur le backend (peu de tests unitaires hors `auth` / `tasks`). Les graphiques et le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se mettent à jour via `CODECOV_TOKEN` dans `ci.yml`.
+> Objectif : un score **représentatif** (services / stores testés), pas un pourcentage gonflé par des fichiers non testés. Le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se met à jour via `CODECOV_TOKEN` dans `ci.yml`.
 
 ---
 
