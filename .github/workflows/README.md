@@ -2,9 +2,11 @@
 
 | Workflow | Déclencheur | Rôle |
 |----------|-------------|------|
-| [**CI**](ci.yml) | PR + push `main` / `develop` | Lint, tests, coverage, Codecov, wiki (main) |
+| [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Codecov, wiki (main) |
 | [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Génération doc IA + VitePress → GitHub Pages |
 | [**Demo assets**](demo-assets.yml) | PR + push `main`, `workflow_dispatch` | Playwright → GIF ; artefact sur PR, commit sur `main` |
+
+**Push `main`** : chaque merge ou commit sur `main` déclenche **CI**, **CodeQL** (si chemins code), **Docs** et **Demo assets**. Les groupes de concurrence sont séparés par `event_name` pour qu’un `workflow_dispatch` manuel n’annule pas un push en cours.
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
 
 ## CI (`ci.yml`)
