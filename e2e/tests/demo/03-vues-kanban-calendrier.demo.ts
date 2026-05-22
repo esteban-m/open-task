@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import { pauseDemoScene, pauseDemoStep } from '../../helpers/demo-pause';
 import { addTask, createList, registerAndLandOnHome, switchView } from '../../helpers/flows';
 
 test.describe('Démo — Vues Kanban et Calendrier', () => {
@@ -8,12 +9,12 @@ test.describe('Démo — Vues Kanban et Calendrier', () => {
     await addTask(page, 'Réunion équipe', '2026-06-15');
 
     await switchView(page, 'kanban');
-    await page.waitForTimeout(1200);
+    await pauseDemoStep(page, 1200);
 
     await switchView(page, 'calendar');
-    await page.waitForTimeout(1200);
+    await pauseDemoStep(page, 1200);
 
     await switchView(page, 'list');
-    await page.waitForTimeout(800);
+    await pauseDemoScene(page);
   });
 });

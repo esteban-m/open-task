@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import { pauseDemoScene, pauseDemoStep } from '../../helpers/demo-pause';
 import { createList, login, logoutFromApp, registerAndLandOnHome } from '../../helpers/flows';
 
 test.describe('Démo — Connexion', () => {
@@ -7,8 +8,9 @@ test.describe('Démo — Connexion', () => {
     await createList(page, 'Mes tâches');
 
     await logoutFromApp(page);
+    await pauseDemoStep(page, 800);
 
     await login(page, email);
-    await page.waitForTimeout(1000);
+    await pauseDemoScene(page);
   });
 });

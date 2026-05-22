@@ -1,4 +1,5 @@
 import { test } from '@playwright/test';
+import { pauseDemoScene } from '../../helpers/demo-pause';
 import { addTask, createList, registerAndLandOnHome } from '../../helpers/flows';
 
 test.describe('Démo — Mobile', () => {
@@ -11,6 +12,6 @@ test.describe('Démo — Mobile', () => {
     await createList(page, 'Mobile demo');
 
     await addTask(page, 'Tâche mobile');
-    await page.waitForTimeout(1000);
+    await pauseDemoScene(page);
   });
 });

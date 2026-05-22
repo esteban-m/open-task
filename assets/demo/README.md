@@ -16,3 +16,5 @@ PLAYWRIGHT_DEMO=1 npm run test:e2e:playwright
 # ou après un run demo seul :
 node scripts/ci/playwright-videos-to-gifs.mjs
 ```
+
+Pauses pour GIF lisibles : `slowMo` Playwright + `DEMO_STEP_PAUSE_MS` (500) / `DEMO_SCENE_PAUSE_MS` (1500) entre les étapes.

@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test';
+import { pauseDemoStep } from './demo-pause';
 
 export const DEMO_PASSWORD = 'password123';
 
@@ -56,6 +57,7 @@ export async function registerAndLandOnHome(page: Page, opts?: { firstName?: str
   await page.getByTestId('register-submit').click();
 
   await assertLandOnHome(page);
+  await pauseDemoStep(page);
 
   return { email, firstName, lastName };
 }
@@ -93,6 +95,7 @@ export async function createList(page: Page, name: string) {
     });
   }
   await closeMobileListDrawerIfOpen(page);
+  await pauseDemoStep(page);
 }
 
 async function activeListSidebar(page: Page) {
@@ -107,6 +110,7 @@ export async function addTask(page: Page, shortDescription: string, dueDate = '2
   await page.getByTestId('task-due-date').fill(dueDate);
   await page.getByTestId('task-submit').click();
   await expect(page.getByText(shortDescription).first()).toBeVisible({ timeout: 15_000 });
+  await pauseDemoStep(page, 700);
 }
 
 export async function switchView(page: Page, view: 'list' | 'kanban' | 'calendar') {
@@ -116,6 +120,7 @@ export async function switchView(page: Page, view: 'list' | 'kanban' | 'calendar
   } else if (view === 'calendar') {
     await expect(page.getByRole('heading', { name: 'Calendrier' })).toBeVisible();
   }
+  await pauseDemoStep(page, 900);
 }
 
 export async function openMobileListDrawer(page: Page) {

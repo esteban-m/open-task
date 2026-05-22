@@ -31,6 +31,8 @@ export NUXT_PUBLIC_WS_BASE_URL="http://127.0.0.1:${BACKEND_PORT}"
 export PLAYWRIGHT_BASE_URL="http://127.0.0.1:${FRONTEND_PORT}"
 export NODE_ENV="${NODE_ENV:-development}"
 export PORT="${BACKEND_PORT}"
+# Propagé au backend (sous-processus) : assouplit le throttle /auth pendant les démos Playwright
+export PLAYWRIGHT_DEMO="${PLAYWRIGHT_DEMO:-}"
 
 BACK_PID=""
 FRONT_PID=""
