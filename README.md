@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/public/hero.svg" alt="Open-Task" width="96" height="96" />
+
 # Open-Task
 
 **Gestionnaire de tâches collaboratif en temps réel**
