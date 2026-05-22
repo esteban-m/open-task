@@ -13,10 +13,8 @@
     "vitepressSidebar": "docs/.vitepress/sidebar.generated.json",
     "manifestFile": "docs/generated/.doc-manifest.json"
   },
-  "openrouter": {
-    "defaultModel": "openai/gpt-4o-mini",
-    "siteUrlEnv": "OPENROUTER_SITE_URL",
-    "appName": "Open-Task Docs",
+  "mistral": {
+    "defaultModel": "mistral-small-latest",
     "maxTokens": {
       "architectureExplain": 4000,
       "architectureMermaid": 3000,
@@ -38,7 +36,7 @@
       { "id": "chapters", "requiresAi": true },
       { "id": "assemble", "requiresAi": false }
     ],
-    "skipAiStub": "# Architecture\n\n> Génération IA désactivée (`SKIP_AI`). Configurez `OPENROUTER_API_KEY`.\n"
+    "skipAiStub": "# Architecture\n\n> Génération IA désactivée (`SKIP_AI`). Configurez `MISTRAL_API_KEY`.\n"
   },
   "navigation": {
     "home": { "text": "Introduction", "link": "/" },

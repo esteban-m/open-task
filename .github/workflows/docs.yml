@@ -1,11 +1,11 @@
 # Documentation automatique + GitHub Pages
 # - Démos : Playwright → GIF dans docs/public/demo/ (servis par Pages, pas de push main)
-# - Diagramme : GitDiagram (logique) + OpenRouter
-# - Modules : Docudoodle (équivalent TS) + OpenRouter
+# - Diagramme : GitDiagram (logique) + Mistral AI
+# - Modules : Docudoodle (équivalent TS) + Mistral AI
 # - BDD : ERD Prisma (Mermaid)
 # - Site : VitePress (thème moderne + Mermaid) → Pages
 #
-# Secret requis : OPENROUTER_API_KEY (Settings → Secrets → Actions)
+# Secret requis : MISTRAL_API_KEY (Settings → Secrets → Actions)
 # Ne jamais committer de clé API dans le dépôt.
 
 name: Docs
@@ -116,20 +116,18 @@ jobs:
         working-directory: scripts/docs
         run: npm ci
 
-      - name: Vérifier secret OpenRouter
+      - name: Vérifier secret Mistral
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
         run: |
-          if [ -z "${{ secrets.OPENROUTER_API_KEY }}" ]; then
-            echo "::error::Ajoutez le secret OPENROUTER_API_KEY dans Settings → Secrets → Actions."
+          if [ -z "${{ secrets.MISTRAL_API_KEY }}" ]; then
+            echo "::error::Ajoutez le secret MISTRAL_API_KEY dans Settings → Secrets → Actions."
             exit 1
           fi
 
       - name: Générer contenu (BDD, API, IA)
         env:
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ vars.OPENROUTER_MODEL || 'openai/gpt-4o-mini' }}
-          OPENROUTER_SITE_URL: https://github.com/${{ github.repository }}
-          OPENROUTER_APP_NAME: Open-Task Docs CI
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_ACTIONS: 'true'

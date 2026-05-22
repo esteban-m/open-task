@@ -6,7 +6,8 @@ import {
   chatCompletion,
   extractMermaidBlock,
   extractXmlTag,
-} from '../services/openrouter.mjs';
+  resolveMistralCredentials,
+} from '../services/mistral.mjs';
 import { sanitizeMermaid } from '../services/mermaid.mjs';
 import { writeGeneratedDoc } from '../services/writer.mjs';
 
@@ -15,10 +16,7 @@ function interpolate(template, vars) {
 }
 
 export async function generateArchitecture(config, paths, env) {
-  const apiKey = env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error('OPENROUTER_API_KEY manquant');
-
-  const model = env.OPENROUTER_MODEL ?? config.openrouter.defaultModel;
+  const { apiKey, model } = resolveMistralCredentials(env, config);
   const { owner, repo } = parseGithubRepository(
     env.GITHUB_REPOSITORY ?? config.project.repository,
   );
@@ -55,9 +53,7 @@ export async function generateArchitecture(config, paths, env) {
       { role: 'system', content: interpolate(config.prompts.architectureExplain, vars) },
       { role: 'user', content: context },
     ],
-    maxTokens: config.openrouter.maxTokens.architectureExplain,
-    referer: env.OPENROUTER_SITE_URL,
-    appName: config.openrouter.appName,
+    maxTokens: config.mistral.maxTokens.architectureExplain,
   });
   const explanation = extractXmlTag(explanationRaw, 'explanation');
 
@@ -69,9 +65,7 @@ export async function generateArchitecture(config, paths, env) {
       { role: 'system', content: interpolate(config.prompts.architectureMermaid, vars) },
       { role: 'user', content: `${context}\n\n## Architecture explanation\n${explanation}` },
     ],
-    maxTokens: config.openrouter.maxTokens.architectureMermaid,
-    referer: env.OPENROUTER_SITE_URL,
-    appName: config.openrouter.appName,
+    maxTokens: config.mistral.maxTokens.architectureMermaid,
   });
   const mermaid = sanitizeMermaid(extractMermaidBlock(mermaidRaw) ?? mermaidRaw);
 
@@ -79,7 +73,7 @@ export async function generateArchitecture(config, paths, env) {
 
   const md = `# Architecture système
 
-> Diagramme généré automatiquement ([GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + OpenRouter).
+> Diagramme généré automatiquement ([GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [Mistral AI](https://mistral.ai/)).
 
 ## Vue d'ensemble
 
