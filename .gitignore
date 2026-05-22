@@ -27,8 +27,14 @@ Thumbs.db
 .idea/
 *.swp
 
-# Coverage
-coverage/
+# Coverage (Jest / Vitest — ne jamais commiter les rapports)
+**/coverage/
+**/coverage-*/
+**/lcov-report/
+coverage-summary*.json
+coverage-merged.summary.json
+wiki-out/
+wiki-fragments/
 
 # Documentation générée (CI → GitHub Pages)
 docs-site/
