@@ -1,0 +1,231 @@
+{
+  "project": {
+    "name": "Open-Task",
+    "description": "Gestionnaire de tâches collaboratif — NestJS, Nuxt, PostgreSQL, WebSocket",
+    "repository": "esteban-m/open-task",
+    "pagesUrl": "https://esteban-m.github.io/open-task/"
+  },
+  "paths": {
+    "docsDir": "docs",
+    "generatedDir": "docs/generated",
+    "prismaSchema": "backend/prisma/schema.prisma",
+    "backendSrc": "backend/src",
+    "vitepressSidebar": "docs/.vitepress/sidebar.generated.json",
+    "manifestFile": "docs/generated/.doc-manifest.json"
+  },
+  "openrouter": {
+    "defaultModel": "openai/gpt-4o-mini",
+    "siteUrlEnv": "OPENROUTER_SITE_URL",
+    "appName": "Open-Task Docs",
+    "maxTokens": {
+      "architectureExplain": 4000,
+      "architectureMermaid": 3000,
+      "chapter": 3500
+    }
+  },
+  "sources": {
+    "readme": "README.md",
+    "appModule": "backend/src/app.module.ts",
+    "githubTreeMaxFiles": 400,
+    "bundleMaxCharsPerFile": 12000,
+    "bundleMaxTotalChars": 55000
+  },
+  "pipeline": {
+    "steps": [
+      { "id": "database", "requiresAi": false },
+      { "id": "api-reference", "requiresAi": false },
+      { "id": "architecture", "requiresAi": true },
+      { "id": "chapters", "requiresAi": true },
+      { "id": "assemble", "requiresAi": false }
+    ],
+    "skipAiStub": "# Architecture\n\n> Génération IA désactivée (`SKIP_AI`). Configurez `OPENROUTER_API_KEY`.\n"
+  },
+  "navigation": {
+    "home": { "text": "Introduction", "link": "/" },
+    "categories": [
+      { "id": "guide", "text": "Guide", "order": 1, "expanded": true },
+      { "id": "explanation", "text": "Comprendre le système", "order": 2 },
+      { "id": "backend", "text": "Backend (NestJS)", "order": 3 },
+      { "id": "frontend", "text": "Frontend (Nuxt)", "order": 4 },
+      { "id": "reference", "text": "Référence", "order": 5 },
+      { "id": "operations", "text": "Exploitation", "order": 6 }
+    ],
+    "staticPages": [
+      { "category": "guide", "link": "/guide/getting-started", "title": "Démarrage rapide" },
+      { "category": "reference", "link": "/reference/environment", "title": "Variables d'environnement" },
+      { "category": "operations", "link": "/operations/docker", "title": "Docker & services" }
+    ],
+    "generatedPages": [
+      { "category": "explanation", "link": "/generated/architecture", "title": "Architecture système", "file": "architecture.md" },
+      { "category": "explanation", "link": "/generated/database", "title": "Modèle de données (ERD)", "file": "database.md" },
+      { "category": "reference", "link": "/generated/api-reference", "title": "API REST", "file": "api-reference.md" }
+    ]
+  },
+  "chapters": [
+    {
+      "category": "guide",
+      "path": "guide/introduction",
+      "title": "Introduction",
+      "outline": ["## Objectif du projet", "## Fonctionnalités principales", "## Stack technique", "## Organisation du dépôt"],
+      "sources": ["README.md", "backend/src/app.module.ts"]
+    },
+    {
+      "category": "explanation",
+      "path": "explanation/realtime",
+      "title": "Temps réel (WebSocket)",
+      "outline": ["## Vue d'ensemble", "## Rooms Socket.io", "## Événements émis", "## Flux côté client", "## Synchronisation Pinia"],
+      "sources": [
+        "backend/src/tasks/tasks.gateway.ts",
+        "frontend/composables/useSocket.ts",
+        "frontend/composables/useRealtimeSync.ts",
+        "frontend/plugins/realtime.client.ts"
+      ]
+    },
+    {
+      "category": "backend",
+      "path": "backend/authentication",
+      "title": "Authentification",
+      "outline": ["## Modèle JWT (access + refresh)", "## Endpoints", "## Cookies httpOnly", "## Rotation des refresh tokens", "## Stratégie Passport"],
+      "sources": [
+        "backend/src/auth/auth.controller.ts",
+        "backend/src/auth/auth.service.ts",
+        "backend/src/auth/jwt.strategy.ts",
+        "backend/src/auth/auth-cookie.ts",
+        "backend/src/auth/refresh-token-hash.ts",
+        "backend/src/auth/dto/auth.dto.ts"
+      ]
+    },
+    {
+      "category": "backend",
+      "path": "backend/lists-and-sharing",
+      "title": "Listes & partage",
+      "outline": ["## Modèle de données", "## CRUD listes", "## Invitations & rôles", "## Contrôle d'accès (ListAccessService)"],
+      "sources": [
+        "backend/src/lists/lists.controller.ts",
+        "backend/src/lists/lists.service.ts",
+        "backend/src/lists/dto/list.dto.ts",
+        "backend/src/lists/dto/share-list.dto.ts",
+        "backend/src/common/list-access/list-access.service.ts",
+        "backend/prisma/schema.prisma"
+      ]
+    },
+    {
+      "category": "backend",
+      "path": "backend/tasks",
+      "title": "Tâches",
+      "outline": ["## CRUD & règles métier", "## Validation (DTOs)", "## Gateway temps réel", "## Isolation par liste"],
+      "sources": [
+        "backend/src/tasks/tasks.controller.ts",
+        "backend/src/tasks/tasks.service.ts",
+        "backend/src/tasks/tasks.gateway.ts",
+        "backend/src/tasks/dto/task.dto.ts"
+      ]
+    },
+    {
+      "category": "backend",
+      "path": "backend/security",
+      "title": "Sécurité transverse",
+      "outline": ["## Durcissement HTTP", "## Guards & filtres", "## Validation production", "## Bonnes pratiques appliquées"],
+      "sources": [
+        "backend/src/main.ts",
+        "backend/src/common/guards/jwt-auth.guard.ts",
+        "backend/src/common/filters/all-exceptions.filter.ts",
+        "backend/src/common/filters/http-exception.filter.ts",
+        "backend/src/common/config/validate-production-secrets.ts"
+      ]
+    },
+    {
+      "category": "frontend",
+      "path": "frontend/application",
+      "title": "Application Nuxt",
+      "outline": ["## Routing & middleware auth", "## Configuration Nuxt", "## Client API & intercepteurs", "## Initialisation session"],
+      "sources": [
+        "frontend/nuxt.config.ts",
+        "frontend/middleware/auth.ts",
+        "frontend/composables/useApi.ts",
+        "frontend/composables/useAuth.ts",
+        "frontend/composables/useSessionInit.ts",
+        "frontend/plugins/auth-init.client.ts"
+      ]
+    },
+    {
+      "category": "frontend",
+      "path": "frontend/state-management",
+      "title": "État Pinia",
+      "outline": ["## Stores auth, lists, tasks", "## Relations entre stores", "## Mise à jour via WebSocket"],
+      "sources": ["frontend/stores/auth.ts", "frontend/stores/lists.ts", "frontend/stores/tasks.ts"]
+    },
+    {
+      "category": "frontend",
+      "path": "frontend/views",
+      "title": "Vues & interface",
+      "outline": ["## Pages principales", "## Vues liste, Kanban, calendrier", "## Thèmes & Markdown", "## Composants clés"],
+      "sources": [
+        "frontend/pages/index.vue",
+        "frontend/pages/login.vue",
+        "frontend/components/kanban/KanbanView.vue",
+        "frontend/components/calendar/CalendarView.vue",
+        "frontend/composables/useTheme.ts",
+        "frontend/composables/useMarkdown.ts"
+      ]
+    }
+  ],
+  "diagrams": [
+    {
+      "chapterPath": "backend/authentication",
+      "afterHeading": "## Modèle JWT (access + refresh)",
+      "sectionTitle": "## Flux d'authentification",
+      "mermaid": "sequenceDiagram\n  participant C as Client Nuxt\n  participant A as API NestJS\n  participant DB as PostgreSQL\n\n  C->>A: POST /auth/login\n  A->>DB: find user + verify password\n  A-->>C: access JWT + refresh cookie httpOnly\n  C->>A: GET /auth/me (Bearer)\n  A-->>C: profil utilisateur"
+    },
+    {
+      "chapterPath": "explanation/realtime",
+      "afterHeading": "## Vue d'ensemble",
+      "sectionTitle": "## Flux temps réel",
+      "mermaid": "sequenceDiagram\n  participant C as Client Nuxt\n  participant API as API NestJS\n  participant G as TasksGateway\n  participant DB as PostgreSQL\n\n  C->>G: connect JWT + join list:id\n  C->>API: POST /tasks\n  API->>DB: persist task\n  G-->>C: task:created (room list:id)\n  Note over C: store Pinia mis à jour"
+    }
+  ],
+  "database": {
+    "title": "Modèle de données",
+    "tables": [
+      { "model": "User", "description": "Compte utilisateur" },
+      { "model": "RefreshToken", "description": "Session refresh (hash SHA-256)" },
+      { "model": "TaskList", "description": "Liste de tâches propriétaire" },
+      { "model": "UserList", "description": "Partage et rôles (viewer/editor/admin)" },
+      { "model": "ShareInvitation", "description": "Invitations par email" },
+      { "model": "Task", "description": "Tâche liée à une liste" }
+    ],
+    "crossLinks": [
+      {
+        "label": "flux d'authentification",
+        "title": "Authentification",
+        "href": "/generated/backend/authentication"
+      },
+      {
+        "label": "flux temps réel",
+        "title": "Temps réel",
+        "href": "/generated/explanation/realtime"
+      }
+    ]
+  },
+  "apiReference": {
+    "websocketEvents": [
+      { "event": "task:created", "description": "Nouvelle tâche dans la room `list:{id}`" },
+      { "event": "task:updated", "description": "Mise à jour tâche" },
+      { "event": "task:deleted", "description": "Suppression" },
+      { "event": "task:completed", "description": "Toggle terminé" }
+    ]
+  },
+  "linkRewrites": {
+    "/generated/user-management": "/generated/backend/authentication",
+    "/generated/task-management": "/generated/backend/tasks",
+    "/generated/security": "/generated/backend/security",
+    "/generated/authentication": "/generated/backend/authentication",
+    "/generated/realtime": "/generated/explanation/realtime",
+    "/generated/websocket": "/generated/explanation/realtime"
+  },
+  "prompts": {
+    "architectureExplain": "Tu es architecte logiciel. Analyse le dépôt {projectName} ({stack}). Rédige en français (8-12 sections ## courtes). Pas de Mermaid. Retourne uniquement <explanation>...</explanation>",
+    "architectureMermaid": "Produis UN diagramme Mermaid flowchart TB en français pour {projectName}. {stackHint}. Max 20 nœuds. Retourne UNIQUEMENT le bloc ```mermaid.",
+    "chapterSystem": "Tu rédiges une documentation doc-as-code en français. Règles: un chapitre cohérent, titres ## exacts du plan, sources uniquement, 500-900 mots, section ## Voir aussi avec 2-4 liens Markdown. Chaque lien DOIT commencer par / (ex: /generated/architecture, /guide/getting-started). Liens autorisés uniquement: {allowedLinks}"
+  }
+}

@@ -1,8 +1,5 @@
 import { writeFile } from 'node:fs/promises';
 
-/**
- * Nettoie le Markdown généré par IA avant écriture (scripts CI, pas runtime app).
- */
 export function sanitizeGeneratedMarkdown(text) {
   return text
     .replace(/<script[\s\S]*?<\/script>/gi, '')

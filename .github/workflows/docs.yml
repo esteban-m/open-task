@@ -70,9 +70,6 @@ jobs:
         working-directory: scripts/docs
         run: npm run generate
 
-      - name: Assembler sidebar VitePress
-        run: node scripts/docs/assemble-summary.mjs
-
       - name: Build site VitePress
         working-directory: docs
         env:
