@@ -78,12 +78,20 @@ export async function logoutFromApp(page: Page) {
 export async function createList(page: Page, name: string) {
   await ensureListSidebar(page);
   const sidebar = await activeListSidebar(page);
+  const isMobile = await page.getByRole('button', { name: 'Ouvrir les listes' }).isVisible();
+
   await sidebar.getByTestId('create-list-btn').click();
   await sidebar.getByTestId('list-name-input').fill(name);
   await sidebar.getByTestId('list-create-submit').click();
-  await expect(sidebar.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
-    timeout: 15_000,
-  });
+
+  // Mobile : le tiroir se ferme après création (voir SidebarPanel.createList).
+  if (isMobile) {
+    await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: 15_000 });
+  } else {
+    await expect(sidebar.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
+      timeout: 15_000,
+    });
+  }
   await closeMobileListDrawerIfOpen(page);
 }
 
