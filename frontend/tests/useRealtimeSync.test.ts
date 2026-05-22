@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
+import type { TaskList } from '~/stores/lists'
+import type { Task } from '~/stores/tasks'
 import { useListsStore } from '~/stores/lists'
 import { useTasksStore } from '~/stores/tasks'
 
@@ -21,6 +23,31 @@ vi.mock('~/composables/useSocket', () => ({
   }),
 }))
 
+function mockList(id: string, name: string, color?: string): TaskList {
+  return {
+    id,
+    name,
+    userId: 'u1',
+    createdAt: '',
+    updatedAt: '',
+    color,
+  }
+}
+
+function mockTask(id: string, listId: string, shortDescription: string): Task {
+  return {
+    id,
+    listId,
+    shortDescription,
+    longDescription: null,
+    dueDate: '2024-12-31',
+    completed: false,
+    completedAt: null,
+    createdAt: '',
+    updatedAt: '',
+  }
+}
+
 describe('useRealtimeSync', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
@@ -34,28 +61,20 @@ describe('useRealtimeSync', () => {
 
   it('bind applique task:created au store', () => {
     const lists = useListsStore()
-    lists.lists = [{ id: 'l1', name: 'Liste', color: '#fff', ownerId: 'u1', createdAt: '', updatedAt: '' }]
+    lists.lists = [mockList('l1', 'Liste', '#fff')]
     const { bind } = useRealtimeSync()
     bind()
-    handlers.get('task:created')?.({
-      id: 't1',
-      listId: 'l1',
-      shortDescription: 'Tâche',
-      completed: false,
-      createdAt: '',
-      updatedAt: '',
-    })
+    handlers.get('task:created')?.(mockTask('t1', 'l1', 'Tâche'))
     const tasks = useTasksStore()
     expect(tasks.allTasks.some((t) => t.id === 't1')).toBe(true)
   })
 
   it('list:revoked retire liste et tâches', () => {
     const lists = useListsStore()
-    lists.lists = [{ id: 'l1', name: 'Liste', color: null, ownerId: 'u1', createdAt: '', updatedAt: '' }]
+    lists.lists = [mockList('l1', 'Liste')]
     const tasks = useTasksStore()
-    tasks.setAllTasks([
-      { id: 't1', listId: 'l1', shortDescription: 'X', completed: false, createdAt: '', updatedAt: '' },
-    ])
+    const task = mockTask('t1', 'l1', 'X')
+    tasks.setAllTasks([task])
     tasks.setTasks(tasks.allTasks)
     const { bind } = useRealtimeSync()
     bind()
@@ -67,10 +86,7 @@ describe('useRealtimeSync', () => {
 
   it('syncListRooms appelle joinLists', () => {
     const lists = useListsStore()
-    lists.lists = [
-      { id: 'l1', name: 'A', color: null, ownerId: 'u1', createdAt: '', updatedAt: '' },
-      { id: 'l2', name: 'B', color: null, ownerId: 'u1', createdAt: '', updatedAt: '' },
-    ]
+    lists.lists = [mockList('l1', 'A'), mockList('l2', 'B')]
     const { syncListRooms } = useRealtimeSync()
     syncListRooms()
     expect(joinLists).toHaveBeenCalledWith(['l1', 'l2'])
