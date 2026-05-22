@@ -35,11 +35,16 @@ export async function ensureListSidebar(page: Page) {
 }
 
 export async function closeMobileListDrawerIfOpen(page: Page) {
-  const closeBtn = page.getByRole('button', { name: 'Fermer le menu' });
-  if (await closeBtn.isVisible()) {
-    await closeBtn.click();
-    await expect(page.getByRole('dialog', { name: 'Menu des listes' })).toBeHidden();
+  const dialog = getListSidebar(page);
+  if (!(await dialog.isVisible())) return;
+  if (await page.getByRole('heading', { name: 'Partager la liste' }).isVisible()) return;
+  const panelClose = dialog.getByRole('button', { name: 'Fermer le panneau' });
+  if (await panelClose.isVisible()) {
+    await panelClose.click();
+  } else {
+    await dialog.getByRole('button', { name: 'Fermer le menu' }).click();
   }
+  await expect(dialog).toBeHidden();
 }
 
 export async function registerAndLandOnHome(
@@ -77,7 +82,7 @@ export async function logoutFromApp(page: Page) {
   await ensureListSidebar(page);
   const sidebar = await activeListSidebar(page);
   await sidebar.getByTestId('logout-btn').click();
-  await page.waitForURL('/login');
+  await page.waitForURL('/login', { timeout: 30_000 });
 }
 
 export async function createList(page: Page, name: string) {
@@ -102,8 +107,11 @@ export async function createList(page: Page, name: string) {
 }
 
 export async function activeListSidebar(page: Page) {
-  const dialog = getListSidebar(page);
-  if (await dialog.isVisible()) return dialog;
+  const mobileMenu = page.getByRole('button', { name: 'Ouvrir les listes' });
+  if (await mobileMenu.isVisible()) {
+    await ensureListSidebar(page);
+    return getListSidebar(page);
+  }
   return page.locator('aside.left-sidebar-desktop');
 }
 
@@ -153,12 +161,14 @@ export async function shareListWithEmail(
   const isMobile = await page.getByRole('button', { name: 'Ouvrir les listes' }).isVisible();
   if (!isMobile) await listBtn.hover();
   await shareBtn.click({ force: true });
-  await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible();
+  // Ne pas fermer le tiroir ici : le backdrop est sous la modale (z-110) → clic bloqué jusqu'au timeout test.
+  await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible({ timeout: 15_000 });
   await page.getByTestId('share-email-input').fill(inviteEmail);
   await page.getByTestId('share-role-select').selectOption(role);
   await page.getByTestId('share-submit').click();
   await expect(page.getByText(inviteEmail).first()).toBeVisible({ timeout: 15_000 });
   await page.getByTestId('share-modal-close').click();
+  if (isMobile) await closeMobileListDrawerIfOpen(page);
   await pauseDemoStep(page);
 }
 

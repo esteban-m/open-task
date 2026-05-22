@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" @click.self="emit('close')">
+    <div class="fixed inset-0 bg-black/60 flex items-center justify-center z-[110] p-4" @click.self="emit('close')">
       <div class="bg-surface-1 border border-border rounded-xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
         <div class="px-5 pt-5 pb-3">
           <h2 class="text-lg font-semibold text-text">Partager la liste</h2>

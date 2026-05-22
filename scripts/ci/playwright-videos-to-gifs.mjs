@@ -14,7 +14,18 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const FPS = Number(process.env.DEMO_GIF_FPS || '8');
 const WIDTH_DESKTOP = Number(process.env.DEMO_GIF_WIDTH_DESKTOP || '960');
 const WIDTH_MOBILE = Number(process.env.DEMO_GIF_WIDTH_MOBILE || '390');
-const SLUG_RE = /^\d{2}-[a-z0-9-]+$/i;
+/** Slugs stables (ordre : les plus longs en premier). */
+const DEMO_SLUGS = [
+  '09-partage-liste',
+  '08-calendrier-echelles',
+  '07-kanban-drag',
+  '06-themes',
+  '05-mobile-navigation',
+  '04-connexion',
+  '03-vues-kanban-calendrier',
+  '02-liste-tache',
+  '01-inscription',
+];
 
 function resolveSafeDir(arg, defaultRel) {
   const input = (arg || defaultRel).trim();
@@ -42,9 +53,9 @@ function parseResultDir(name) {
       ? 'desktop'
       : null;
   if (!variant) return null;
-  const slugMatch = name.match(/(\d{2}-[a-z0-9-]+)/i);
-  if (!slugMatch || !SLUG_RE.test(slugMatch[1])) return null;
-  return { slug: slugMatch[1], variant };
+  const slug = DEMO_SLUGS.find((s) => name.includes(s));
+  if (!slug) return null;
+  return { slug, variant };
 }
 
 function findVideos(root) {
@@ -88,10 +99,16 @@ function buildManifest(entries) {
     '|----------|---------|--------|',
   ];
   const slugs = [...new Set(entries.map((e) => e.slug))].sort();
+  const bySlug = new Map();
+  for (const { slug, variant } of entries) {
+    if (!bySlug.has(slug)) bySlug.set(slug, { desktop: false, mobile: false });
+    bySlug.get(slug)[variant] = true;
+  }
   for (const slug of slugs) {
-    const desktop = `desktop/${slug}.gif`;
-    const mobile = `mobile/${slug}.gif`;
-    lines.push(`| ${slug} | ![${slug} desktop](${desktop}) | ![${slug} mobile](${mobile}) |`);
+    const flags = bySlug.get(slug) ?? {};
+    const desktop = flags.desktop ? `desktop/${slug}.gif` : '—';
+    const mobile = flags.mobile ? `mobile/${slug}.gif` : '—';
+    lines.push(`| ${slug} | ${desktop} | ${mobile} |`);
   }
   lines.push('');
   return `${lines.join('\n')}\n`;

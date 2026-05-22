@@ -13,7 +13,7 @@ import {
 
 test.describe('Démo — Partage de liste', () => {
   test('inviter un collègue et accéder à la liste partagée', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     const ownerEmail = uniqueEmail('owner');
     const colleagueEmail = uniqueEmail('collegue');
     const listName = 'Projet équipe';
@@ -40,8 +40,9 @@ test.describe('Démo — Partage de liste', () => {
     await login(page, colleagueEmail);
     await ensureListSidebar(page);
     const sidebar = await activeListSidebar(page);
-    await expect(sidebar.getByRole('button', { name: new RegExp(listName) }).first()).toBeVisible();
-    await expect(sidebar.getByText('partagée').first()).toBeVisible();
+    const sharedList = sidebar.getByRole('button', { name: new RegExp(listName) }).first();
+    await expect(sharedList).toBeVisible({ timeout: 30_000 });
+    await expect(sidebar.getByText('partagée').first()).toBeVisible({ timeout: 15_000 });
     await pauseDemoScene(page);
   });
 });

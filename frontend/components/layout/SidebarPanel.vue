@@ -8,7 +8,7 @@
           v-if="mobile"
           type="button"
           class="p-1.5 text-text-faint hover:text-text hover:bg-surface-2 rounded transition-colors"
-          aria-label="Fermer le menu"
+          aria-label="Fermer le panneau"
           @click="onCloseDrawer"
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
