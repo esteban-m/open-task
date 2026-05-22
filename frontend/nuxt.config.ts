@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     }
   },
 
-  modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
 
   // Auth via localStorage + cookie : pas de SSR sur les pages app pour éviter les mismatches d'hydratation
   routeRules: {

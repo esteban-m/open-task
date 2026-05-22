@@ -66,24 +66,19 @@ jobs:
         working-directory: backend
         run: npx prisma migrate deploy
 
-      - name: Tests unitaires (coverage)
+      - name: Tests (unit + e2e) avec coverage
         working-directory: backend
-        run: npm run test:coverage
+        run: npm run test:coverage:ci
 
       - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: backend/coverage/lcov.info
+          files: backend/coverage/lcov.info,backend/coverage-e2e/lcov.info
           flags: backend
           name: backend
-          directory: backend
           disable_search: true
           fail_ci_if_error: true
-
-      - name: Tests e2e
-        working-directory: backend
-        run: npm run test:e2e
 
   frontend:
     name: Frontend

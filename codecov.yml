@@ -5,6 +5,9 @@ fixes:
   - "composables/::frontend/composables/"
   - "config/::frontend/config/"
   - "stores/::frontend/stores/"
+  - "utils/::frontend/utils/"
+  - "components/::frontend/components/"
+  - "middleware/::frontend/middleware/"
 
 flag_management:
   default_rules:
