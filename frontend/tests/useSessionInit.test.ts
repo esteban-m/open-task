@@ -16,10 +16,14 @@ describe('useSessionInit', () => {
   })
 
   it('restores session from refresh + me endpoints', async () => {
-    vi.mocked($fetch).mockImplementation(async (url: string) => {
-      if (String(url).includes('/auth/refresh')) return { accessToken: 'new-tok' }
-      return { id: 'u1', email: 'a@b.fr', firstName: 'A', lastName: 'B' }
-    })
+    vi.mocked($fetch)
+      .mockResolvedValueOnce({ accessToken: 'new-tok' })
+      .mockResolvedValueOnce({
+        id: 'u1',
+        email: 'a@b.fr',
+        firstName: 'A',
+        lastName: 'B',
+      })
 
     await ensureSession()
 
