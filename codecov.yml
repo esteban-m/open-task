@@ -1,4 +1,15 @@
 # https://docs.codecov.com/docs/codecov-yaml
+# Monorepo : chemins LCOV relatifs → racine du dépôt
+fixes:
+  - "src/::backend/src/"
+  - "composables/::frontend/composables/"
+  - "config/::frontend/config/"
+  - "stores/::frontend/stores/"
+
+flag_management:
+  default_rules:
+    carryforward: true
+
 coverage:
   status:
     project:
