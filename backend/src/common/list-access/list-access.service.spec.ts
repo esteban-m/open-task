@@ -62,6 +62,23 @@ describe('ListAccessService', () => {
   });
 
   describe('requireAccess', () => {
+    it('returns access for accepted member with sufficient role', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'owner',
+      });
+      mockPrismaService.userList.findFirst.mockResolvedValue({
+        listId: 'list-1',
+        userId: 'user-2',
+        role: 'editor',
+        status: 'accepted',
+      });
+
+      const access = await service.requireAccess('list-1', 'user-2', 'editor');
+
+      expect(access.role).toBe('editor');
+    });
+
     it('throws when user has no access', async () => {
       mockPrismaService.taskList.findUnique.mockResolvedValue({
         id: 'list-1',
@@ -73,9 +90,42 @@ describe('ListAccessService', () => {
         ForbiddenException,
       );
     });
+
+    it('throws when role is insufficient', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'owner',
+      });
+      mockPrismaService.userList.findFirst.mockResolvedValue({
+        listId: 'list-1',
+        userId: 'user-2',
+        role: 'viewer',
+        status: 'accepted',
+      });
+
+      await expect(service.requireAccess('list-1', 'user-2', 'editor')).rejects.toThrow(
+        /Droits insuffisants/,
+      );
+    });
   });
 
   describe('requireTaskAccess', () => {
+    it('returns task when user has access', async () => {
+      mockPrismaService.task.findUnique.mockResolvedValue({
+        id: 'task-1',
+        listId: 'list-1',
+        list: { id: 'list-1', userId: 'user-1' },
+      });
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'user-1',
+      });
+
+      const task = await service.requireTaskAccess('task-1', 'user-1', 'viewer');
+
+      expect(task.id).toBe('task-1');
+    });
+
     it('throws when task is missing', async () => {
       mockPrismaService.task.findUnique.mockResolvedValue(null);
 

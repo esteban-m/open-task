@@ -10,6 +10,7 @@ const mockListsService = {
   update: jest.fn(),
   remove: jest.fn(),
   shareList: jest.fn(),
+  acceptShare: jest.fn(),
   getSharedUsers: jest.fn(),
   revokeAccess: jest.fn(),
 };
@@ -81,6 +82,49 @@ describe('ListsController', () => {
     mockListsService.revokeAccess.mockResolvedValue({ message: 'ok' });
 
     await controller.revokeShare('l1', 'u2', 'user-1');
+
+    expect(mockTasksGateway.emitListRevoked).toHaveBeenCalledWith('u2', 'l1');
+  });
+
+  it('findOne delegates to ListsService', async () => {
+    mockListsService.findOne.mockResolvedValue({ id: 'l1', name: 'Todo' });
+
+    const result = await controller.findOne('l1', 'user-1');
+
+    expect(result.name).toBe('Todo');
+    expect(mockListsService.findOne).toHaveBeenCalledWith('l1', 'user-1');
+  });
+
+  it('remove notifies members and emits list deleted', async () => {
+    mockListsService.getSharedUsers.mockResolvedValue([{ id: 'u2' }]);
+    mockListsService.remove.mockResolvedValue({ message: 'Liste supprimée' });
+
+    const result = await controller.remove('l1', 'user-1');
+
+    expect(result.message).toBe('Liste supprimée');
+    expect(mockTasksGateway.emitListDeleted).toHaveBeenCalledWith('l1', ['u2']);
+  });
+
+  it('getSharedUsers returns collaborators', async () => {
+    mockListsService.getSharedUsers.mockResolvedValue([{ id: 'u2', email: 'b@b.fr' }]);
+
+    const users = await controller.getSharedUsers('l1', 'user-1');
+
+    expect(users).toHaveLength(1);
+  });
+
+  it('acceptShare delegates to service', async () => {
+    mockListsService.acceptShare.mockResolvedValue({ id: 'l1' });
+
+    await controller.acceptShare('share-1', 'user-2');
+
+    expect(mockListsService.acceptShare).toHaveBeenCalledWith('share-1', 'user-2');
+  });
+
+  it('revokeAccessLegacy emits revoked event', async () => {
+    mockListsService.revokeAccess.mockResolvedValue({ message: 'ok' });
+
+    await controller.revokeAccessLegacy('l1', { userIdToRevoke: 'u2' }, 'user-1');
 
     expect(mockTasksGateway.emitListRevoked).toHaveBeenCalledWith('u2', 'l1');
   });

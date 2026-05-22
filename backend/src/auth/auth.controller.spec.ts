@@ -78,6 +78,25 @@ describe('AuthController', () => {
     );
   });
 
+  it('refresh rotates cookie and returns access token', async () => {
+    mockAuthService.refresh.mockResolvedValue({
+      accessToken: 'new-access',
+      refreshToken: 'new-refresh',
+    });
+    const res = mockResponse();
+    const req = { cookies: { refresh_token: 'old-refresh' } };
+
+    const result = await controller.refresh(req as any, res as any);
+
+    expect(result).toEqual({ accessToken: 'new-access' });
+    expect(mockAuthService.refresh).toHaveBeenCalledWith('old-refresh');
+    expect(res.cookie).toHaveBeenCalledWith(
+      'refresh_token',
+      'new-refresh',
+      REFRESH_COOKIE_OPTIONS,
+    );
+  });
+
   it('getMe delegates to AuthService', async () => {
     mockAuthService.getMe.mockResolvedValue({ id: 'u1', email: 'a@b.fr' });
 

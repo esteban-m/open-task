@@ -104,5 +104,111 @@ describe('Pinia stores', () => {
       expect(store.tasks).toHaveLength(1)
       expect(store.allTasks).toHaveLength(1)
     })
+
+    it('updateTask and moveTask keep stores in sync', () => {
+      const lists = useListsStore()
+      lists.setLists([
+        { id: 'l1', name: 'A', userId: 'u1', createdAt: '', updatedAt: '' },
+        { id: 'l2', name: 'B', userId: 'u1', createdAt: '', updatedAt: '' },
+      ])
+      lists.selectList('l1')
+
+      const store = useTasksStore()
+      const base = {
+        id: 't1',
+        shortDescription: 'T',
+        longDescription: null,
+        dueDate: '2026-01-01',
+        completed: false,
+        completedAt: null,
+        listId: 'l1',
+        createdAt: '',
+        updatedAt: '',
+      }
+      store.setTasks([base])
+      store.setAllTasks([base])
+
+      store.updateTask({ ...base, shortDescription: 'Updated' })
+      expect(store.tasks[0].shortDescription).toBe('Updated')
+
+      store.moveTask({ ...base, listId: 'l2' }, 'l1')
+      expect(store.tasks.find((t) => t.id === 't1')).toBeUndefined()
+      expect(store.allTasks[0].listId).toBe('l2')
+    })
+
+    it('getters split active and completed tasks', () => {
+      const store = useTasksStore()
+      store.setTasks([
+        {
+          id: 't1',
+          shortDescription: 'A',
+          longDescription: null,
+          dueDate: '2026-01-01',
+          completed: false,
+          completedAt: null,
+          listId: 'l1',
+          createdAt: '',
+          updatedAt: '',
+        },
+        {
+          id: 't2',
+          shortDescription: 'B',
+          longDescription: null,
+          dueDate: '2026-01-02',
+          completed: true,
+          completedAt: '2026-01-02',
+          listId: 'l1',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ])
+
+      expect(store.activeTasks).toHaveLength(1)
+      expect(store.completedTasks).toHaveLength(1)
+      store.selectTask('t1')
+      expect(store.selectedTask?.id).toBe('t1')
+      store.toggleCompletedCollapsed()
+      expect(store.completedCollapsed).toBe(false)
+    })
+  })
+
+  describe('useListsStore extended', () => {
+    it('upsertList and updateList mutate lists', () => {
+      const store = useListsStore()
+      store.upsertList({
+        id: 'l1',
+        name: 'A',
+        userId: 'u1',
+        createdAt: '',
+        updatedAt: '',
+      })
+      store.upsertList({
+        id: 'l1',
+        name: 'A renamed',
+        userId: 'u1',
+        createdAt: '',
+        updatedAt: '',
+      })
+      expect(store.lists).toHaveLength(1)
+      expect(store.lists[0].name).toBe('A renamed')
+
+      store.updateList({
+        id: 'l1',
+        name: 'Final',
+        userId: 'u1',
+        color: '#abc',
+        createdAt: '',
+        updatedAt: '',
+      })
+      expect(store.lists[0].name).toBe('Final')
+      store.addList({
+        id: 'l2',
+        name: 'B',
+        userId: 'u1',
+        createdAt: '',
+        updatedAt: '',
+      })
+      expect(store.lists).toHaveLength(2)
+    })
   })
 })
