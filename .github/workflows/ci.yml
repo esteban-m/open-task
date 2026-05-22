@@ -71,7 +71,7 @@ jobs:
         run: npm run test:coverage:ci
 
       - name: Upload backend coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage/lcov.info,backend/coverage-e2e/lcov.info
@@ -112,7 +112,7 @@ jobs:
         run: npm run test:coverage
 
       - name: Upload frontend coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: frontend/coverage/lcov.info

@@ -214,10 +214,11 @@ cd frontend && npm run lint
 |-------|---------|
 | `AuthService` | register, login, refresh, erreurs |
 | `TasksService` | CRUD, accès, toggle, suppressions |
-| `ListsService` | findAll, create, conflit de nom |
+| `ListsService` | CRUD, partage, révocation, utilisateurs partagés |
 | `ListAccessService` | rôles, accès owner / interdit |
-| **Controllers / pipes** | auth, lists, health, validation couleur, filtre HTTP |
-| **Composables / utils** | thème, dates, markdown, toast, erreurs API (Vitest + Nuxt) |
+| **Controllers / guards** | auth, lists, tasks, health, JWT guard, cookies refresh |
+| **Config / filtres** | secrets production, exceptions HTTP globales |
+| **Composables / utils** | permissions, drawer, enrichissement tâches, thème, API (Vitest + Nuxt) |
 | **Stores Pinia** | auth, lists, tasks (Vitest) |
 | **e2e flux complet** | register → login → liste → tâche → toggle → delete |
 | **e2e isolation** | Utilisateur B ne accède pas aux données de A |
@@ -227,8 +228,8 @@ cd frontend && npm run lint
 
 | Flag | Périmètre mesuré | Tests |
 |------|------------------|-------|
-| **backend** | Services, controllers, guards, pipes, filtres (+ e2e Supertest fusionné) | Jest unit + e2e |
-| **frontend** | Composables, stores, utils, composants Vue, middleware | Vitest + `@nuxt/test-utils` (env `nuxt`) |
+| **backend** | Services, controllers, guards, pipes, filtres, cookies, config prod (+ e2e) | Jest unit + e2e |
+| **frontend** | Composables, stores, utils, composants, middleware, plugins client | Vitest + `@nuxt/test-utils` (env `nuxt`) |
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">

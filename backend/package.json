@@ -91,6 +91,8 @@
       "**/common/pipes/**/*.ts",
       "**/common/filters/**/*.ts",
       "**/auth/refresh-token-hash.ts",
+      "**/auth/auth-cookie.ts",
+      "**/common/config/**/*.ts",
       "!**/*.gateway.ts",
       "!**/main.ts",
       "!**/app.module.ts"

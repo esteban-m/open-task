@@ -8,6 +8,7 @@ fixes:
   - "utils/::frontend/utils/"
   - "components/::frontend/components/"
   - "middleware/::frontend/middleware/"
+  - "plugins/::frontend/plugins/"
 
 flag_management:
   default_rules:

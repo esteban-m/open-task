@@ -1,0 +1,52 @@
+import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
+import { AllExceptionsFilter } from './all-exceptions.filter';
+
+function mockHost() {
+  const json = jest.fn();
+  const status = jest.fn().mockReturnValue({ json });
+  const request = { method: 'GET', url: '/test' };
+  return {
+    host: {
+      switchToHttp: () => ({
+        getResponse: () => ({ status }),
+        getRequest: () => request,
+      }),
+    } as unknown as ArgumentsHost,
+    json,
+    status,
+  };
+}
+
+describe('AllExceptionsFilter', () => {
+  const filter = new AllExceptionsFilter();
+  const originalEnv = process.env.NODE_ENV;
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalEnv;
+  });
+
+  it('formats HttpException responses', () => {
+    const { host, json, status } = mockHost();
+    filter.catch(new HttpException('Bad input', HttpStatus.BAD_REQUEST), host);
+    expect(status).toHaveBeenCalledWith(400);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({ statusCode: 400, message: 'Bad input', path: '/test' }),
+    );
+  });
+
+  it('hides generic Error details in production', () => {
+    process.env.NODE_ENV = 'production';
+    const { host, json } = mockHost();
+    filter.catch(new Error('db down'), host);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Erreur interne du serveur' }),
+    );
+  });
+
+  it('exposes Error message outside production', () => {
+    process.env.NODE_ENV = 'development';
+    const { host, json } = mockHost();
+    filter.catch(new Error('db down'), host);
+    expect(json).toHaveBeenCalledWith(expect.objectContaining({ message: 'db down' }));
+  });
+});

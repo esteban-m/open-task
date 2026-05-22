@@ -22,6 +22,7 @@ export default defineVitestConfig({
         'stores/**/*.ts',
         'utils/**/*.ts',
         'middleware/**/*.ts',
+        'plugins/**/*.ts',
       ],
       exclude: [
         '**/*.d.ts',
