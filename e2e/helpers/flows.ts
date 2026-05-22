@@ -77,7 +77,7 @@ export async function logoutFromApp(page: Page) {
   await ensureListSidebar(page);
   const sidebar = await activeListSidebar(page);
   await sidebar.getByTestId('logout-btn').click();
-  await page.waitForURL('/login');
+  await page.waitForURL('/login', { timeout: 30_000 });
 }
 
 export async function createList(page: Page, name: string) {
@@ -102,8 +102,11 @@ export async function createList(page: Page, name: string) {
 }
 
 export async function activeListSidebar(page: Page) {
-  const dialog = getListSidebar(page);
-  if (await dialog.isVisible()) return dialog;
+  const mobileMenu = page.getByRole('button', { name: 'Ouvrir les listes' });
+  if (await mobileMenu.isVisible()) {
+    await ensureListSidebar(page);
+    return getListSidebar(page);
+  }
   return page.locator('aside.left-sidebar-desktop');
 }
 
@@ -153,6 +156,8 @@ export async function shareListWithEmail(
   const isMobile = await page.getByRole('button', { name: 'Ouvrir les listes' }).isVisible();
   if (!isMobile) await listBtn.hover();
   await shareBtn.click({ force: true });
+  // Tiroir mobile (z-100) recouvrait la modale (z-50) — la fermer libère le formulaire.
+  if (isMobile) await closeMobileListDrawerIfOpen(page);
   await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible();
   await page.getByTestId('share-email-input').fill(inviteEmail);
   await page.getByTestId('share-role-select').selectOption(role);

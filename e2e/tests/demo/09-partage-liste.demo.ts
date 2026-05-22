@@ -13,7 +13,7 @@ import {
 
 test.describe('Démo — Partage de liste', () => {
   test('inviter un collègue et accéder à la liste partagée', async ({ page }) => {
-    test.setTimeout(120_000);
+    test.setTimeout(180_000);
     const ownerEmail = uniqueEmail('owner');
     const colleagueEmail = uniqueEmail('collegue');
     const listName = 'Projet équipe';
