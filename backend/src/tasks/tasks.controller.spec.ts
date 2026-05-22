@@ -60,6 +60,33 @@ describe('TasksController', () => {
     expect(mockTasksGateway.emitTaskCreated).toHaveBeenCalledWith('list-1', task);
   });
 
+  it('findAllByList delegates to service', async () => {
+    mockTasksService.findAllByList.mockResolvedValue([{ id: 't1' }]);
+
+    const result = await controller.findAll('list-1', 'user-1');
+
+    expect(result).toHaveLength(1);
+    expect(mockTasksService.findAllByList).toHaveBeenCalledWith('list-1', 'user-1');
+  });
+
+  it('findOne delegates to service', async () => {
+    mockTasksService.findOne.mockResolvedValue({ id: 't1' });
+
+    const result = await controller.findOne('t1', 'user-1');
+
+    expect(result.id).toBe('t1');
+  });
+
+  it('update emits updated when list unchanged', async () => {
+    const task = { id: 't1', listId: 'list-1' };
+    mockTasksService.update.mockResolvedValue({ task, previousListId: 'list-1' });
+
+    await controller.update('t1', { shortDescription: 'New title' }, 'user-1');
+
+    expect(mockTasksGateway.emitTaskUpdated).toHaveBeenCalledWith('list-1', task);
+    expect(mockTasksGateway.emitTaskMoved).not.toHaveBeenCalled();
+  });
+
   it('update emits moved when list changes', async () => {
     const task = { id: 't1', listId: 'list-2' };
     mockTasksService.update.mockResolvedValue({ task, previousListId: 'list-1' });
