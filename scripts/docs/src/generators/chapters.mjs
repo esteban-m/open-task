@@ -90,6 +90,7 @@ ${body}
       });
     }
 
+    // codeql[js/http-to-file-access]: chapter markdown sanitized in writeGeneratedDoc
     await writeGeneratedDoc(outPath, md, { baseDir: paths.generatedDir });
     manifest.push({
       category: chapter.category,

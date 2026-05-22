@@ -20,6 +20,7 @@ export async function chatCompletion({
   const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature };
   if (responseFormat) body.response_format = responseFormat;
 
+  // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before OpenRouter
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {

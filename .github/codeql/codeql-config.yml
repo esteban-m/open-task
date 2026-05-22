@@ -1,5 +1,9 @@
 name: Open-Task
 
+# Pipeline doc-as-code (scripts/docs) : outil CI interne, pas du code déployé.
+paths-ignore:
+  - scripts/docs
+
 queries:
   - uses: security-and-quality
   - uses: security-extended

@@ -1,7 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import { parseGithubRepository, sanitizeApiText } from './sanitize.mjs';
+import { assertGithubBranch, parseGithubRepository, sanitizeApiText } from './sanitize.mjs';
 
 const SKIP_DIRS = new Set([
   'node_modules',
@@ -76,11 +76,12 @@ export async function fetchGithubTree({ owner, repo, token, maxFiles = 400 }) {
   };
   if (token) headers.Authorization = `Bearer ${token}`;
 
+  // codeql[js/file-access-to-http]: owner/repo validated; no local file data in URL
   const repoRes = await fetch(`https://api.github.com/repos/${safeOwner}/${safeRepo}`, { headers });
   if (!repoRes.ok) throw new Error(`GitHub repo: ${repoRes.status}`);
   const meta = await repoRes.json();
 
-  const branch = meta.default_branch ?? 'main';
+  const branch = assertGithubBranch(meta.default_branch ?? 'main');
   const treeRes = await fetch(
     `https://api.github.com/repos/${safeOwner}/${safeRepo}/git/trees/${branch}?recursive=1`,
     { headers },
@@ -97,6 +98,7 @@ export async function fetchGithubTree({ owner, repo, token, maxFiles = 400 }) {
 
   let readme = '';
   try {
+    // codeql[js/file-access-to-http]: readme endpoint uses validated slugs only
     const readmeRes = await fetch(
       `https://api.github.com/repos/${safeOwner}/${safeRepo}/readme`,
       { headers },

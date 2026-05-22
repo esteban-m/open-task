@@ -1,29 +1,53 @@
 import path from 'node:path';
 
-const DANGEROUS_URL_RE = /(?:javascript|vbscript|data)\s*:/gi;
-const SCRIPT_TAG_RE = /<script\b[^>]*>[\s\S]*?<\/script\s*>/gi;
-const SCRIPT_OPEN_RE = /<script\b[^>]*>/gi;
+import DOMPurify from 'isomorphic-dompurify';
+
+const SCRIPT_BLOCK_RE =
+  /<script\b[^<]*(?:(?!<\/script\s*>)<[^<]*)*<\/script\s*>/gi;
 const GITHUB_SLUG_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$/;
+const GITHUB_BRANCH_RE = /^[a-zA-Z0-9._/-]+$/;
 
 function decodeHtmlEntities(text) {
   return text
-    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
+    .replace(/\\u([0-9a-fA-F]{4})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
     .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)))
     .replace(/&#(\d+);/g, (_, dec) => String.fromCharCode(parseInt(dec, 10)));
 }
 
-/** Sanitize LLM-generated markdown before writing to disk (CodeQL: XSS / URL schemes). */
-export function sanitizeGeneratedMarkdown(text) {
-  let s = String(text).slice(0, 200_000);
-  s = decodeHtmlEntities(s);
-  s = s.replace(SCRIPT_TAG_RE, '').replace(SCRIPT_OPEN_RE, '');
-  s = s.replace(DANGEROUS_URL_RE, '');
+function stripScriptBlocks(text) {
+  let s = text;
+  let prev;
+  do {
+    prev = s;
+    s = s.replace(SCRIPT_BLOCK_RE, '');
+  } while (s !== prev);
   return s;
 }
 
-/** Bound text sent to external HTTP APIs (CodeQL: file-access-to-http). */
+function stripDangerousUrlSchemes(text) {
+  return text
+    .replace(/javascript\s*:/gi, '')
+    .replace(/vbscript\s*:/gi, '')
+    .replace(/data\s*:/gi, '');
+}
+
+/** Sanitize LLM-generated markdown before writing to disk. */
+export function sanitizeGeneratedMarkdown(text) {
+  let s = String(text).slice(0, 200_000);
+  s = decodeHtmlEntities(s);
+  s = stripScriptBlocks(s);
+  s = DOMPurify.sanitize(s, { ALLOWED_TAGS: [], ALLOWED_ATTR: [] });
+  s = stripDangerousUrlSchemes(s);
+  return s;
+}
+
+/** Bound text sent to external HTTP APIs. */
 export function sanitizeApiText(text) {
-  return String(text).replace(/\0/g, '').slice(0, 500_000);
+  let s = String(text).replace(/\0/g, '').slice(0, 500_000);
+  s = decodeHtmlEntities(s);
+  s = stripScriptBlocks(s);
+  s = stripDangerousUrlSchemes(s);
+  return s;
 }
 
 function assertGithubSlug(slug, label) {
@@ -32,7 +56,7 @@ function assertGithubSlug(slug, label) {
   }
 }
 
-/** Validate owner/repo before use in GitHub API URLs (CodeQL: file-access-to-http). */
+/** Validate owner/repo before use in GitHub API URLs. */
 export function parseGithubRepository(repository) {
   const raw = String(repository).trim();
   const match = raw.match(/^([^/]+)\/([^/]+)$/);
@@ -45,7 +69,16 @@ export function parseGithubRepository(repository) {
   return { owner, repo };
 }
 
-/** Ensure a write target stays under baseDir (CodeQL: http-to-file-access). */
+/** Validate branch name from GitHub API before embedding in URLs. */
+export function assertGithubBranch(branch) {
+  const name = String(branch ?? 'main').trim();
+  if (!GITHUB_BRANCH_RE.test(name)) {
+    throw new Error(`Invalid GitHub branch: ${name}`);
+  }
+  return name;
+}
+
+/** Ensure a write target stays under baseDir. */
 export function resolvePathUnder(baseDir, targetPath) {
   const base = path.resolve(baseDir);
   const target = path.resolve(targetPath);
