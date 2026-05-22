@@ -128,6 +128,16 @@ describe('ListsService', () => {
 
       expect(result.name).toBe('Renamed');
     });
+
+    it('throws when renaming to an existing list name', async () => {
+      mockListAccessService.requireAccess.mockResolvedValue({ list: { id: 'list-1' }, role: 'admin' });
+      mockPrismaService.taskList.findUnique.mockResolvedValue({ id: 'list-1', userId: 'user-1' });
+      mockPrismaService.taskList.findFirst.mockResolvedValue({ id: 'other' });
+
+      await expect(service.update('list-1', { name: 'Dup' }, 'user-1')).rejects.toThrow(
+        ConflictException,
+      );
+    });
   });
 
   describe('acceptShare', () => {
@@ -142,6 +152,20 @@ describe('ListsService', () => {
       const result = await service.acceptShare('inv-1', 'user-2');
 
       expect(result.status).toBe('accepted');
+    });
+
+    it('throws when invitation missing', async () => {
+      mockPrismaService.userList.findUnique.mockResolvedValue(null);
+      await expect(service.acceptShare('inv-x', 'user-2')).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws when invitation belongs to another user', async () => {
+      mockPrismaService.userList.findUnique.mockResolvedValue({
+        id: 'inv-1',
+        userId: 'user-2',
+        status: 'pending',
+      });
+      await expect(service.acceptShare('inv-1', 'user-3')).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -178,6 +202,49 @@ describe('ListsService', () => {
         service.shareList('list-1', { invitedEmail: 'x@x.fr', role: 'viewer' }, 'owner-1'),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('throws when list not found', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue(null);
+      await expect(
+        service.shareList('list-1', { invitedEmail: 'b@b.fr', role: 'viewer' }, 'owner-1'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('throws when caller is not owner', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'owner-1',
+        _count: { tasks: 0 },
+      });
+      await expect(
+        service.shareList('list-1', { invitedEmail: 'b@b.fr', role: 'viewer' }, 'other'),
+      ).rejects.toThrow(ForbiddenException);
+    });
+
+    it('throws when inviting self', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'owner-1',
+        _count: { tasks: 0 },
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'owner-1', email: 'a@a.fr' });
+      await expect(
+        service.shareList('list-1', { invitedEmail: 'a@a.fr', role: 'viewer' }, 'owner-1'),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('throws when user already has access', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({
+        id: 'list-1',
+        userId: 'owner-1',
+        _count: { tasks: 0 },
+      });
+      mockPrismaService.user.findUnique.mockResolvedValue({ id: 'user-2', email: 'b@b.fr' });
+      mockPrismaService.userList.findFirst.mockResolvedValue({ id: 'existing' });
+      await expect(
+        service.shareList('list-1', { invitedEmail: 'b@b.fr', role: 'viewer' }, 'owner-1'),
+      ).rejects.toThrow(ConflictException);
+    });
   });
 
   describe('getSharedUsers', () => {
@@ -212,6 +279,21 @@ describe('ListsService', () => {
     it('throws when list is missing', async () => {
       mockPrismaService.taskList.findUnique.mockResolvedValue(null);
 
+      await expect(service.revokeAccess('list-1', 'user-2', 'owner-1')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
+    it('throws when requester is not owner', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({ id: 'list-1', userId: 'owner-1' });
+      await expect(service.revokeAccess('list-1', 'user-2', 'intruder')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('throws when target has no access', async () => {
+      mockPrismaService.taskList.findUnique.mockResolvedValue({ id: 'list-1', userId: 'owner-1' });
+      mockPrismaService.userList.findFirst.mockResolvedValue(null);
       await expect(service.revokeAccess('list-1', 'user-2', 'owner-1')).rejects.toThrow(
         NotFoundException,
       );
