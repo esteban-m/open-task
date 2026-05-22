@@ -17,14 +17,14 @@ const WIDTH_MOBILE = Number(process.env.DEMO_GIF_WIDTH_MOBILE || '390');
 const SLUG_RE = /^\d{2}-[a-z0-9-]+$/i;
 
 function resolveSafeDir(arg, defaultRel) {
-  const rel = (arg || defaultRel).trim();
-  if (!rel || path.isAbsolute(rel) || rel.includes('..')) {
-    throw new Error(`Chemin invalide: ${rel}`);
+  const input = (arg || defaultRel).trim();
+  if (!input || input.includes('..')) {
+    throw new Error(`Chemin invalide: ${input}`);
   }
   const root = realpathSync(REPO_ROOT);
-  const resolved = path.resolve(REPO_ROOT, rel);
+  const resolved = path.isAbsolute(input) ? path.resolve(input) : path.resolve(REPO_ROOT, input);
   if (!resolved.startsWith(`${root}${path.sep}`) && resolved !== root) {
-    throw new Error(`Chemin hors du dépôt: ${rel}`);
+    throw new Error(`Chemin hors du dépôt: ${input}`);
   }
   return resolved;
 }
