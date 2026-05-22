@@ -3,11 +3,11 @@
 | Workflow | Déclencheur | Rôle |
 |----------|-------------|------|
 | [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Codecov, wiki (main) |
-| [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Génération doc IA + VitePress → GitHub Pages |
-| [**Demo assets**](demo-assets.yml) | PR + push `main`, `workflow_dispatch` | Playwright → GIF ; artefact sur PR, commit sur `main` |
-
-**Push `main`** : chaque merge ou commit sur `main` déclenche **CI**, **CodeQL** (si chemins code), **Docs** et **Demo assets**. Les groupes de concurrence sont séparés par `event_name` pour qu’un `workflow_dispatch` manuel n’annule pas un push en cours.
+| [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Playwright → GIF → VitePress → **GitHub Pages** (GIF sous `/demo/`) |
+| [**Demo assets**](demo-assets.yml) | PR, `workflow_dispatch` | Valide les démos Playwright + artefact (pas de push `main`) |
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
+
+**Push `main`** : **CI**, **CodeQL** (si chemins code), **Docs** (GIF + site). Plus de second push bot pour les GIF — fini les `paths-ignore` et la ruleset CodeQL sur `assets/demo`.
 
 ## CI (`ci.yml`)
 
@@ -31,16 +31,20 @@ Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, f
 ## Demo assets (`demo-assets.yml`)
 
 1. Même stack que Playwright (Postgres + backend + Nuxt preview).
-2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile** (vidéo `on`).
-3. `ffmpeg` → GIF dans `assets/demo/{desktop,mobile}/`.
-4. **PR** (code) : tests + artefact `demo-gifs` ; `paths-ignore: assets/demo/**` (pas de boucle).
-5. **`main`** : commit bot sur `main` (`github-actions[bot]` en bypass de la ruleset CodeQL ; `paths-ignore` sur `assets/demo/**` évite les boucles).
+2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile**.
+3. **PR uniquement** : validation + artefact `demo-gifs` (pas de commit sur `main`).
+
+Les GIF publiés en production passent par **Docs** → GitHub Pages (`https://<user>.github.io/open-task/demo/…`).
 
 Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 
 ## Docs (`docs.yml`)
 
-Indépendant de la CI : génération longue (OpenRouter), build VitePress, déploiement Pages. Secret `OPENROUTER_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
+1. **demo-gifs** — Playwright → `docs/public/demo/` (artefact).
+2. **generate-docs** — génération IA (OpenRouter), build VitePress (inclut les GIF de l’artefact), artefact Pages.
+3. **deploy-pages** — déploiement (API Pages, **aucun push Git**).
+
+Secret `OPENROUTER_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
 
 ## CodeQL (`codeql.yml`)
 

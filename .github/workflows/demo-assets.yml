@@ -1,33 +1,26 @@
-# Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/.
-# - PR : tests + artefact demo-gifs (pas de commit)
-# - push main : commit bot sur main (bypass ruleset CodeQL pour github-actions[bot])
+# Valide les parcours Playwright (desktop + mobile) sur les PR.
+# Les GIF sont publiés sur GitHub Pages via le workflow Docs (push main) — pas de commit sur main.
 name: Demo assets (GIF)
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - 'assets/demo/**'
   pull_request:
     branches: [main]
-    paths-ignore:
-      - 'assets/demo/**'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
-  group: demo-assets-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: demo-assets-pr-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 env:
   NODE_VERSION: '22'
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  generate-gifs:
-    name: Playwright → GIF → assets/demo
+  validate-demos:
+    name: Playwright → GIF (validation PR)
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -57,9 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
-          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'main' }}
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - uses: actions/setup-node@v6
         with:
@@ -76,40 +67,18 @@ jobs:
       - name: Playwright + conversion GIF
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker
 
-      - name: Commit assets/demo sur main
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        run: |
-          set -euo pipefail
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/demo/
-          if git diff --staged --quiet; then
-            echo "GIF déjà à jour — rien à pousser."
-            exit 0
-          fi
-          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
-          git pull --rebase origin main
-          if git push origin main; then
-            echo "GIF publiés sur main."
-          else
-            echo "::warning::Push refusé (ruleset CodeQL sur main). GIF dans l'artefact demo-gifs — merge manuel si besoin."
-          fi
-
-      - name: Artefact GIF (téléchargement)
+      - name: Artefact GIF (revue PR)
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: demo-gifs
-          retention-days: 30
-          path: |
-            assets/demo/desktop/
-            assets/demo/mobile/
-            assets/demo/INDEX.md
+          retention-days: 14
+          path: docs/public/demo/
 
       - name: Artefacts bruts (vidéos)
         if: always()
         uses: actions/upload-artifact@v6
         with:
           name: playwright-demo-videos
-          retention-days: 14
+          retention-days: 7
           path: e2e/test-results/

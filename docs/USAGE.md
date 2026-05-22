@@ -1,8 +1,10 @@
 # Guide d’utilisation — Open-Task
 
-Captures animées générées par la CI (Playwright → GIF). Chemins : `assets/demo/desktop/` et `assets/demo/mobile/`.
+Captures animées générées par Playwright en CI, hébergées sur **GitHub Pages** (pas dans le dépôt Git — pas de push sur `main`, pas de ruleset CodeQL).
 
-> Sur une **PR**, la CI valide les démos et publie l’artefact **demo-gifs** (sans commit sur la branche). Les GIF dans le repo sont mis à jour sur **`main`** après merge. En local : `npm run test:e2e:demo` (ffmpeg requis).
+**Base URL :** `https://esteban-m.github.io/open-task/demo/`
+
+> Sur une **PR**, le workflow **Demo assets** valide les scénarios et publie l’artefact `demo-gifs`. Sur **`main`**, le workflow **Docs** régénère les GIF et les déploie avec le site. En local : `npm run test:e2e:demo` (ffmpeg requis) → `docs/public/demo/`.
 
 ---
 
@@ -12,7 +14,7 @@ Inscription avec email, mot de passe et confirmations, puis redirection vers l�
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Inscription desktop](../assets/demo/desktop/01-inscription.gif) | ![Inscription mobile](../assets/demo/mobile/01-inscription.gif) |
+| ![Inscription desktop](https://esteban-m.github.io/open-task/demo/desktop/01-inscription.gif) | ![Inscription mobile](https://esteban-m.github.io/open-task/demo/mobile/01-inscription.gif) |
 
 ---
 
@@ -22,7 +24,7 @@ Créer une liste depuis la barre latérale, puis ajouter une tâche avec échéa
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Liste et tâche desktop](../assets/demo/desktop/02-liste-tache.gif) | ![Liste et tâche mobile](../assets/demo/mobile/02-liste-tache.gif) |
+| ![Liste et tâche desktop](https://esteban-m.github.io/open-task/demo/desktop/02-liste-tache.gif) | ![Liste et tâche mobile](https://esteban-m.github.io/open-task/demo/mobile/02-liste-tache.gif) |
 
 ---
 
@@ -32,7 +34,7 @@ Basculer entre les trois modes d’affichage des tâches (boutons en haut de la 
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Vues desktop](../assets/demo/desktop/03-vues-kanban-calendrier.gif) | ![Vues mobile](../assets/demo/mobile/03-vues-kanban-calendrier.gif) |
+| ![Vues desktop](https://esteban-m.github.io/open-task/demo/desktop/03-vues-kanban-calendrier.gif) | ![Vues mobile](https://esteban-m.github.io/open-task/demo/mobile/03-vues-kanban-calendrier.gif) |
 
 ---
 
@@ -42,7 +44,7 @@ Se déconnecter puis se reconnecter avec le même compte ; les listes restent di
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Connexion desktop](../assets/demo/desktop/04-connexion.gif) | ![Connexion mobile](../assets/demo/mobile/04-connexion.gif) |
+| ![Connexion desktop](https://esteban-m.github.io/open-task/demo/desktop/04-connexion.gif) | ![Connexion mobile](https://esteban-m.github.io/open-task/demo/mobile/04-connexion.gif) |
 
 ---
 
@@ -52,7 +54,7 @@ Sur petit écran : menu hamburger → tiroir des listes → création de liste e
 
 | Mobile |
 |--------|
-| ![Navigation mobile](../assets/demo/mobile/05-mobile-navigation.gif) |
+| ![Navigation mobile](https://esteban-m.github.io/open-task/demo/mobile/05-mobile-navigation.gif) |
 
 ---
 
@@ -62,7 +64,7 @@ Changer de palette complète (aperçu dans la barre latérale → panneau de th�
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Thèmes desktop](../assets/demo/desktop/06-themes.gif) | ![Thèmes mobile](../assets/demo/mobile/06-themes.gif) |
+| ![Thèmes desktop](https://esteban-m.github.io/open-task/demo/desktop/06-themes.gif) | ![Thèmes mobile](https://esteban-m.github.io/open-task/demo/mobile/06-themes.gif) |
 
 ---
 
@@ -72,7 +74,7 @@ Deux listes, une tâche déplacée d’une colonne à l’autre en vue Kanban.
 
 | Desktop | Mobile |
 |---------|--------|
-| ![Kanban drag desktop](../assets/demo/desktop/07-kanban-drag.gif) | ![Kanban drag mobile](../assets/demo/mobile/07-kanban-drag.gif) |
+| ![Kanban drag desktop](https://esteban-m.github.io/open-task/demo/desktop/07-kanban-drag.gif) | ![Kanban drag mobile](https://esteban-m.github.io/open-task/demo/mobile/07-kanban-drag.gif) |
 
 ---
 
@@ -82,7 +84,7 @@ Vue calendrier : mois, semaine, jour et retour à « Aujourd’hui ».
 
 | Desktop | Mobile |
 |---------|--------|
-| *GIF `08-calendrier-echelles` — workflow Demo assets* | *idem* |
+| ![Calendrier desktop](https://esteban-m.github.io/open-task/demo/desktop/08-calendrier-echelles.gif) | ![Calendrier mobile](https://esteban-m.github.io/open-task/demo/mobile/08-calendrier-echelles.gif) |
 
 ---
 
@@ -92,7 +94,7 @@ Un propriétaire invite un collègue par email ; le collaborateur voit la liste 
 
 | Desktop | Mobile |
 |---------|--------|
-| *GIF `09-partage-liste` — workflow Demo assets* | *idem* |
+| ![Partage desktop](https://esteban-m.github.io/open-task/demo/desktop/09-partage-liste.gif) | ![Partage mobile](https://esteban-m.github.io/open-task/demo/mobile/09-partage-liste.gif) |
 
 ---
 

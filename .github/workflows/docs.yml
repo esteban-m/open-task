@@ -1,4 +1,5 @@
 # Documentation automatique + GitHub Pages
+# - Démos : Playwright → GIF dans docs/public/demo/ (servis par Pages, pas de push main)
 # - Diagramme : GitDiagram (logique) + OpenRouter
 # - Modules : Docudoodle (équivalent TS) + OpenRouter
 # - BDD : ERD Prisma (Mermaid)
@@ -29,15 +30,80 @@ concurrency:
   group: docs-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: false
 
+env:
+  NODE_VERSION: '22'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
+  demo-gifs:
+    name: Playwright → GIF (Pages)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: opentask_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d opentask_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/opentask_test
+      JWT_SECRET: ci_docs_demo_jwt_secret_32chars_minimum
+      JWT_REFRESH_SECRET: ci_docs_demo_refresh_secret_32chars
+      FRONTEND_URL: http://127.0.0.1:3000
+      NODE_ENV: development
+      PLAYWRIGHT_DEMO: '1'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      - name: ffmpeg (WebM → GIF)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Playwright + conversion GIF
+        run: bash scripts/ci/run-playwright-stack.sh --skip-docker
+
+      - name: Artefact GIF (debug)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: demo-gifs
+          retention-days: 14
+          path: docs/public/demo/
+
   generate-docs:
     name: Build
+    needs: demo-gifs
     runs-on: ubuntu-latest
     outputs:
       has_site: ${{ steps.check-site.outputs.has_site }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: GIF démo (Pages)
+        uses: actions/download-artifact@v6
+        with:
+          name: demo-gifs
+          path: docs/public/demo
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
