@@ -105,7 +105,7 @@ jobs:
       # L’action ne produit qu’un tableau + badge à partir de jsonData.total.lines
       - name: Coverage markdown (global)
         id: cov_global
-        uses: autoscatto/action-coverage-summary-markdown@v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: coverage-summary.wiki.json
           warning_threshold: 65
@@ -113,7 +113,7 @@ jobs:
 
       - name: Coverage markdown (backend)
         id: cov_backend
-        uses: autoscatto/action-coverage-summary-markdown@v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: backend/coverage/coverage-summary.json
           warning_threshold: 65
@@ -121,7 +121,7 @@ jobs:
 
       - name: Coverage markdown (frontend)
         id: cov_frontend
-        uses: autoscatto/action-coverage-summary-markdown@v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: frontend/coverage/coverage-summary.json
           warning_threshold: 65
@@ -129,7 +129,7 @@ jobs:
 
       - name: Coverage markdown (scripts)
         id: cov_scripts
-        uses: autoscatto/action-coverage-summary-markdown@v1.0.7
+        uses: autoscatto/action-coverage-summary-markdown@2f2ac13e962a9e2b079a08dcafd9ff014263724f # v1.0.7
         with:
           summary_file: scripts/docs/coverage/coverage-summary.json
           warning_threshold: 40
