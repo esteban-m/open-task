@@ -25,7 +25,7 @@ jobs:
   generate-gifs:
     name: Playwright → GIF → assets/demo
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     services:
       postgres:

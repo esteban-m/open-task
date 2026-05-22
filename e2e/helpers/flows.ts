@@ -42,8 +42,11 @@ export async function closeMobileListDrawerIfOpen(page: Page) {
   }
 }
 
-export async function registerAndLandOnHome(page: Page, opts?: { firstName?: string; lastName?: string }) {
-  const email = uniqueEmail('demo');
+export async function registerAndLandOnHome(
+  page: Page,
+  opts?: { firstName?: string; lastName?: string; email?: string },
+) {
+  const email = opts?.email ?? uniqueEmail('demo');
   const firstName = opts?.firstName ?? 'Demo';
   const lastName = opts?.lastName ?? 'User';
 
@@ -98,7 +101,7 @@ export async function createList(page: Page, name: string) {
   await pauseDemoStep(page);
 }
 
-async function activeListSidebar(page: Page) {
+export async function activeListSidebar(page: Page) {
   const dialog = getListSidebar(page);
   if (await dialog.isVisible()) return dialog;
   return page.locator('aside.left-sidebar-desktop');
@@ -126,4 +129,67 @@ export async function switchView(page: Page, view: 'list' | 'kanban' | 'calendar
 export async function openMobileListDrawer(page: Page) {
   await page.getByRole('button', { name: 'Ouvrir les listes' }).click();
   await expect(page.getByRole('dialog', { name: 'Menu des listes' })).toBeVisible();
+}
+
+export async function selectListByName(page: Page, name: string) {
+  await ensureListSidebar(page);
+  const sidebar = await activeListSidebar(page);
+  await sidebar.getByRole('button', { name: new RegExp(name) }).first().click();
+  await closeMobileListDrawerIfOpen(page);
+  await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: 15_000 });
+  await pauseDemoStep(page);
+}
+
+export async function shareListWithEmail(
+  page: Page,
+  listName: string,
+  inviteEmail: string,
+  role: 'viewer' | 'editor' | 'admin' = 'editor',
+) {
+  await ensureListSidebar(page);
+  const sidebar = await activeListSidebar(page);
+  const listBtn = sidebar.getByRole('button', { name: new RegExp(listName) }).first();
+  await listBtn.hover();
+  await sidebar.getByTestId('list-share-btn').click({ force: true });
+  await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible();
+  await page.getByTestId('share-email-input').fill(inviteEmail);
+  await page.getByTestId('share-role-select').selectOption(role);
+  await page.getByTestId('share-submit').click();
+  await expect(page.getByText(inviteEmail).first()).toBeVisible({ timeout: 15_000 });
+  await page.getByRole('button', { name: 'Fermer' }).click();
+  await pauseDemoStep(page);
+}
+
+export async function switchTheme(page: Page, themeId: string) {
+  await ensureListSidebar(page);
+  const sidebar = await activeListSidebar(page);
+  await sidebar.getByTestId('theme-picker-toggle').click();
+  await page.getByTestId(`theme-option-${themeId}`).click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', themeId);
+  await pauseDemoStep(page, 900);
+}
+
+export async function setCalendarScale(page: Page, scale: 'month' | 'week' | 'day') {
+  await switchView(page, 'calendar');
+  await page.getByTestId(`calendar-scale-${scale}`).click();
+  await pauseDemoStep(page, 1100);
+}
+
+/** Glisse une tâche (texte visible) vers la colonne Kanban d’une autre liste. */
+export async function dragTaskToListInKanban(page: Page, taskLabel: string, targetListName: string) {
+  await switchView(page, 'kanban');
+  const taskCard = page.locator('[draggable="true"]').filter({ hasText: taskLabel }).first();
+  await expect(taskCard).toBeVisible();
+  const targetColumn = page
+    .locator('[data-testid^="kanban-column-"]')
+    .filter({ has: page.getByRole('heading', { name: targetListName }) });
+  const src = await taskCard.boundingBox();
+  const dst = await targetColumn.boundingBox();
+  if (!src || !dst) throw new Error('Kanban drag : repères introuvables');
+  await page.mouse.move(src.x + src.width / 2, src.y + src.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(dst.x + dst.width / 2, dst.y + 80, { steps: 25 });
+  await page.mouse.up();
+  await expect(targetColumn.filter({ hasText: taskLabel })).toBeVisible({ timeout: 15_000 });
+  await pauseDemoStep(page, 1000);
 }

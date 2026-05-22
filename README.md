@@ -66,7 +66,7 @@ docker compose up --build
 
 Parcours illustrés **desktop et mobile**, enregistrés par Playwright en CI et convertis en GIF (`assets/demo/`).
 
-Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues Kanban/Calendrier, connexion, navigation mobile).
+Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues, connexion, mobile, thèmes, Kanban drag & drop, calendrier, partage).
 
 <p align="center">
   <img src="assets/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />

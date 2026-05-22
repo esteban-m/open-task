@@ -7,6 +7,7 @@
             v-for="s in scales"
             :key="s.id"
             type="button"
+            :data-testid="`calendar-scale-${s.id}`"
             :class="[
               'px-2.5 py-1 text-xs font-medium rounded-md transition-colors',
               calendarScale === s.id ? 'bg-surface-1 text-text shadow-sm' : 'text-text-muted hover:text-text',

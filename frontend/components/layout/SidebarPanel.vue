@@ -111,7 +111,13 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
-              <button type="button" class="p-1 text-text-faint hover:text-accent hover:bg-accent-subtle rounded" title="Partager" @click.stop="emit('share-list', list)">
+              <button
+                type="button"
+                data-testid="list-share-btn"
+                class="p-1 text-text-faint hover:text-accent hover:bg-accent-subtle rounded"
+                title="Partager"
+                @click.stop="emit('share-list', list)"
+              >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.806 13.328 9 13.086 9 12.85v-1.5c0-.236.193-.478.506-.664L14 8.208l.49.292c.313.186.506.428.506.664v1.5c0 .236.193.478.506.664L20 11.792l-4.256 2.528c-.313.186-.506.428-.506.664v1.5c0 .236-.193.478-.506.664l-5.364 3.186a.948.948 0 01-1.274-.916l.052-1.566a.947.947 0 01.762-1.052l4.098-2.43a.948.948 0 00.665-.807v-1.5c0-.236-.193-.478-.506-.664L8.684 13.342z" />
                 </svg>

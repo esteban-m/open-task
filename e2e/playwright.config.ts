@@ -24,7 +24,7 @@ export default defineConfig({
     },
     {
       name: 'demo-desktop',
-      testMatch: /demo\/.*\.demo\.ts/,
+      testMatch: [/demo\/0[1-4]-.*\.demo\.ts/, /demo\/0[6-9]-.*\.demo\.ts/],
       use: {
         ...devices['Desktop Chrome'],
         video: 'on',

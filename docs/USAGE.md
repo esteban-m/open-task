@@ -54,7 +54,45 @@ Sur petit écran : menu hamburger → tiroir des listes → création de liste e
 |--------|
 | ![Navigation mobile](../assets/demo/mobile/05-mobile-navigation.gif) |
 
-*(Scénario spécifique mobile — pas de variante desktop.)*
+---
+
+## 6. Thèmes
+
+Changer de palette complète (aperçu dans la barre latérale → panneau de thèmes).
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Thèmes desktop](../assets/demo/desktop/06-themes.gif) | ![Thèmes mobile](../assets/demo/mobile/06-themes.gif) |
+
+---
+
+## 7. Kanban — glisser-déposer
+
+Deux listes, une tâche déplacée d’une colonne à l’autre en vue Kanban.
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Kanban drag desktop](../assets/demo/desktop/07-kanban-drag.gif) | ![Kanban drag mobile](../assets/demo/mobile/07-kanban-drag.gif) |
+
+---
+
+## 8. Calendrier — échelles
+
+Vue calendrier : mois, semaine, jour et retour à « Aujourd’hui ».
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Calendrier desktop](../assets/demo/desktop/08-calendrier-echelles.gif) | ![Calendrier mobile](../assets/demo/mobile/08-calendrier-echelles.gif) |
+
+---
+
+## 9. Partage de liste
+
+Un propriétaire invite un collègue par email ; le collaborateur voit la liste marquée « partagée ».
+
+| Desktop | Mobile |
+|---------|--------|
+| ![Partage desktop](../assets/demo/desktop/09-partage-liste.gif) | ![Partage mobile](../assets/demo/mobile/09-partage-liste.gif) |
 
 ---
 
@@ -62,4 +100,4 @@ Sur petit écran : menu hamburger → tiroir des listes → création de liste e
 
 - [Documentation technique](https://esteban-m.github.io/open-task/) (GitHub Pages)
 - [README](../README.md) — installation Docker, API, WebSocket temps réel
-- Partage de listes, rôles viewer/editor : voir la doc **Backend** et **Fonctionnalités** du README
+- Rôles viewer / editor / admin : doc **Backend** et **Fonctionnalités** du README

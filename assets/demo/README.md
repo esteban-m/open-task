@@ -7,7 +7,7 @@ GIF générés par la CI ([`demo-assets.yml`](../../.github/workflows/demo-asset
 | `desktop/` | Chrome ~1280px |
 | `mobile/` | Pixel 5 |
 
-Scénarios : `01-inscription` … `05-mobile-navigation` (voir [`docs/USAGE.md`](../../docs/USAGE.md)).
+Scénarios : `01-inscription` … `09-partage-liste` (voir [`docs/USAGE.md`](../../docs/USAGE.md)). Le `05-mobile-navigation` ne tourne que sur **mobile** ; les autres sur desktop + mobile.
 
 Pour régénérer en local :
 

@@ -3,10 +3,6 @@ import { pauseDemoScene } from '../../helpers/demo-pause';
 import { addTask, createList, registerAndLandOnHome } from '../../helpers/flows';
 
 test.describe('Démo — Mobile', () => {
-  test.beforeEach(({ }, testInfo) => {
-    test.skip(testInfo.project.name !== 'demo-mobile', 'Scénario réservé au projet mobile');
-  });
-
   test('menu listes et tâche sur petit écran', async ({ page }) => {
     await registerAndLandOnHome(page);
     await createList(page, 'Mobile demo');
