@@ -2,8 +2,8 @@
 
 GIF générés par la CI ([`demo-assets.yml`](../../.github/workflows/demo-assets.yml)) :
 
-- **PR** : tests + artefact **demo-gifs** (pas de commit sur la branche → merge possible).
-- **`main`** (après merge) : commit automatique dans `assets/demo/`.
+- **PR** (code) : tests + artefact **demo-gifs**.
+- **`main`** : PR automatique `bot/demo-gifs` puis merge (la ruleset CodeQL interdit un push direct du bot sur `main`).
 
 | Dossier | Viewport |
 |---------|----------|
