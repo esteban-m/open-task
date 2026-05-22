@@ -9,5 +9,7 @@ describe('loadConfig', () => {
     expect(config.project.name).toBe('Open-Task');
     expect(config.chapters.length).toBeGreaterThan(0);
     expect(config.prompts.chapterSystem).toContain('Voir aussi');
+    expect(config.defaultSeeAlso.length).toBeGreaterThan(0);
+    expect(config.linkLabelAliases.length).toBeGreaterThan(0);
   });
 });

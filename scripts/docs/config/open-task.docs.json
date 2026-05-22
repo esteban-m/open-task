@@ -215,6 +215,31 @@
       { "event": "task:completed", "description": "Toggle terminé" }
     ]
   },
+  "defaultSeeAlso": [
+    { "label": "Architecture système", "href": "/generated/architecture" },
+    { "label": "API REST", "href": "/generated/api-reference" },
+    { "label": "Démarrage rapide", "href": "/guide/getting-started" },
+    { "label": "Variables d'environnement", "href": "/reference/environment" }
+  ],
+  "linkLabelAliases": [
+    { "label": "API Reference", "href": "/generated/api-reference" },
+    { "label": "API REST", "href": "/generated/api-reference" },
+    { "label": "Getting Started", "href": "/guide/getting-started" },
+    { "label": "Guide d'introduction", "href": "/generated/guide/introduction" },
+    { "label": "Introduction", "href": "/generated/guide/introduction" },
+    { "label": "Architecture", "href": "/generated/architecture" },
+    { "label": "Architecture système", "href": "/generated/architecture" },
+    { "label": "Sécurité transverse", "href": "/generated/backend/security" },
+    { "label": "Authentification", "href": "/generated/backend/authentication" },
+    { "label": "Variables d'environnement", "href": "/reference/environment" },
+    { "label": "Docker & services", "href": "/operations/docker" },
+    { "label": "Docker", "href": "/operations/docker" },
+    { "label": "Démarrage rapide", "href": "/guide/getting-started" },
+    { "label": "Gestion des tâches", "href": "/generated/backend/tasks" },
+    { "label": "Listes & partage", "href": "/generated/backend/lists-and-sharing" },
+    { "label": "Temps réel", "href": "/generated/explanation/realtime" },
+    { "label": "Modèle de données", "href": "/generated/database" }
+  ],
   "linkRewrites": {
     "/generated/user-management": "/generated/backend/authentication",
     "/generated/task-management": "/generated/backend/tasks",

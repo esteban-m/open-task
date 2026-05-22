@@ -28,6 +28,7 @@ Tout ce qui est spécifique au dépôt vit dans [`config/open-task.docs.json`](c
 - catégories Diátaxis et pages statiques
 - chapitres IA (sources, plan `##`)
 - injections Mermaid (auth, temps réel)
+- liens « Voir aussi » par défaut (`defaultSeeAlso`) et alias de libellés (`linkLabelAliases`)
 - réécritures de liens (`linkRewrites`)
 - prompts OpenRouter
 
