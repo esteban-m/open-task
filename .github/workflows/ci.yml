@@ -190,18 +190,45 @@ jobs:
           name: coverage-scripts
           path: _cov/scripts
 
-      # Artefacts isolés dans _cov/* pour éviter que plusieurs dossiers « coverage/ » s’écrasent à la racine.
+      # Artefacts isolés dans _cov/* ; chemins exacts selon la version de upload-artifact.
       - name: Restaurer l’arborescence coverage
         run: |
           set -euo pipefail
-          [ -d _cov/backend/backend ] && cp -a _cov/backend/backend/. backend/
-          [ -d _cov/frontend/frontend ] && cp -a _cov/frontend/frontend/. frontend/
-          [ -d _cov/scripts/scripts ] && mkdir -p scripts && cp -a _cov/scripts/scripts/. scripts/
+          mkdir -p backend/coverage backend/coverage-e2e frontend/coverage scripts/docs/coverage
+
+          pick() {
+            local dir=$1 pattern=$2
+            find "$dir" -path "$pattern" 2>/dev/null | head -1
+          }
+
+          b_sum=$(pick _cov/backend '*/backend/coverage/coverage-summary.json')
+          b_sum=${b_sum:-$(find _cov/backend -name coverage-summary.json | head -1)}
+          cp "$b_sum" backend/coverage/coverage-summary.json
+
+          b_lcov=$(pick _cov/backend '*/backend/coverage/lcov.info')
+          b_lcov=${b_lcov:-$(find _cov/backend -path '*/coverage/lcov.info' ! -path '*e2e*' | head -1)}
+          cp "$b_lcov" backend/coverage/lcov.info
+
+          b_e2e=$(pick _cov/backend '*/coverage-e2e/lcov.info')
+          cp "$b_e2e" backend/coverage-e2e/lcov.info
+
+          f_sum=$(pick _cov/frontend '*/frontend/coverage/coverage-summary.json')
+          f_sum=${f_sum:-$(find _cov/frontend -name coverage-summary.json | head -1)}
+          cp "$f_sum" frontend/coverage/coverage-summary.json
+          f_lcov=$(pick _cov/frontend '*/frontend/coverage/lcov.info')
+          f_lcov=${f_lcov:-$(find _cov/frontend -name lcov.info | head -1)}
+          cp "$f_lcov" frontend/coverage/lcov.info
+
+          s_sum=$(pick _cov/scripts '*/scripts/docs/coverage/coverage-summary.json')
+          s_sum=${s_sum:-$(find _cov/scripts -name coverage-summary.json | head -1)}
+          cp "$s_sum" scripts/docs/coverage/coverage-summary.json
+          s_lcov=$(pick _cov/scripts '*/scripts/docs/coverage/lcov.info')
+          s_lcov=${s_lcov:-$(find _cov/scripts -name lcov.info | head -1)}
+          cp "$s_lcov" scripts/docs/coverage/lcov.info
+
           test -f backend/coverage/coverage-summary.json
           test -f frontend/coverage/coverage-summary.json
           test -f scripts/docs/coverage/coverage-summary.json
-          test -f backend/coverage/lcov.info
-          test -f backend/coverage-e2e/lcov.info
 
       - name: Fusionner résumé monorepo
         run: |
