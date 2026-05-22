@@ -17,11 +17,20 @@ export async function assertLandOnHome(page: Page) {
   await expect(page.getByRole('heading', { name: 'Listes' })).toBeVisible();
 }
 
-/** Ouvre le tiroir listes si les contrôles sidebar ne sont pas visibles (mobile). */
+/** Panneau listes actif : tiroir mobile ou sidebar desktop (évite les doublons DOM). */
+export function getListSidebar(page: Page) {
+  const dialog = page.getByRole('dialog', { name: 'Menu des listes' });
+  return dialog;
+}
+
+/** Ouvre le tiroir listes sur mobile. */
 export async function ensureListSidebar(page: Page) {
-  const createBtn = page.getByTestId('create-list-btn');
-  if (await createBtn.isVisible()) return;
-  await openMobileListDrawer(page);
+  const mobileMenu = page.getByRole('button', { name: 'Ouvrir les listes' });
+  if (!(await mobileMenu.isVisible())) return;
+  const dialog = getListSidebar(page);
+  if (!(await dialog.isVisible())) {
+    await openMobileListDrawer(page);
+  }
 }
 
 export async function closeMobileListDrawerIfOpen(page: Page) {
@@ -61,19 +70,27 @@ export async function login(page: Page, email: string) {
 
 export async function logoutFromApp(page: Page) {
   await ensureListSidebar(page);
-  await page.getByTestId('logout-btn').click();
+  const sidebar = await activeListSidebar(page);
+  await sidebar.getByTestId('logout-btn').click();
   await page.waitForURL('/login');
 }
 
 export async function createList(page: Page, name: string) {
   await ensureListSidebar(page);
-  await page.getByTestId('create-list-btn').click();
-  await page.getByTestId('list-name-input').fill(name);
-  await page.getByTestId('list-create-submit').click();
-  await expect(page.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
+  const sidebar = await activeListSidebar(page);
+  await sidebar.getByTestId('create-list-btn').click();
+  await sidebar.getByTestId('list-name-input').fill(name);
+  await sidebar.getByTestId('list-create-submit').click();
+  await expect(sidebar.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
     timeout: 15_000,
   });
   await closeMobileListDrawerIfOpen(page);
+}
+
+async function activeListSidebar(page: Page) {
+  const dialog = getListSidebar(page);
+  if (await dialog.isVisible()) return dialog;
+  return page.locator('aside.left-sidebar-desktop');
 }
 
 export async function addTask(page: Page, shortDescription: string, dueDate = '2026-12-31') {
