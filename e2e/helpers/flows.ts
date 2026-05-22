@@ -35,11 +35,11 @@ export async function ensureListSidebar(page: Page) {
 }
 
 export async function closeMobileListDrawerIfOpen(page: Page) {
-  const closeBtn = page.getByRole('button', { name: 'Fermer le menu' });
-  if (await closeBtn.isVisible()) {
-    await closeBtn.click();
-    await expect(page.getByRole('dialog', { name: 'Menu des listes' })).toBeHidden();
-  }
+  const dialog = getListSidebar(page);
+  if (!(await dialog.isVisible())) return;
+  // Deux boutons « Fermer le menu » dans le tiroir (backdrop + croix) — cibler le fond.
+  await dialog.getByRole('button', { name: 'Fermer le menu' }).first().click();
+  await expect(dialog).toBeHidden();
 }
 
 export async function registerAndLandOnHome(
