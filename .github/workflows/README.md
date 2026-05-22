@@ -34,7 +34,7 @@ Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, f
 2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile** (vidéo `on`).
 3. `ffmpeg` → GIF dans `assets/demo/{desktop,mobile}/`.
 4. **PR** : artefact `demo-gifs` uniquement (pas de push bot → merge possible). Ignorer les changements sous `assets/demo/` pour éviter les boucles.
-5. **`main`** : commit automatique des GIF après merge.
+5. **`main`** : commit automatique des GIF (`checkout` sur la branche `main`, pas un SHA détaché).
 
 Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 
