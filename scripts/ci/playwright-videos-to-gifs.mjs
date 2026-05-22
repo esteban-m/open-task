@@ -14,6 +14,31 @@ const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..
 const FPS = Number(process.env.DEMO_GIF_FPS || '8');
 const WIDTH_DESKTOP = Number(process.env.DEMO_GIF_WIDTH_DESKTOP || '960');
 const WIDTH_MOBILE = Number(process.env.DEMO_GIF_WIDTH_MOBILE || '390');
+/** GIF attendus par variant (05 = mobile uniquement). */
+const EXPECTED_BY_VARIANT = {
+  desktop: [
+    '01-inscription',
+    '02-liste-tache',
+    '03-vues-kanban-calendrier',
+    '04-connexion',
+    '06-themes',
+    '07-kanban-drag',
+    '08-calendrier-echelles',
+    '09-partage-liste',
+  ],
+  mobile: [
+    '01-inscription',
+    '02-liste-tache',
+    '03-vues-kanban-calendrier',
+    '04-connexion',
+    '05-mobile-navigation',
+    '06-themes',
+    '07-kanban-drag',
+    '08-calendrier-echelles',
+    '09-partage-liste',
+  ],
+};
+
 /** Slugs stables (ordre : les plus longs en premier). */
 const DEMO_SLUGS = [
   '09-partage-liste',
@@ -45,35 +70,97 @@ function hasFfmpeg() {
   return r.status === 0;
 }
 
-/** Dossiers Playwright du type *01-inscription*demo-desktop* */
-function parseResultDir(name) {
-  const variant = name.includes('demo-mobile')
-    ? 'mobile'
-    : name.includes('demo-desktop')
-      ? 'desktop'
-      : null;
+/**
+ * Dossiers Playwright du type demo-03-vues-kanban-calendrier.demo.t-…-demo-desktop.
+ * Les noms sont tronqués (~100 car.) : includes(slug complet) rate pour 03 et 08.
+ */
+function resolveSlugFromDirName(name) {
+  // Playwright tronque au milieu du slug : demo-03-vues-kanban-calend-ea844-…
+  // Chaque scénario a un numéro unique (01–09) → suffit pour retrouver le slug.
+  const num = name.match(/demo-(0[1-9])-/);
+  if (num) {
+    const slug = DEMO_SLUGS.find((s) => s.startsWith(`${num[1]}-`));
+    if (slug) return slug;
+  }
+  return DEMO_SLUGS.find((s) => name.includes(s)) ?? null;
+}
+
+function detectVariantFromDirName(name) {
+  if (/demo-mobil/i.test(name)) return 'mobile';
+  if (/demo-desk/i.test(name)) return 'desktop';
+  return null;
+}
+
+function parseResultDir(name, variantFromParent) {
+  const variant = variantFromParent ?? detectVariantFromDirName(name);
   if (!variant) return null;
-  const slug = DEMO_SLUGS.find((s) => name.includes(s));
+  const slug = resolveSlugFromDirName(name);
   if (!slug) return null;
   return { slug, variant };
 }
 
+function findVideoWebm(dir) {
+  const direct = path.join(dir, 'video.webm');
+  try {
+    statSync(direct);
+    return direct;
+  } catch {
+    /* Playwright peut imbriquer l’artefact */
+  }
+  try {
+    for (const entry of readdirSync(dir)) {
+      if (!entry.endsWith('.webm')) continue;
+      const full = path.join(dir, entry);
+      if (statSync(full).isFile()) return full;
+    }
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
+
+function scanResultRoot(scanRoot, variantFromParent, depth = 0) {
+  const found = [];
+  let entries;
+  try {
+    entries = readdirSync(scanRoot);
+  } catch {
+    return found;
+  }
+  for (const entry of entries) {
+    const full = path.join(scanRoot, entry);
+    if (!statSync(full).isDirectory()) continue;
+
+    const videoPath = findVideoWebm(full);
+    if (videoPath) {
+      const meta = parseResultDir(entry, variantFromParent);
+      if (meta) {
+        const resolved = realpathSync(videoPath);
+        if (resolved.startsWith(`${scanRoot}${path.sep}`) || resolved.startsWith(scanRoot)) {
+          found.push({ ...meta, videoPath: resolved });
+        }
+      } else {
+        console.warn(`[gif] vidéo non mappée: ${full}`);
+      }
+      continue;
+    }
+
+    if (depth < 3 && variantFromParent) {
+      found.push(...scanResultRoot(full, variantFromParent, depth + 1));
+    }
+  }
+  return found;
+}
+
 function findVideos(root) {
   const found = [];
-  for (const entry of readdirSync(root)) {
-    const full = path.join(root, entry);
-    if (!statSync(full).isDirectory()) continue;
-    const meta = parseResultDir(entry);
-    if (!meta) continue;
-    const videoPath = path.join(full, 'video.webm');
-    try {
-      statSync(videoPath);
-      const resolved = realpathSync(videoPath);
-      if (!resolved.startsWith(`${root}${path.sep}`)) continue;
-      found.push({ ...meta, videoPath: resolved });
-    } catch {
-      /* pas de vidéo pour ce run */
-    }
+  const roots = [
+    { dir: path.join(root, 'demo-desktop'), variant: 'desktop' },
+    { dir: path.join(root, 'demo-mobile'), variant: 'mobile' },
+    { dir: root, variant: null },
+  ];
+  for (const { dir, variant } of roots) {
+    found.push(...scanResultRoot(dir, variant));
   }
   return found;
 }
@@ -146,4 +233,24 @@ for (const { slug, variant, videoPath } of videos) {
 
 mkdirSync(OUT_ROOT, { recursive: true });
 writeFileSync(path.join(OUT_ROOT, 'INDEX.md'), buildManifest(written));
+
+const writtenKeys = new Set(written.map((e) => `${e.variant}/${e.slug}`));
+const missing = [];
+for (const [variant, slugs] of Object.entries(EXPECTED_BY_VARIANT)) {
+  for (const slug of slugs) {
+    if (!writtenKeys.has(`${variant}/${slug}`)) {
+      missing.push(`${variant}/${slug}.gif`);
+    }
+  }
+}
+if (missing.length > 0) {
+  console.error(
+    `::error::${missing.length} GIF manquant(s) (${written.length}/${Object.values(EXPECTED_BY_VARIANT).flat().length} attendus): ${missing.join(', ')}`,
+  );
+  console.error(
+    '::error::Vérifier e2e/test-results (noms tronqués) et demo-desktop testMatch (03, 08).',
+  );
+  process.exit(1);
+}
+
 console.log(`[gif] ${written.length} GIF(s) → ${OUT_ROOT}`);

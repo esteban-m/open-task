@@ -3,7 +3,7 @@ import { pauseDemoScene, pauseDemoStep } from '../../helpers/demo-pause';
 import { addTask, createList, registerAndLandOnHome, setCalendarScale } from '../../helpers/flows';
 
 test.describe('Démo — Calendrier', () => {
-  test('échelles mois, semaine et jour', async ({ page }) => {
+  test('echelles', async ({ page }) => {
     await registerAndLandOnHome(page);
     await createList(page, 'Planning');
     await addTask(page, 'Rendez-vous démo', '2026-06-20');

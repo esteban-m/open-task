@@ -8,7 +8,7 @@ export default defineConfig({
   timeout: 90_000,
   expect: { timeout: 15_000 },
   retries: process.env.CI && !isDemo ? 2 : 0,
-  workers: 1,
+  workers: 4,
   reporter: process.env.CI ? [['github'], ['list']] : [['list']],
   use: {
     baseURL,
@@ -25,19 +25,22 @@ export default defineConfig({
     {
       name: 'demo-desktop',
       testMatch: [/demo\/0[1-4]-.*\.demo\.ts/, /demo\/0[6-9]-.*\.demo\.ts/],
+      /** Suffixe projet tronqué sur noms longs (03, 08) → variant via dossier parent */
+      outputDir: 'test-results/demo-desktop',
       use: {
         ...devices['Desktop Chrome'],
         video: 'on',
-        launchOptions: { slowMo: 80 },
+        launchOptions: { slowMo: 240 },
       },
     },
     {
       name: 'demo-mobile',
       testMatch: /demo\/.*\.demo\.ts/,
+      outputDir: 'test-results/demo-mobile',
       use: {
         ...devices['Pixel 5'],
         video: 'on',
-        launchOptions: { slowMo: 80 },
+        launchOptions: { slowMo: 240 },
       },
     },
   ],
