@@ -21,6 +21,7 @@ export default withMermaid(
     ignoreDeadLinks: [
       /^http:\/\/localhost/,
       /README\.md$/,
+      /^https:\/\/github\.com\//,
     ],
 
     head: [['meta', { name: 'theme-color', content: '#2563eb' }]],
