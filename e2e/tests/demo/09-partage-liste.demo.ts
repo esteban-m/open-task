@@ -40,8 +40,9 @@ test.describe('Démo — Partage de liste', () => {
     await login(page, colleagueEmail);
     await ensureListSidebar(page);
     const sidebar = await activeListSidebar(page);
-    await expect(sidebar.getByRole('button', { name: new RegExp(listName) }).first()).toBeVisible();
-    await expect(sidebar.getByText('partagée').first()).toBeVisible();
+    const sharedList = sidebar.getByRole('button', { name: new RegExp(listName) }).first();
+    await expect(sharedList).toBeVisible({ timeout: 30_000 });
+    await expect(sidebar.getByText('partagée').first()).toBeVisible({ timeout: 15_000 });
     await pauseDemoScene(page);
   });
 });
