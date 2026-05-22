@@ -96,7 +96,8 @@
     "coverageProvider": "v8",
     "coverageReporters": [
       "text",
-      "lcov"
+      "lcov",
+      "json-summary"
     ],
     "testEnvironment": "node"
   }

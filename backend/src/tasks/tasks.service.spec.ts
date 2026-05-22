@@ -139,6 +139,50 @@ describe('TasksService', () => {
     });
   });
 
+  describe('findAllForUser', () => {
+    it('retourne toutes les tâches accessibles', async () => {
+      mockPrismaService.task.findMany.mockResolvedValue([mockTask]);
+
+      const result = await service.findAllForUser('user-1');
+
+      expect(result).toHaveLength(1);
+      expect(mockPrismaService.task.findMany).toHaveBeenCalled();
+    });
+  });
+
+  describe('findOne', () => {
+    it('délègue le contrôle d’accès à listAccess', async () => {
+      mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);
+
+      const result = await service.findOne('task-1', 'user-1');
+
+      expect(result).toEqual(mockTask);
+      expect(mockListAccessService.requireTaskAccess).toHaveBeenCalledWith('task-1', 'user-1', 'viewer');
+    });
+  });
+
+  describe('update', () => {
+    it('met à jour une tâche sur la même liste', async () => {
+      mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);
+      mockPrismaService.task.update.mockResolvedValue({ ...mockTask, shortDescription: 'Modifiée' });
+
+      const result = await service.update('task-1', { shortDescription: 'Modifiée' }, 'user-1');
+
+      expect(result.task.shortDescription).toBe('Modifiée');
+      expect(result.previousListId).toBe('list-1');
+    });
+
+    it('vérifie l’accès à la liste cible lors d’un déplacement', async () => {
+      mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);
+      mockListAccessService.requireAccess.mockResolvedValue({ list: { id: 'list-2' }, role: 'editor' });
+      mockPrismaService.task.update.mockResolvedValue({ ...mockTask, listId: 'list-2' });
+
+      await service.update('task-1', { listId: 'list-2' }, 'user-1');
+
+      expect(mockListAccessService.requireAccess).toHaveBeenCalledWith('list-2', 'user-1', 'editor');
+    });
+  });
+
   describe('remove', () => {
     it('devrait supprimer une tâche avec succès', async () => {
       mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);

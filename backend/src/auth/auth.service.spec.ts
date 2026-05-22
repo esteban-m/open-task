@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { hashRefreshToken } from './refresh-token-hash';
 
 const mockPrismaService = {
   user: {
@@ -137,6 +138,46 @@ describe('AuthService', () => {
       });
 
       await expect(service.refresh('invalid_token')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('devrait renouveler les tokens quand le refresh est valide', async () => {
+      const refreshToken = 'valid-refresh-token';
+      mockJwtService.verify.mockReturnValue({ sub: 'user-1', email: 'test@example.com' });
+      mockJwtService.sign.mockReturnValueOnce('new_access').mockReturnValueOnce('new_refresh');
+      mockPrismaService.refreshToken.findUnique.mockResolvedValue({
+        token: hashRefreshToken(refreshToken),
+        expiresAt: new Date(Date.now() + 86_400_000),
+      });
+      mockPrismaService.refreshToken.deleteMany.mockResolvedValue({ count: 1 });
+      mockPrismaService.refreshToken.create.mockResolvedValue({});
+
+      const result = await service.refresh(refreshToken);
+
+      expect(result.accessToken).toBe('new_access');
+      expect(result.refreshToken).toBe('new_refresh');
+    });
+  });
+
+  describe('logout', () => {
+    it('supprime le refresh token en base', async () => {
+      mockPrismaService.refreshToken.deleteMany.mockResolvedValue({ count: 1 });
+      await service.logout('refresh');
+      expect(mockPrismaService.refreshToken.deleteMany).toHaveBeenCalled();
+    });
+  });
+
+  describe('getMe', () => {
+    it('retourne le profil utilisateur', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+        firstName: 'Jean',
+        lastName: 'Dupont',
+        createdAt: new Date(),
+      });
+
+      const user = await service.getMe('user-1');
+      expect(user.email).toBe('test@example.com');
     });
   });
 });

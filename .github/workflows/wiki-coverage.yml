@@ -1,0 +1,171 @@
+# Publie la couverture des tests sur le wiki GitHub (pas GitHub Pages).
+# https://github.com/marketplace/actions/coverage-summary-markdown
+name: Wiki — couverture des tests
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-coverage-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  wiki-coverage:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: opentask_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d opentask_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/opentask_test
+      JWT_SECRET: ci_test_secret
+      JWT_REFRESH_SECRET: ci_test_refresh_secret
+      FRONTEND_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea3d9b9e9a8796a8494a # v4.2.2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            scripts/docs/package-lock.json
+
+      - name: Install backend
+        working-directory: backend
+        run: npm ci
+
+      - name: Prisma (backend)
+        working-directory: backend
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+
+      - name: Install frontend
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install scripts/docs
+        working-directory: scripts/docs
+        run: npm ci
+
+      - name: Backend unit coverage
+        working-directory: backend
+        run: npm run test:coverage
+
+      - name: Backend e2e coverage
+        working-directory: backend
+        run: npm run test:e2e:coverage
+
+      - name: Frontend coverage
+        working-directory: frontend
+        run: npm run test:coverage
+
+      - name: Scripts coverage
+        working-directory: scripts/docs
+        run: npm run test:coverage
+
+      - name: Merge backend unit + e2e summaries
+        run: |
+          node scripts/ci/merge-coverage-summaries.mjs \
+            -o backend/coverage/coverage-summary.json \
+            backend/coverage/coverage-summary.json \
+            backend/coverage-e2e/coverage-summary.json
+
+      - name: Merge global coverage summary
+        run: |
+          node scripts/ci/merge-coverage-summaries.mjs \
+            -o coverage-summary.wiki.json \
+            backend/coverage/coverage-summary.json \
+            frontend/coverage/coverage-summary.json \
+            scripts/docs/coverage/coverage-summary.json
+
+      - name: Coverage markdown (global)
+        id: cov_global
+        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        with:
+          summary_file: coverage-summary.wiki.json
+          warning_threshold: 65
+          good_threshold: 85
+
+      - name: Coverage markdown (backend)
+        id: cov_backend
+        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        with:
+          summary_file: backend/coverage/coverage-summary.json
+          warning_threshold: 65
+          good_threshold: 85
+
+      - name: Coverage markdown (frontend)
+        id: cov_frontend
+        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        with:
+          summary_file: frontend/coverage/coverage-summary.json
+          warning_threshold: 65
+          good_threshold: 85
+
+      - name: Coverage markdown (scripts)
+        id: cov_scripts
+        uses: autoscatto/action-coverage-summary-markdown@2c8e9fbb27613f37ae469207e111f19091596ccf # v1.0.7
+        with:
+          summary_file: scripts/docs/coverage/coverage-summary.json
+          warning_threshold: 40
+          good_threshold: 55
+
+      - name: Build wiki page
+        env:
+          COV_GLOBAL: ${{ steps.cov_global.outputs.lines }}
+          COV_BACKEND: ${{ steps.cov_backend.outputs.lines }}
+          COV_FRONTEND: ${{ steps.cov_frontend.outputs.lines }}
+          COV_SCRIPTS: ${{ steps.cov_scripts.outputs.lines }}
+        run: |
+          printf '%s\n' "$COV_GLOBAL" > /tmp/cov-global.md
+          printf '%s\n' "$COV_BACKEND" > /tmp/cov-backend.md
+          printf '%s\n' "$COV_FRONTEND" > /tmp/cov-frontend.md
+          printf '%s\n' "$COV_SCRIPTS" > /tmp/cov-scripts.md
+          node scripts/ci/build-wiki-coverage-page.mjs \
+            --global /tmp/cov-global.md \
+            --backend /tmp/cov-backend.md \
+            --frontend /tmp/cov-frontend.md \
+            --scripts /tmp/cov-scripts.md \
+            --sha "${{ github.sha }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            -o Couverture-des-tests.md
+
+      - name: Push to GitHub Wiki
+        env:
+          WIKI_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          WIKI_URL="https://x-access-token:${WIKI_TOKEN}@github.com/${{ github.repository }}.wiki.git"
+          git clone --depth 1 "$WIKI_URL" wiki-repo
+          cp Couverture-des-tests.md wiki-repo/
+          cd wiki-repo
+          if git status --porcelain | grep -q .; then
+            git add Couverture-des-tests.md
+            git commit -m "ci: mise à jour couverture (${GITHUB_SHA:0:7})"
+            git push
+          else
+            echo "Wiki déjà à jour."
+          fi
