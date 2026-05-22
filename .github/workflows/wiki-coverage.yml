@@ -67,6 +67,10 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      - name: Préparer Nuxt (types)
+        working-directory: frontend
+        run: npx nuxt prepare
+
       - name: Install scripts/docs
         working-directory: scripts/docs
         run: npm ci
