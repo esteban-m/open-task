@@ -15,6 +15,9 @@ export default withMermaid(
     lastUpdated: true,
     appearance: 'dark',
 
+    /** Guide utilisateur (GIF) — hors site technique ; voir docs/USAGE.md sur le dépôt */
+    srcExclude: ['USAGE.md'],
+
     ignoreDeadLinks: [
       /^http:\/\/localhost/,
       /README\.md$/,

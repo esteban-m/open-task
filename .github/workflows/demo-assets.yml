@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: ${{ github.event_name == 'pull_request' && 'read' || 'write' }}
+  contents: write
 
 concurrency:
   group: demo-assets-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
