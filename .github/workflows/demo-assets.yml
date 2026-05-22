@@ -1,7 +1,6 @@
 # Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/.
-# - PR : tests + artefact demo-gifs (pas de commit → merge possible)
-# - push main : PR bot → merge (pas de git push direct : ruleset CodeQL sur main)
-# Pages / Wiki ne poussent pas sur main → pas soumis à cette ruleset.
+# - PR : tests + artefact demo-gifs (pas de commit)
+# - push main : commit bot sur main (bypass ruleset CodeQL pour github-actions[bot])
 name: Demo assets (GIF)
 
 on:
@@ -17,7 +16,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 concurrency:
   group: demo-assets-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
@@ -78,38 +76,20 @@ jobs:
       - name: Playwright + conversion GIF
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker
 
-      - name: Ouvrir PR pour publier les GIF sur main
+      - name: Commit assets/demo sur main
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        id: publish-pr
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'assets: démos Playwright (desktop + mobile GIF)'
-          title: 'assets: démos Playwright (GIF)'
-          body: |
-            GIF générés par le workflow [Demo assets](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-
-            **Pourquoi une PR ?** La ruleset *Protect main — CodeQL* refuse un `git push` direct du bot tant que CodeQL n’a pas tourné sur ce commit (Pages et le wiki ne poussent pas sur `main`, donc pas ce blocage).
-
-            Auto-merge activé ci-dessous après les checks (CodeQL inclus).
-          branch: bot/demo-gifs
-          delete-branch: true
-          add-paths: |
-            assets/demo/desktop/
-            assets/demo/mobile/
-            assets/demo/INDEX.md
-
-      - name: Fusionner la PR GIF après CodeQL
-        if: steps.publish-pr.outputs.pull-request-number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          PR="${{ steps.publish-pr.outputs.pull-request-number }}"
-          echo "Attente des checks sur PR #$PR…"
-          gh pr checks "$PR" --watch --fail-fast --interval 20
-          gh pr merge "$PR" --squash
-          echo "PR #$PR fusionnée sur main (GIF dans assets/demo/)."
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/demo/
+          if git diff --staged --quiet; then
+            echo "GIF déjà à jour."
+            exit 0
+          fi
+          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
+          git pull --rebase origin main
+          git push origin main
 
       - name: Artefact GIF (téléchargement)
         if: always()
