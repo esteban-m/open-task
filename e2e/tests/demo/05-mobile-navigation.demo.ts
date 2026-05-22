@@ -1,10 +1,5 @@
 import { test } from '@playwright/test';
-import {
-  addTask,
-  createList,
-  openMobileListDrawer,
-  registerAndLandOnHome,
-} from '../../helpers/flows';
+import { addTask, openMobileListDrawer, registerAndLandOnHome } from '../../helpers/flows';
 
 test.describe('Démo — Mobile', () => {
   test.beforeEach(({ }, testInfo) => {

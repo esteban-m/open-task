@@ -74,7 +74,7 @@ Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues K
   <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour automatiquement sur <code>main</code></sub>
 </p>
 
-> Tant que le workflow **Demo assets** n’a pas tourné sur `main`, les GIF peuvent être absents en clone frais — lancer `npm run test:e2e:demo` en local (avec ffmpeg).
+> Les GIF sont produits par la CI (**Demo assets** sur les PR et `main`). Clone sans GIF : lancer `npm run test:e2e:demo` ou récupérer l’artefact **demo-gifs** dans l’onglet Actions.
 
 ---
 

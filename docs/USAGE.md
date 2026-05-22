@@ -2,7 +2,7 @@
 
 Captures animées générées par la CI (Playwright → GIF). Chemins : `assets/demo/desktop/` et `assets/demo/mobile/`.
 
-> Les GIF ci-dessous sont mis à jour sur chaque push vers `main` (workflow **Demo assets**). En local, voir [`assets/demo/README.md`](../assets/demo/README.md).
+> Les GIF sont générés par le workflow **Demo assets** (sur chaque PR vers `main` et sur `main`). En local : `npm run test:e2e:demo` (ffmpeg requis). Voir [`assets/demo/README.md`](../assets/demo/README.md).
 
 ---
 

@@ -5,23 +5,33 @@
  *
  * Usage: node scripts/ci/playwright-videos-to-gifs.mjs [e2e/test-results] [assets/demo]
  */
-import { execSync } from 'node:child_process';
-import { mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const RESULTS_DIR = process.argv[2] || 'e2e/test-results';
-const OUT_ROOT = process.argv[3] || 'assets/demo';
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const FPS = Number(process.env.DEMO_GIF_FPS || '8');
 const WIDTH_DESKTOP = Number(process.env.DEMO_GIF_WIDTH_DESKTOP || '960');
 const WIDTH_MOBILE = Number(process.env.DEMO_GIF_WIDTH_MOBILE || '390');
+const SLUG_RE = /^\d{2}-[a-z0-9-]+$/i;
+
+function resolveSafeDir(arg, defaultRel) {
+  const rel = (arg || defaultRel).trim();
+  if (!rel || path.isAbsolute(rel) || rel.includes('..')) {
+    throw new Error(`Chemin invalide: ${rel}`);
+  }
+  const root = realpathSync(REPO_ROOT);
+  const resolved = path.resolve(REPO_ROOT, rel);
+  if (!resolved.startsWith(`${root}${path.sep}`) && resolved !== root) {
+    throw new Error(`Chemin hors du dépôt: ${rel}`);
+  }
+  return resolved;
+}
 
 function hasFfmpeg() {
-  try {
-    execSync('ffmpeg -version', { stdio: 'ignore' });
-    return true;
-  } catch {
-    return false;
-  }
+  const r = spawnSync('ffmpeg', ['-version'], { stdio: 'ignore' });
+  return r.status === 0;
 }
 
 /** Dossiers Playwright du type *01-inscription*demo-desktop* */
@@ -33,7 +43,7 @@ function parseResultDir(name) {
       : null;
   if (!variant) return null;
   const slugMatch = name.match(/(\d{2}-[a-z0-9-]+)/i);
-  if (!slugMatch) return null;
+  if (!slugMatch || !SLUG_RE.test(slugMatch[1])) return null;
   return { slug: slugMatch[1], variant };
 }
 
@@ -47,7 +57,9 @@ function findVideos(root) {
     const videoPath = path.join(full, 'video.webm');
     try {
       statSync(videoPath);
-      found.push({ ...meta, videoPath });
+      const resolved = realpathSync(videoPath);
+      if (!resolved.startsWith(`${root}${path.sep}`)) continue;
+      found.push({ ...meta, videoPath: resolved });
     } catch {
       /* pas de vidéo pour ce run */
     }
@@ -58,10 +70,14 @@ function findVideos(root) {
 function toGif(videoPath, outPath, width) {
   mkdirSync(path.dirname(outPath), { recursive: true });
   const vf = `fps=${FPS},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
-  execSync(
-    `ffmpeg -y -i "${videoPath}" -vf "${vf}" -loop 0 "${outPath}"`,
-    { stdio: 'pipe' },
+  const result = spawnSync(
+    'ffmpeg',
+    ['-y', '-i', videoPath, '-vf', vf, '-loop', '0', outPath],
+    { stdio: 'pipe', encoding: 'utf8' },
   );
+  if (result.status !== 0) {
+    throw new Error(result.stderr || `ffmpeg exit ${result.status}`);
+  }
 }
 
 function buildManifest(entries) {
@@ -80,6 +96,9 @@ function buildManifest(entries) {
   lines.push('');
   return `${lines.join('\n')}\n`;
 }
+
+const RESULTS_DIR = resolveSafeDir(process.argv[2], 'e2e/test-results');
+const OUT_ROOT = resolveSafeDir(process.argv[3], 'assets/demo');
 
 if (!hasFfmpeg()) {
   console.error('::error::ffmpeg introuvable — installer ffmpeg pour générer les GIF.');

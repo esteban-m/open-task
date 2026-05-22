@@ -1,8 +1,12 @@
-# Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/, commit sur main.
+# Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/.
+# - PR vers main : commit sur la branche PR + artefact
+# - push main : commit sur main
 name: Demo assets (GIF)
 
 on:
   push:
+    branches: [main]
+  pull_request:
     branches: [main]
   workflow_dispatch:
 
@@ -10,7 +14,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: demo-assets-${{ github.ref }}
+  group: demo-assets-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -48,6 +52,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
 
       - uses: actions/setup-node@v6
         with:
@@ -64,7 +71,10 @@ jobs:
       - name: Playwright + conversion GIF
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker
 
-      - name: Commit assets/demo sur main
+      - name: Commit assets/demo
+        if: >-
+          github.event_name != 'pull_request' ||
+          github.event.pull_request.head.repo.full_name == github.repository
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
@@ -75,7 +85,21 @@ jobs:
             exit 0
           fi
           git commit -m "assets: démos Playwright (desktop + mobile GIF)"
-          git push
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git push origin "HEAD:${{ github.head_ref }}"
+          else
+            git push
+          fi
+
+      - name: Artefact GIF (téléchargement)
+        uses: actions/upload-artifact@v6
+        with:
+          name: demo-gifs
+          retention-days: 30
+          path: |
+            assets/demo/desktop/
+            assets/demo/mobile/
+            assets/demo/INDEX.md
 
       - name: Artefacts bruts (vidéos)
         if: always()
