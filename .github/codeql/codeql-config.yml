@@ -1,9 +1,5 @@
 name: Open-Task
 
-# Scripts de génération doc (écriture fichier depuis OpenRouter) — hors périmètre prod
-paths-ignore:
-  - scripts/docs
-
 queries:
   - uses: security-and-quality
   - uses: security-extended

@@ -12,11 +12,18 @@ const SKIP_DIRS = new Set([
   'vendor',
 ]);
 
-const SKIP_EXT = new Set(['.lock', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.woff', '.woff2']);
+const SKIP_EXT = new Set([
+  '.lock',
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.gif',
+  '.webp',
+  '.ico',
+  '.woff',
+  '.woff2',
+]);
 
-/**
- * Arbre de fichiers local (CI) — même principe que GitDiagram côté GitHub API.
- */
 export async function buildLocalFileTree(rootDir, maxFiles = 400) {
   const lines = [];
   let count = 0;
@@ -24,7 +31,6 @@ export async function buildLocalFileTree(rootDir, maxFiles = 400) {
   async function walk(dir, prefix = '') {
     if (count >= maxFiles) return;
     const entries = await readdir(dir, { withFileTypes: true });
-
     entries.sort((a, b) => a.name.localeCompare(b.name));
 
     for (const entry of entries) {
@@ -37,8 +43,7 @@ export async function buildLocalFileTree(rootDir, maxFiles = 400) {
         lines.push(`${rel}/`);
         await walk(path.join(dir, entry.name), rel);
       } else {
-        const ext = path.extname(entry.name);
-        if (SKIP_EXT.has(ext)) continue;
+        if (SKIP_EXT.has(path.extname(entry.name))) continue;
         lines.push(rel);
         count += 1;
       }
@@ -54,13 +59,13 @@ export async function readReadme(repoRoot) {
     try {
       return await readFile(path.join(repoRoot, name), 'utf8');
     } catch {
-      // continue
+      /* next */
     }
   }
   return '';
 }
 
-export async function fetchGithubTree({ owner, repo, token }) {
+export async function fetchGithubTree({ owner, repo, token, maxFiles = 400 }) {
   const headers = {
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
@@ -84,7 +89,7 @@ export async function fetchGithubTree({ owner, repo, token }) {
     .map((t) => t.path)
     .filter((p) => !p.split('/').some((seg) => SKIP_DIRS.has(seg)))
     .filter((p) => !SKIP_EXT.has(path.extname(p)))
-    .slice(0, 400);
+    .slice(0, maxFiles);
 
   let readme = '';
   try {
@@ -97,7 +102,7 @@ export async function fetchGithubTree({ owner, repo, token }) {
       readme = Buffer.from(data.content ?? '', 'base64').toString('utf8');
     }
   } catch {
-    // optional
+    /* optional */
   }
 
   return {

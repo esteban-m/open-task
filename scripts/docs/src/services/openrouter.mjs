@@ -1,8 +1,3 @@
-/**
- * Client OpenRouter (API compatible OpenAI).
- * @see https://openrouter.ai/docs/api/reference/overview
- */
-
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 export async function chatCompletion({
@@ -12,25 +7,19 @@ export async function chatCompletion({
   maxTokens = 8000,
   temperature = 0.2,
   responseFormat,
+  referer,
+  appName,
 }) {
-  const body = {
-    model,
-    messages,
-    max_tokens: maxTokens,
-    temperature,
-  };
-
-  if (responseFormat) {
-    body.response_format = responseFormat;
-  }
+  const body = { model, messages, max_tokens: maxTokens, temperature };
+  if (responseFormat) body.response_format = responseFormat;
 
   const response = await fetch(OPENROUTER_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
-      'HTTP-Referer': process.env.OPENROUTER_SITE_URL ?? 'https://github.com/esteban-m/open-task',
-      'X-Title': process.env.OPENROUTER_APP_NAME ?? 'Open-Task Docs',
+      'HTTP-Referer': referer ?? process.env.OPENROUTER_SITE_URL ?? 'https://github.com',
+      'X-Title': appName ?? process.env.OPENROUTER_APP_NAME ?? 'Docs',
     },
     body: JSON.stringify(body),
   });
@@ -42,9 +31,7 @@ export async function chatCompletion({
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error('OpenRouter: réponse vide');
-  }
+  if (!content) throw new Error('OpenRouter: réponse vide');
   return content.trim();
 }
 

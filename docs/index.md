@@ -48,4 +48,4 @@ Cette documentation suit le modèle **[Diátaxis](https://diataxis.fr/)** :
 | **Référence** | Contrats API, configuration |
 | **Exploitation** | Docker, CI, déploiement |
 
-Les chapitres IA sont regénérés par le workflow GitHub Actions à partir du code source réel (`scripts/docs/doc-structure.mjs`).
+Les chapitres IA sont regénérés par le workflow GitHub Actions à partir du code source réel (`scripts/docs/config/open-task.docs.json`).

@@ -2,9 +2,9 @@
   "name": "open-task-docs-scripts",
   "private": true,
   "type": "module",
-  "description": "Pipeline doc-as-code : GitDiagram, Docudoodle, Prisma ERD, Honkit",
+  "description": "Pipeline doc-as-code : GitDiagram, chapitres IA, Prisma ERD, VitePress",
   "scripts": {
-    "generate": "node run-pipeline.mjs",
-    "build:site": "cd ../../docs && npm run build"
+    "generate": "node cli.mjs generate",
+    "assemble": "node cli.mjs assemble"
   }
 }

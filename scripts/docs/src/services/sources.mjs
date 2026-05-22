@@ -1,13 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const MAX_FILE_CHARS = 12_000;
-const MAX_BUNDLE_CHARS = 55_000;
-
-/**
- * Assemble les sources d'un chapitre pour le prompt IA.
- */
-export async function bundleSources(repoRoot, sourcePaths) {
+export async function bundleSources(repoRoot, sourcePaths, limits) {
+  const maxFile = limits?.maxCharsPerFile ?? 12_000;
+  const maxBundle = limits?.maxTotalChars ?? 55_000;
   const parts = [];
   let total = 0;
 
@@ -21,12 +17,12 @@ export async function bundleSources(repoRoot, sourcePaths) {
       continue;
     }
 
-    if (content.length > MAX_FILE_CHARS) {
-      content = `${content.slice(0, MAX_FILE_CHARS)}\n\n/* … tronqué */`;
+    if (content.length > maxFile) {
+      content = `${content.slice(0, maxFile)}\n\n/* … tronqué */`;
     }
 
     const block = `### Source: \`${rel}\`\n\n\`\`\`\n${content}\n\`\`\`\n`;
-    if (total + block.length > MAX_BUNDLE_CHARS) {
+    if (total + block.length > maxBundle) {
       parts.push(`### ${rel}\n\n_(omis : limite de contexte)_\n`);
       continue;
     }

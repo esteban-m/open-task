@@ -6,8 +6,8 @@
 
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0--1.0-lightgrey.svg)](LICENSE)
 
-| | |
-|---|---|
+| Catégories | Badges |
+|------------|--------|
 | **CI & sécurité** | [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml) [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml) [![Docs](https://github.com/esteban-m/open-task/actions/workflows/docs.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/docs.yml) [![Dependabot](https://img.shields.io/badge/Dependabot-actif-026e2c?logo=dependabot&logoColor=white)](https://github.com/esteban-m/open-task/security/dependabot) [![Security](https://img.shields.io/badge/Security-advisories-181717?logo=github&logoColor=white)](https://github.com/esteban-m/open-task/security) |
 | **Documentation** | [![Docs site](https://img.shields.io/badge/Docs-GitHub%20Pages-2563eb?style=flat-square)](https://esteban-m.github.io/open-task/) [![VitePress](https://img.shields.io/badge/VitePress-doc--as--code-646cff?style=flat-square)](https://vitepress.dev/) |
 | **Runtime** | [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/) |
@@ -221,7 +221,7 @@ Générée automatiquement sur chaque push vers `main` :
 | Étape | Outil |
 |-------|-------|
 | Diagramme d'architecture | [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [OpenRouter](https://openrouter.ai/) |
-| Chapitres métier | [Diátaxis](https://diataxis.fr/) + `scripts/docs/doc-structure.mjs` |
+| Chapitres métier | [Diátaxis](https://diataxis.fr/) + `scripts/docs/config/open-task.docs.json` |
 | Schéma BDD | Prisma → Mermaid ERD |
 | Site statique | [VitePress](https://vitepress.dev/) → GitHub Pages (workflow `docs.yml`) |
 

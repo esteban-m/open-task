@@ -1,7 +1,3 @@
-/**
- * Génère un diagramme Mermaid erDiagram depuis schema.prisma (sans Puppeteer).
- */
-
 const SCALAR_TYPES = new Set([
   'String',
   'Int',

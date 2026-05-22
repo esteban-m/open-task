@@ -1,10 +1,6 @@
-/**
- * Corrige les labels Mermaid pour le rendu (espaces, parenthèses → guillemets).
- */
 export function sanitizeMermaid(code) {
   let out = code.trim();
 
-  // A[Label] → A["Label"] si label contient caractères spéciaux
   out = out.replace(/(\b[A-Za-z][\w]*)\[([^\]"\n]+)\]/g, (_, id, label) => {
     const trimmed = label.trim();
     if (/["']/.test(trimmed)) return `${id}[${label}]`;
@@ -14,6 +10,18 @@ export function sanitizeMermaid(code) {
     return `${id}[${trimmed}]`;
   });
 
-  // Supprime les lignes vides en trop
   return out.replace(/\n{3,}/g, '\n\n');
+}
+
+export async function fixMermaidInMarkdown(filePath, readFile, writeFile) {
+  let content = await readFile(filePath, 'utf8');
+  const replaced = content.replace(
+    /```mermaid\n([\s\S]*?)```/g,
+    (_, block) => `\`\`\`mermaid\n${sanitizeMermaid(block)}\n\`\`\``,
+  );
+  if (replaced !== content) {
+    await writeFile(filePath, replaced, 'utf8');
+    return true;
+  }
+  return false;
 }
