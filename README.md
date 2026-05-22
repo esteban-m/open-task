@@ -64,17 +64,17 @@ docker compose up --build
 
 ## Guide d’utilisation (GIF)
 
-Parcours illustrés **desktop et mobile**, enregistrés par Playwright en CI et convertis en GIF (`assets/demo/`).
+Parcours illustrés **desktop et mobile**, enregistrés par Playwright en CI et publiés sur **GitHub Pages** (`/demo/…` — pas de fichiers GIF dans le dépôt).
 
 Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues, connexion, mobile, thèmes, Kanban drag & drop, calendrier, partage).
 
 <p align="center">
-  <img src="assets/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />
+  <img src="https://esteban-m.github.io/open-task/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />
   <br />
-  <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour automatiquement sur <code>main</code></sub>
+  <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour via workflow <strong>Docs</strong> sur <code>main</code></sub>
 </p>
 
-> Les GIF sont validés sur chaque PR (artefact **demo-gifs**), puis commités sur `main` après merge. Clone sans GIF : `npm run test:e2e:demo` ou artefact Actions.
+> Les GIF sont validés sur chaque PR (artefact **demo-gifs**), puis déployés sur Pages après merge. En local : `npm run test:e2e:demo` (ffmpeg).
 
 ---
 

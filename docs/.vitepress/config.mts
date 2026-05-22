@@ -15,7 +15,7 @@ export default withMermaid(
     lastUpdated: true,
     appearance: 'dark',
 
-    /** Guide utilisateur (GIF) — hors site technique ; voir docs/USAGE.md sur le dépôt */
+    /** Guide utilisateur (GIF sur Pages) — voir docs/USAGE.md sur le dépôt GitHub */
     srcExclude: ['USAGE.md'],
 
     ignoreDeadLinks: [

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Convertit les vidéos Playwright (test-results) en GIF pour assets/demo/{desktop|mobile}/.
+ * Convertit les vidéos Playwright (test-results) en GIF pour docs/public/demo/{desktop|mobile}/.
  * Nécessite ffmpeg sur le PATH.
  *
- * Usage: node scripts/ci/playwright-videos-to-gifs.mjs [e2e/test-results] [assets/demo]
+ * Usage: node scripts/ci/playwright-videos-to-gifs.mjs [e2e/test-results] [docs/public/demo]
  */
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
@@ -115,7 +115,7 @@ function buildManifest(entries) {
 }
 
 const RESULTS_DIR = resolveSafeDir(process.argv[2], 'e2e/test-results');
-const OUT_ROOT = resolveSafeDir(process.argv[3], 'assets/demo');
+const OUT_ROOT = resolveSafeDir(process.argv[3], 'docs/public/demo');
 
 if (!hasFfmpeg()) {
   console.error('::error::ffmpeg introuvable — installer ffmpeg pour générer les GIF.');

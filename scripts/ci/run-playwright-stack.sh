@@ -90,9 +90,9 @@ npx playwright install chromium
 if [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   export PLAYWRIGHT_DEMO=1
   npm test -- --project=demo-desktop --project=demo-mobile
-  log "Conversion vidéos → GIF (assets/demo)"
+  log "Conversion vidéos → GIF (docs/public/demo)"
   cd "${ROOT}"
-  node scripts/ci/playwright-videos-to-gifs.mjs "${ROOT}/e2e/test-results" "${ROOT}/assets/demo"
+  node scripts/ci/playwright-videos-to-gifs.mjs "${ROOT}/e2e/test-results" "${ROOT}/docs/public/demo"
 else
   npm test -- --project=smoke-desktop
 fi

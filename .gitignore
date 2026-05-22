@@ -41,6 +41,10 @@ e2e/test-results/
 e2e/playwright-report/
 e2e/blob-report/
 
+# GIF démo (CI → docs/public/demo → GitHub Pages, pas dans Git)
+docs/public/demo/**/*.gif
+docs/public/demo/INDEX.md
+
 # Documentation générée (CI → GitHub Pages)
 docs-site/
 docs/_book/
