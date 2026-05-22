@@ -21,13 +21,14 @@ test.describe('Open-Task full-stack', () => {
     await page.getByTestId('create-list-btn').click();
     await page.getByTestId('list-name-input').fill('Liste Playwright');
     await page.getByTestId('list-create-submit').click();
-    await expect(page.getByText('Liste Playwright')).toBeVisible({ timeout: 15_000 });
+    const listBtn = page.getByRole('button', { name: /Liste Playwright/ });
+    await expect(listBtn.first()).toBeVisible({ timeout: 15_000 });
 
     await page.getByTestId('add-task-btn').click();
     await page.getByTestId('task-short-input').fill('Tâche E2E navigateur');
     await page.getByTestId('task-due-date').fill('2026-12-31');
     await page.getByTestId('task-submit').click();
-    await expect(page.getByText('Tâche E2E navigateur')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('Tâche E2E navigateur').first()).toBeVisible({ timeout: 15_000 });
 
     await page.getByTestId('logout-btn').click();
     await expect(page).toHaveURL('/login', { timeout: 15_000 });
@@ -37,7 +38,7 @@ test.describe('Open-Task full-stack', () => {
     await page.getByTestId('login-submit').click();
 
     await expect(page).toHaveURL('/', { timeout: 30_000 });
-    await expect(page.getByText('Liste Playwright')).toBeVisible();
-    await expect(page.getByText('Tâche E2E navigateur')).toBeVisible();
+    await expect(page.getByRole('button', { name: /Liste Playwright/ }).first()).toBeVisible();
+    await expect(page.getByText('Tâche E2E navigateur').first()).toBeVisible();
   });
 });
