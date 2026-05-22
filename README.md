@@ -8,7 +8,7 @@
 
 | | |
 |---|---|
-| **CI & sécurité** | [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml) [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml) [![Dependabot](https://img.shields.io/badge/Dependabot-actif-026e2c?logo=dependabot&logoColor=white)](https://github.com/esteban-m/open-task/security/dependabot) [![Security](https://img.shields.io/badge/Security-advisories-181717?logo=github&logoColor=white)](https://github.com/esteban-m/open-task/security) |
+| **CI & sécurité** | [![CI](https://github.com/esteban-m/open-task/actions/workflows/ci.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/ci.yml) [![CodeQL](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/codeql.yml) [![Docs](https://github.com/esteban-m/open-task/actions/workflows/docs.yml/badge.svg)](https://github.com/esteban-m/open-task/actions/workflows/docs.yml) [![Dependabot](https://img.shields.io/badge/Dependabot-actif-026e2c?logo=dependabot&logoColor=white)](https://github.com/esteban-m/open-task/security/dependabot) [![Security](https://img.shields.io/badge/Security-advisories-181717?logo=github&logoColor=white)](https://github.com/esteban-m/open-task/security) |
 | **Runtime** | [![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)](https://nodejs.org/) [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/) |
 | **Backend** | [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/) |
 | **Frontend** | [![Nuxt](https://img.shields.io/badge/Nuxt-3.21-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/) [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/) [![Pinia](https://img.shields.io/badge/Pinia-3-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/) [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/) |
@@ -205,6 +205,25 @@ cd frontend && npm run lint
 | **e2e flux complet** | register → login → liste → tâche → toggle → delete |
 | **e2e isolation** | Utilisateur B ne accède pas aux données de A |
 | **CI** | Lint, unit, migrations Prisma, e2e sur PostgreSQL |
+
+---
+
+## Documentation (GitHub Pages)
+
+La documentation technique est générée automatiquement sur chaque push vers `main` :
+
+| Étape | Outil |
+|-------|-------|
+| Diagramme d'architecture | [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [OpenRouter](https://openrouter.ai/) |
+| Chapitres métier | Structure [Diátaxis](https://diataxis.fr/) + OpenRouter (`doc-structure.mjs`) |
+| Schéma BDD | Prisma → Mermaid ERD |
+| Site statique | [VitePress](https://vitepress.dev/) (Mermaid, thème moderne) |
+
+**Configuration requise** : ajouter le secret `OPENROUTER_API_KEY` dans *Settings → Secrets and variables → Actions*. Ne jamais committer de clé API.
+
+Workflow manuel : *Actions → Documentation & GitHub Pages → Run workflow* (option « Ignorer la génération IA » pour rebuild sans appels API).
+
+Après déploiement, activer **GitHub Pages** sur la branche `github-pages` (source : workflow Pages).
 
 ---
 

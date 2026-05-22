@@ -16,12 +16,16 @@ on:
       - '.github/workflows/**'
       - '.github/codeql/**'
 
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
   analyze:
-    name: CodeQL
+    name: Analyze
     runs-on: ubuntu-latest
     permissions:
       security-events: write
