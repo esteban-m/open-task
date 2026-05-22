@@ -203,6 +203,10 @@ cd backend && npm run test:coverage:ci
 cd frontend && npm test
 cd frontend && npm run test:coverage
 
+# Scripts docs (pipeline doc-as-code)
+cd scripts/docs && npm test
+cd scripts/docs && npm run test:coverage
+
 # Lint
 cd backend && npm run lint
 cd frontend && npm run lint
@@ -228,8 +232,9 @@ cd frontend && npm run lint
 
 | Flag | Périmètre mesuré | Tests |
 |------|------------------|-------|
-| **backend** | Services, controllers, guards, pipes, filtres, cookies, config prod (+ e2e) | Jest unit + e2e |
-| **frontend** | Composables, stores, utils, composants, middleware, plugins client | Vitest + `@nuxt/test-utils` (env `nuxt`) |
+| **backend** | Tout `backend/src` sauf modules, DTO, gateways, `main` (+ e2e) | Jest unit + e2e |
+| **frontend** | Pages, composants, composables, stores, utils, middleware, plugins | Vitest + `@nuxt/test-utils` (env `nuxt`) |
+| **scripts** | Pipeline `scripts/docs` (sanitize, chemins, générateurs) | Vitest (Node) |
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">

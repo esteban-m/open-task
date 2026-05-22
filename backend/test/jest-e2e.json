@@ -8,14 +8,14 @@
   },
   "collectCoverage": true,
   "collectCoverageFrom": [
-    "../src/**/*.service.ts",
-    "!../src/prisma/prisma.service.ts",
-    "../src/**/*.controller.ts",
+    "../src/**/*.ts",
+    "!../src/**/*.spec.ts",
+    "!../src/**/*.module.ts",
     "!../src/**/*.gateway.ts",
+    "!../src/**/dto/**",
     "!../src/main.ts",
     "!../src/app.module.ts",
-    "!../src/**/*.module.ts",
-    "!../src/**/dto/**"
+    "!../src/prisma/prisma.service.ts"
   ],
   "coverageDirectory": "../coverage-e2e",
   "coverageProvider": "v8",

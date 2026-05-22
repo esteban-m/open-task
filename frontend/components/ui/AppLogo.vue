@@ -1,6 +1,6 @@
 <template>
   <img
-    src="/hero.svg"
+    :src="heroSrc"
     alt="Open-Task"
     :class="sizeClass"
     class="flex-shrink-0 rounded-lg"
@@ -8,6 +8,8 @@
 </template>
 
 <script setup lang="ts">
+import heroSrc from '~/public/hero.svg?url'
+
 const props = withDefaults(
   defineProps<{
     size?: 'sm' | 'md' | 'lg'
