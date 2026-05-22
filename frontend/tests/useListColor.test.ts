@@ -26,4 +26,36 @@ describe('useListColor', () => {
     expect(colorForListId('l1')).toBe('#ff0000')
     expect(colorForListId('missing')).toBe(DEFAULT)
   })
+
+  it('colorForList and colorForTask resolve colors', () => {
+    const lists = useListsStore()
+    lists.setLists([
+      {
+        id: 'l1',
+        name: 'Work',
+        userId: 'u1',
+        color: '#00ff00',
+        createdAt: '',
+        updatedAt: '',
+      },
+    ])
+
+    const { colorForList, colorForTask, DEFAULT } = useListColor()
+    expect(colorForList({ color: '#112233' })).toBe('#112233')
+    expect(colorForList(null)).toBe(DEFAULT)
+    expect(
+      colorForTask({
+        id: 't1',
+        listId: 'l1',
+        shortDescription: 'x',
+        longDescription: null,
+        dueDate: '',
+        completed: false,
+        completedAt: null,
+        createdAt: '',
+        updatedAt: '',
+        list: { id: 'l1', name: 'W', color: '#aabbcc' },
+      }),
+    ).toBe('#aabbcc')
+  })
 })
