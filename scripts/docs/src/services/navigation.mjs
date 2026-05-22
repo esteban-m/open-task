@@ -22,6 +22,10 @@ export async function collectValidLinks(config, generatedDir) {
     links.add(`/generated/${chapter.path}`);
   }
 
+  for (const page of config.navigation.staticPages) {
+    links.add(page.link.replace(/\/$/, ''));
+  }
+
   async function walk(dir, prefix = 'generated') {
     for (const entry of await readdir(dir, { withFileTypes: true })) {
       const rel = `${prefix}/${entry.name.replace(/\.md$/, '')}`;

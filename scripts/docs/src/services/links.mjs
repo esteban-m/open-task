@@ -3,6 +3,8 @@ import path from 'node:path';
 
 import { collectValidLinks } from './navigation.mjs';
 
+const INTERNAL_PREFIXES = /^(?:\.\/)?(generated|guide|reference|operations)\//;
+
 export async function fixLinksInDir(generatedDir, config) {
   const rewrites = config.linkRewrites ?? {};
   const validLinks = await collectValidLinks(config, generatedDir);
@@ -18,6 +20,13 @@ export async function fixLinksInDir(generatedDir, config) {
   await walk(generatedDir);
 }
 
+function normalizeHref(href) {
+  let h = href.replace(/\/$/, '');
+  if (h.startsWith('/')) return h;
+  if (INTERNAL_PREFIXES.test(h)) return `/${h.replace(/^\.\//, '')}`;
+  return h;
+}
+
 async function fixFile(filePath, validLinks, rewrites) {
   let content = await readFile(filePath, 'utf8');
 
@@ -26,9 +35,13 @@ async function fixFile(filePath, validLinks, rewrites) {
     content = content.replaceAll(`](${bad}/)`, `](${good})`);
   }
 
-  content = content.replace(/\[([^\]]+)\]\((\/generated\/[^)]+)\)/g, (match, label, href) => {
-    const normalized = href.replace(/\/$/, '');
-    if (validLinks.has(normalized)) return match;
+  content = content.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, label, href) => {
+    if (/^(https?:|mailto:|#)/i.test(href)) return match;
+
+    const normalized = normalizeHref(href);
+    if (validLinks.has(normalized)) {
+      return normalized === href ? match : `[${label}](${normalized})`;
+    }
     return label;
   });
 
