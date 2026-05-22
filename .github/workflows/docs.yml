@@ -42,11 +42,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: scripts/docs/package-lock.json
 
       - name: Installer les scripts docs
         working-directory: scripts/docs
-        run: npm install
+        run: npm ci
 
       - name: Vérifier secret OpenRouter
         if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
