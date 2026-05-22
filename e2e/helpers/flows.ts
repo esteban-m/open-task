@@ -6,6 +6,32 @@ export function uniqueEmail(prefix: string) {
   return `${prefix}-${Date.now()}@example.com`;
 }
 
+/** Accueil chargé : sidebar desktop visible, ou bouton menu mobile. */
+export async function assertLandOnHome(page: Page) {
+  await expect(page).toHaveURL('/', { timeout: 30_000 });
+  const mobileMenu = page.getByRole('button', { name: 'Ouvrir les listes' });
+  if (await mobileMenu.isVisible()) {
+    await expect(mobileMenu).toBeVisible();
+    return;
+  }
+  await expect(page.getByRole('heading', { name: 'Listes' })).toBeVisible();
+}
+
+/** Ouvre le tiroir listes si les contrôles sidebar ne sont pas visibles (mobile). */
+export async function ensureListSidebar(page: Page) {
+  const createBtn = page.getByTestId('create-list-btn');
+  if (await createBtn.isVisible()) return;
+  await openMobileListDrawer(page);
+}
+
+export async function closeMobileListDrawerIfOpen(page: Page) {
+  const closeBtn = page.getByRole('button', { name: 'Fermer le menu' });
+  if (await closeBtn.isVisible()) {
+    await closeBtn.click();
+    await expect(page.getByRole('dialog', { name: 'Menu des listes' })).toBeHidden();
+  }
+}
+
 export async function registerAndLandOnHome(page: Page, opts?: { firstName?: string; lastName?: string }) {
   const email = uniqueEmail('demo');
   const firstName = opts?.firstName ?? 'Demo';
@@ -20,8 +46,7 @@ export async function registerAndLandOnHome(page: Page, opts?: { firstName?: str
   await page.getByTestId('register-passwordConfirm').fill(DEMO_PASSWORD);
   await page.getByTestId('register-submit').click();
 
-  await expect(page).toHaveURL('/', { timeout: 30_000 });
-  await expect(page.getByRole('heading', { name: 'Listes' })).toBeVisible();
+  await assertLandOnHome(page);
 
   return { email, firstName, lastName };
 }
@@ -31,16 +56,24 @@ export async function login(page: Page, email: string) {
   await page.getByTestId('login-email').fill(email);
   await page.getByTestId('login-password').fill(DEMO_PASSWORD);
   await page.getByTestId('login-submit').click();
-  await expect(page).toHaveURL('/', { timeout: 30_000 });
+  await assertLandOnHome(page);
+}
+
+export async function logoutFromApp(page: Page) {
+  await ensureListSidebar(page);
+  await page.getByTestId('logout-btn').click();
+  await page.waitForURL('/login');
 }
 
 export async function createList(page: Page, name: string) {
+  await ensureListSidebar(page);
   await page.getByTestId('create-list-btn').click();
   await page.getByTestId('list-name-input').fill(name);
   await page.getByTestId('list-create-submit').click();
   await expect(page.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
     timeout: 15_000,
   });
+  await closeMobileListDrawerIfOpen(page);
 }
 
 export async function addTask(page: Page, shortDescription: string, dueDate = '2026-12-31') {
