@@ -1,38 +1,41 @@
+import {
+  buildRefreshCookieClearOptions,
+  buildRefreshCookieOptions,
+  REFRESH_COOKIE_CLEAR_OPTIONS,
+  REFRESH_COOKIE_OPTIONS,
+} from './auth-cookie';
+
 describe('auth-cookie', () => {
-  const originalEnv = process.env.NODE_ENV;
-
-  afterEach(() => {
-    process.env.NODE_ENV = originalEnv;
-    delete process.env.COOKIE_SECURE;
-  });
-
   it('uses lax sameSite in development', () => {
-    process.env.NODE_ENV = 'development';
-    jest.isolateModules(() => {
-      const mod = require('./auth-cookie') as typeof import('./auth-cookie');
-      expect(mod.REFRESH_COOKIE_OPTIONS.sameSite).toBe('lax');
-      expect(mod.REFRESH_COOKIE_OPTIONS.secure).toBe(false);
-      expect(mod.REFRESH_COOKIE_CLEAR_OPTIONS.httpOnly).toBe(true);
-      expect(mod.REFRESH_COOKIE_OPTIONS.maxAge).toBeGreaterThan(0);
-    });
+    const options = buildRefreshCookieOptions({ NODE_ENV: 'development' });
+    const clear = buildRefreshCookieClearOptions({ NODE_ENV: 'development' });
+
+    expect(options.sameSite).toBe('lax');
+    expect(options.secure).toBe(false);
+    expect(clear.httpOnly).toBe(true);
+    expect(options.maxAge).toBeGreaterThan(0);
   });
 
   it('uses none sameSite and secure in production', () => {
-    process.env.NODE_ENV = 'production';
-    jest.isolateModules(() => {
-      const mod = require('./auth-cookie') as typeof import('./auth-cookie');
-      expect(mod.REFRESH_COOKIE_OPTIONS.sameSite).toBe('none');
-      expect(mod.REFRESH_COOKIE_OPTIONS.secure).toBe(true);
-      expect(mod.REFRESH_COOKIE_CLEAR_OPTIONS.path).toBe('/');
-    });
+    const options = buildRefreshCookieOptions({ NODE_ENV: 'production' });
+    const clear = buildRefreshCookieClearOptions({ NODE_ENV: 'production' });
+
+    expect(options.sameSite).toBe('none');
+    expect(options.secure).toBe(true);
+    expect(clear.path).toBe('/');
   });
 
   it('honours COOKIE_SECURE outside production', () => {
-    process.env.NODE_ENV = 'development';
-    process.env.COOKIE_SECURE = 'true';
-    jest.isolateModules(() => {
-      const mod = require('./auth-cookie') as typeof import('./auth-cookie');
-      expect(mod.REFRESH_COOKIE_OPTIONS.secure).toBe(true);
+    const options = buildRefreshCookieOptions({
+      NODE_ENV: 'development',
+      COOKIE_SECURE: 'true',
     });
+
+    expect(options.secure).toBe(true);
+  });
+
+  it('exports module-level defaults', () => {
+    expect(REFRESH_COOKIE_OPTIONS.httpOnly).toBe(true);
+    expect(REFRESH_COOKIE_CLEAR_OPTIONS.path).toBe('/');
   });
 });
