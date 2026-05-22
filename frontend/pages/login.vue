@@ -19,6 +19,7 @@
               <input
                 v-model="form.email"
                 type="email"
+                data-testid="login-email"
                 placeholder="jean@exemple.fr"
                 autocomplete="email"
                 required
@@ -30,6 +31,7 @@
               <input
                 v-model="form.password"
                 type="password"
+                data-testid="login-password"
                 placeholder="••••••••"
                 autocomplete="current-password"
                 required
@@ -39,6 +41,7 @@
 
             <button
               type="submit"
+              data-testid="login-submit"
               :disabled="loading"
               class="w-full bg-accent hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded py-2.5 mt-1"
             >

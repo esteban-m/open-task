@@ -1,0 +1,121 @@
+# Enregistre les parcours Playwright (desktop + mobile), produit des GIF dans assets/demo/.
+# - PR : validation + artefact demo-gifs (pas de commit → merge possible)
+# - push main / workflow_dispatch : commit sur main
+name: Demo assets (GIF)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'assets/demo/**'
+  workflow_dispatch:
+
+permissions:
+  contents: ${{ github.event_name == 'pull_request' && 'read' || 'write' }}
+
+concurrency:
+  group: demo-assets-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '22'
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  generate-gifs:
+    name: Playwright → GIF → assets/demo
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: opentask_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test -d opentask_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://test:test@localhost:5432/opentask_test
+      JWT_SECRET: ci_demo_assets_jwt_secret_32chars_minimum
+      JWT_REFRESH_SECRET: ci_demo_assets_refresh_secret_32chars
+      FRONTEND_URL: http://127.0.0.1:3000
+      NODE_ENV: development
+      PLAYWRIGHT_DEMO: '1'
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/package-lock.json
+            e2e/package-lock.json
+
+      - name: ffmpeg (WebM → GIF)
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Playwright + conversion GIF
+        run: bash scripts/ci/run-playwright-stack.sh --skip-docker
+
+      - name: Commit assets/demo sur main
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/demo/
+          if git diff --staged --quiet; then
+            echo "GIF déjà à jour."
+            exit 0
+          fi
+          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
+          git push
+
+      - name: Commit assets/demo (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/demo/
+          if git diff --staged --quiet; then
+            echo "GIF déjà à jour."
+            exit 0
+          fi
+          git commit -m "assets: démos Playwright (desktop + mobile GIF)"
+          git push
+
+      - name: Artefact GIF (téléchargement)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: demo-gifs
+          retention-days: 30
+          path: |
+            assets/demo/desktop/
+            assets/demo/mobile/
+            assets/demo/INDEX.md
+
+      - name: Artefacts bruts (vidéos)
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playwright-demo-videos
+          retention-days: 14
+          path: e2e/test-results/

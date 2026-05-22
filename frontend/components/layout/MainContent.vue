@@ -23,6 +23,7 @@
           v-for="v in viewOptions"
           :key="v.id"
           type="button"
+          :data-testid="`view-${v.id}`"
           :class="viewBtnClass(v.id)"
           :title="v.label"
           @click="setViewMode(v.id)"

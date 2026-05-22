@@ -13,6 +13,7 @@
             <input
               v-model="newEmail"
               type="email"
+              data-testid="share-email-input"
               placeholder="collegue@exemple.com"
               class="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent"
               @keydown.enter="shareWithEmail"
@@ -23,6 +24,7 @@
             <label class="block text-xs font-medium text-text-faint uppercase">Rôle</label>
             <select
               v-model="newRole"
+              data-testid="share-role-select"
               class="w-full bg-surface-2 border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-accent"
             >
               <option value="viewer">Lecture seule (viewer)</option>
@@ -38,6 +40,7 @@
 
           <button
             type="button"
+            data-testid="share-submit"
             class="w-full bg-accent hover:bg-accent-hover text-white text-sm font-medium rounded-lg py-2 disabled:opacity-50"
             :disabled="!newEmail.trim() || sharing"
             @click="shareWithEmail"
@@ -76,6 +79,7 @@
         <div class="px-5 pb-5 border-t border-border pt-3">
           <button
             type="button"
+            data-testid="share-modal-close"
             class="w-full bg-surface-2 hover:bg-surface-3 text-text-muted text-sm rounded-lg py-2"
             @click="emit('close')"
           >

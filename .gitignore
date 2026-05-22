@@ -36,6 +36,11 @@ coverage-merged.summary.json
 wiki-out/
 wiki-fragments/
 
+# Playwright (e2e full-stack)
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+
 # Documentation générée (CI → GitHub Pages)
 docs-site/
 docs/_book/

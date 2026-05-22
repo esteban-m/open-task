@@ -2,6 +2,7 @@
   <div ref="rootRef" class="relative">
     <button
       type="button"
+      data-testid="theme-picker-toggle"
       :class="[
         'w-full flex items-center gap-2 text-text-muted hover:text-text hover:bg-surface-2 rounded px-3 py-2 text-sm transition-colors',
         collapsed ? 'justify-center px-2' : '',
@@ -65,6 +66,7 @@
             :key="theme.id"
             type="button"
             role="option"
+            :data-testid="`theme-option-${theme.id}`"
             :aria-selected="themeId === theme.id"
             :class="[
               'flex flex-col gap-1.5 p-2 rounded-lg border text-left transition-colors',

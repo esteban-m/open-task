@@ -1,9 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import * as cookieParser from 'cookie-parser';
-import { AppModule } from '../src/app.module';
-import { AllExceptionsFilter } from '../src/common/filters/all-exceptions.filter';
+import { closeE2eApp, createE2eApp } from './e2e-app';
 
 /** Vérifie qu'un utilisateur ne peut pas accéder aux données d'un autre. */
 describe('Isolation des données (e2e)', () => {
@@ -36,20 +33,7 @@ describe('Isolation des données (e2e)', () => {
   };
 
   beforeAll(async () => {
-    process.env.JWT_SECRET = process.env.JWT_SECRET || 'e2e_test_secret';
-    process.env.JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'e2e_test_refresh';
-
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }),
-    );
-    app.useGlobalFilters(new AllExceptionsFilter());
-    await app.init();
+    ({ app } = await createE2eApp());
 
     const regA = await request(app.getHttpServer()).post('/auth/register').send(userA);
     tokenA = regA.body.accessToken;
@@ -79,7 +63,7 @@ describe('Isolation des données (e2e)', () => {
   });
 
   afterAll(async () => {
-    if (app) await app.close();
+    await closeE2eApp(app);
   });
 
   it('B ne doit pas lire la liste de A', async () => {

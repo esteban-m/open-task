@@ -1,23 +1,22 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": "test/.+\\.e2e-spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "collectCoverage": true,
   "collectCoverageFrom": [
-    "../src/**/*.ts",
-    "!../src/**/*.spec.ts",
-    "!../src/**/*.module.ts",
-    "!../src/**/*.gateway.ts",
-    "!../src/**/dto/**",
-    "!../src/main.ts",
-    "!../src/app.module.ts",
-    "!../src/prisma/prisma.service.ts"
+    "src/**/*.ts",
+    "!src/**/*.spec.ts",
+    "!src/**/*.module.ts",
+    "!src/**/*.gateway.ts",
+    "!src/**/dto/**",
+    "!src/main.ts",
+    "!src/app.module.ts"
   ],
-  "coverageDirectory": "../coverage-e2e",
+  "coverageDirectory": "coverage-e2e",
   "coverageProvider": "v8",
   "coverageReporters": ["text", "lcov", "json-summary"]
 }

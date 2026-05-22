@@ -18,8 +18,12 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { REFRESH_COOKIE_OPTIONS, REFRESH_COOKIE_CLEAR_OPTIONS } from './auth-cookie';
 import { Throttle } from '@nestjs/throttler';
 
+/** Suite Playwright démo : nombreuses inscriptions d’affilée (CI GIF). */
+const AUTH_THROTTLE_LIMIT =
+  process.env.PLAYWRIGHT_DEMO === '1' ? 500 : 10;
+
 @ApiTags('auth')
-@Throttle({ default: { limit: 10, ttl: 60_000 } })
+@Throttle({ default: { limit: AUTH_THROTTLE_LIMIT, ttl: 60_000 } })
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

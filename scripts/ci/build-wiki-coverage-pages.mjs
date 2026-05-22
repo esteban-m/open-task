@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
  * Génère les pages Markdown du wiki GitHub à partir de coverage-summary.json
- * et des sorties de autoscatto/action-coverage-summary-markdown (lines + lines_badge).
+ * et des fragments wiki-fragments/*-{lines,badge}.md (scripts/ci/coverage-summary-markdown.mjs).
  *
- * L’action ne lit que jsonData.total.lines (résumé global). Ce script ajoute un tableau
+ * La synthèse globale ne lit que total.lines. Ce script ajoute un tableau
  * détaillé par fichier source pour chaque paquet.
  */
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';

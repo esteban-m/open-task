@@ -37,6 +37,7 @@
     <div v-if="!collapsed" class="px-3 pb-3 flex-shrink-0">
       <button
         type="button"
+        data-testid="create-list-btn"
         class="flex items-center justify-center gap-2 w-full bg-surface-2 hover:bg-surface-3 text-text-muted text-xs rounded px-3 py-2 transition-colors"
         @click="showCreateForm = !showCreateForm"
       >
@@ -50,6 +51,7 @@
         <input
           v-model="newListName"
           type="text"
+          data-testid="list-name-input"
           placeholder="Nom de la liste"
           class="w-full bg-surface-2 border border-border rounded px-3 py-2 text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-accent"
           @keydown.enter="createList"
@@ -65,6 +67,7 @@
         <div class="flex gap-2">
           <button
             type="button"
+            data-testid="list-create-submit"
             :disabled="!newListName.trim()"
             class="flex-1 bg-accent hover:bg-accent-hover disabled:opacity-40 text-white text-xs rounded py-1.5"
             @click="createList"
@@ -102,13 +105,22 @@
             <p class="text-sm text-text truncate flex-1 text-left">{{ list.name }}</p>
             <span v-if="list.isShared" class="text-[10px] text-accent flex-shrink-0">partagée</span>
             <span class="text-xs text-text-faint flex-shrink-0">{{ list._count?.tasks || 0 }}</span>
-            <div class="flex items-center gap-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div
+              class="flex items-center gap-0.5 flex-shrink-0 transition-opacity"
+              :class="mobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+            >
               <button type="button" class="p-1 text-text-faint hover:text-text hover:bg-surface-3 rounded" title="Modifier" @click.stop="emit('edit-list', list)">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
-              <button type="button" class="p-1 text-text-faint hover:text-accent hover:bg-accent-subtle rounded" title="Partager" @click.stop="emit('share-list', list)">
+              <button
+                type="button"
+                data-testid="list-share-btn"
+                class="p-1 text-text-faint hover:text-accent hover:bg-accent-subtle rounded"
+                title="Partager"
+                @click.stop="emit('share-list', list)"
+              >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.806 13.328 9 13.086 9 12.85v-1.5c0-.236.193-.478.506-.664L14 8.208l.49.292c.313.186.506.428.506.664v1.5c0 .236.193.478.506.664L20 11.792l-4.256 2.528c-.313.186-.506.428-.506.664v1.5c0 .236-.193.478-.506.664l-5.364 3.186a.948.948 0 01-1.274-.916l.052-1.566a.947.947 0 01.762-1.052l4.098-2.43a.948.948 0 00.665-.807v-1.5c0-.236-.193-.478-.506-.664L8.684 13.342z" />
                 </svg>
@@ -128,6 +140,7 @@
       <ThemePicker :collapsed="collapsed" />
       <button
         type="button"
+        data-testid="logout-btn"
         :class="[
           'w-full flex items-center gap-2 text-text-muted hover:text-danger hover:bg-danger-subtle rounded px-3 py-2 text-sm transition-colors',
           collapsed ? 'justify-center px-2' : '',

@@ -11,6 +11,7 @@
       <div
         v-for="list in listsStore.lists"
         :key="list.id"
+        :data-testid="`kanban-column-${list.id}`"
         class="flex flex-col w-72 flex-shrink-0 rounded-xl border border-border bg-surface-1/80 max-h-full"
         :class="dropTargetListId === list.id && 'ring-2 ring-accent/50'"
         @dragover.prevent="onDragOver(list.id)"
@@ -31,6 +32,8 @@
             v-for="task in columnTasks(list.id)"
             :key="task.id"
             draggable="true"
+            :data-testid="`kanban-task-${task.id}`"
+            :data-kanban-list-id="list.id"
             class="rounded-lg border border-border bg-surface-2 p-2.5 cursor-grab active:cursor-grabbing hover:border-border-subtle transition-shadow"
             :class="[
               draggingTaskId === task.id && 'opacity-50',
