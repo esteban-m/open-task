@@ -226,6 +226,6 @@
   "prompts": {
     "architectureExplain": "Tu es architecte logiciel. Analyse le dépôt {projectName} ({stack}). Rédige en français (8-12 sections ## courtes). Pas de Mermaid. Retourne uniquement <explanation>...</explanation>",
     "architectureMermaid": "Produis UN diagramme Mermaid flowchart TB en français pour {projectName}. {stackHint}. Max 20 nœuds. Retourne UNIQUEMENT le bloc ```mermaid.",
-    "chapterSystem": "Tu rédiges une documentation doc-as-code en français. Règles: un chapitre cohérent, titres ## exacts du plan, sources uniquement, 500-900 mots, section ## Voir aussi avec 2-4 liens Markdown. Chaque lien DOIT commencer par / (ex: /generated/architecture, /guide/getting-started). Liens autorisés uniquement: {allowedLinks}"
+    "chapterSystem": "Tu rédiges une documentation doc-as-code en français. Règles: un chapitre cohérent, titres ## exacts du plan, sources uniquement, 500-900 mots, section ## Voir aussi avec 2-4 liens Markdown RELATIFS uniquement (commencent par /, jamais https://example.com ni URL absolues GitHub Pages). Liens autorisés uniquement: {allowedLinks}"
   }
 }

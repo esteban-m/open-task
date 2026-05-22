@@ -19,5 +19,5 @@
   ],
   "coverageDirectory": "../coverage-e2e",
   "coverageProvider": "v8",
-  "coverageReporters": ["text", "lcov"]
+  "coverageReporters": ["text", "lcov", "json-summary"]
 }

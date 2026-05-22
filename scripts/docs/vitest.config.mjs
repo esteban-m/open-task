@@ -6,7 +6,7 @@ export default defineConfig({
     include: ['tests/**/*.test.mjs'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'json-summary'],
       reportsDirectory: './coverage',
       include: ['src/**/*.mjs', 'cli.mjs'],
       exclude: ['tests/**', 'node_modules/**'],

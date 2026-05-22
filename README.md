@@ -234,7 +234,7 @@ cd frontend && npm run lint
 |------|------------------|-------|
 | **backend** | Tout `backend/src` sauf modules, DTO, gateways, `main` (+ e2e) | Jest unit + e2e |
 | **frontend** | Pages, composants, composables, stores, utils, middleware, plugins | Vitest + `@nuxt/test-utils` (env `nuxt`) |
-| **scripts** | Pipeline `scripts/docs` (sanitize, chemins, générateurs) | Vitest (Node) |
+| **scripts** | Pipeline `scripts/docs` (sanitize, liens, navigation, diagrammes) | Vitest (Node) |
 
 <p align="center">
   <a href="https://codecov.io/gh/esteban-m/open-task/tree/main">
@@ -247,6 +247,10 @@ cd frontend && npm run lint
 </p>
 
 > Le score Codecov agrège **unit + e2e** côté NestJS et l’environnement Nuxt officiel côté Vitest. Le [tableau de bord](https://app.codecov.io/gh/esteban-m/open-task) se met à jour via `CODECOV_TOKEN` dans `ci.yml`.
+
+#### Wiki GitHub — couverture
+
+Sur chaque push sur `main`, le workflow [`.github/workflows/wiki-coverage.yml`](.github/workflows/wiki-coverage.yml) exécute les suites avec `json-summary`, fusionne les rapports (`scripts/ci/merge-coverage-summaries.mjs`), formate des tableaux via [Coverage Summary Markdown](https://github.com/marketplace/actions/coverage-summary-markdown), puis publie la page **[Couverture des tests](https://github.com/esteban-m/open-task/wiki/Couverture-des-tests)** sur le **wiki GitHub** (dépôt `open-task.wiki`, pas GitHub Pages).
 
 ---
 

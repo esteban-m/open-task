@@ -13,7 +13,7 @@ export default defineVitestConfig({
     },
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov'],
+      reporter: ['text', 'lcov', 'json-summary'],
       reportsDirectory: './coverage',
       include: [
         'app.vue',
