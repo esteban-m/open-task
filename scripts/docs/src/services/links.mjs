@@ -80,7 +80,7 @@ export function normalizeMarkdownLink(label, href, validLinks, rewrites) {
   return label;
 }
 
-function normalizeRelativeHref(href) {
+export function normalizeRelativeHref(href) {
   if (INTERNAL_PREFIXES.test(href)) {
     return `/${href.replace(/^\.\//, '')}`.replace(/\/$/, '');
   }

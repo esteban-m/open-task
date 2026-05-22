@@ -27,7 +27,7 @@ coverage:
           - backend
           - frontend
       scripts:
-        target: 25%
+        target: 50%
         threshold: 2%
         flags:
           - scripts
