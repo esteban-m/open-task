@@ -64,15 +64,18 @@ describe('build-pages-site', () => {
 
   it('runBuildPagesSite assemble hub, docs, storybook, swagger et démos', () => {
     const repo = path.join(tmp, 'repo');
-    const hub = path.join(repo, 'site');
+    const hub = path.join(repo, 'docs/hub');
     const docsDist = path.join(repo, 'docs-dist');
     const storybook = path.join(repo, 'storybook-static');
     const demo = path.join(repo, 'demo');
+    const publicDir = path.join(repo, 'docs/public');
     const swaggerUi = path.join(repo, 'swagger-ui');
     const out = path.join(repo, 'docs-site');
 
     mkdirSync(hub, { recursive: true });
     writeFileSync(path.join(hub, 'index.html'), '<html>__PAGES_BASE__docs/</html>');
+    mkdirSync(publicDir, { recursive: true });
+    writeFileSync(path.join(publicDir, 'hero.svg'), '<svg/>');
     mkdirSync(docsDist, { recursive: true });
     writeFileSync(path.join(docsDist, 'index.html'), '<html>docs</html>');
     mkdirSync(storybook, { recursive: true });
@@ -99,6 +102,7 @@ describe('build-pages-site', () => {
     });
 
     expect(readFileSync(path.join(out, 'index.html'), 'utf8')).toBe('<html>/open-task/docs/</html>');
+    expect(readFileSync(path.join(out, 'hero.svg'), 'utf8')).toBe('<svg/>');
     expect(readFileSync(path.join(out, 'docs', 'index.html'), 'utf8')).toContain('docs');
     expect(readFileSync(path.join(out, 'storybook', 'index.html'), 'utf8')).toContain('sb');
     expect(readFileSync(path.join(out, 'swagger', 'openapi.json'), 'utf8')).toContain('paths');
@@ -107,7 +111,7 @@ describe('build-pages-site', () => {
 
   it('runBuildPagesSite sans dossier démo', () => {
     const repo = path.join(tmp, 'repo-min');
-    const hub = path.join(repo, 'site');
+    const hub = path.join(repo, 'docs/hub');
     const docsDist = path.join(repo, 'docs-dist');
     const storybook = path.join(repo, 'storybook-static');
     const swaggerUi = path.join(repo, 'swagger-ui');

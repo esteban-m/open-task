@@ -58,7 +58,8 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   const docsDist = resolve(options.docsDist ?? join(repoRoot, 'docs/.vitepress/dist'));
   const storybookDist = resolve(options.storybookDist ?? join(repoRoot, 'frontend/storybook-static'));
   const openapiJson = resolve(options.openapiJson ?? join(repoRoot, 'backend/openapi.json'));
-  const hubDir = resolve(options.hubDir ?? join(repoRoot, 'site'));
+  const hubDir = resolve(options.hubDir ?? join(repoRoot, 'docs/hub'));
+  const hubHero = resolve(options.hubHero ?? join(repoRoot, 'docs/public/hero.svg'));
   const demoDir = resolve(options.demoDir ?? join(repoRoot, 'docs/public/demo'));
   const swaggerUiRoot = options.swaggerUiRoot;
 
@@ -66,6 +67,9 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   mkdirSync(outDir, { recursive: true });
 
   copyDir(hubDir, outDir);
+  if (existsSync(hubHero)) {
+    cpSync(hubHero, join(outDir, 'hero.svg'));
+  }
   copyDir(docsDist, join(outDir, 'docs'));
   copyDir(storybookDist, join(outDir, 'storybook'));
   writeSwaggerStatic(join(outDir, 'swagger'), openapiJson, repoRoot, swaggerUiRoot);
