@@ -5,6 +5,7 @@ import {
   extractMermaidBlock,
   extractXmlTag,
   resolveMistralCredentials,
+  resolveMistralRequestOptions,
   validateMistralApiKey,
 } from '../src/services/mistral.mjs';
 
@@ -57,6 +58,21 @@ describe('mistral helpers', () => {
     );
     expect(creds.apiKey).toBe('test-key');
     expect(creds.model).toBe('mistral-large-latest');
+  });
+
+  it('resolveMistralRequestOptions merges config and env', () => {
+    const opts = resolveMistralRequestOptions(
+      { MISTRAL_RETRY_MAX: '8', MISTRAL_REQUEST_DELAY_MS: '2500' },
+      {
+        mistral: {
+          requestDelayMs: 1500,
+          retry: { maxAttempts: 6, baseDelayMs: 2000, maxDelayMs: 60000 },
+        },
+      },
+    );
+    expect(opts.requestDelayMs).toBe(2500);
+    expect(opts.retry.maxAttempts).toBe(8);
+    expect(opts.retry.baseDelayMs).toBe(2000);
   });
 });
 
@@ -131,10 +147,11 @@ describe('chatCompletion', () => {
     ).rejects.toThrow(/clé API refusée/);
   });
 
-  it('throws on non-auth HTTP error', async () => {
+  it('throws on non-auth HTTP error after retries exhausted', async () => {
     globalThis.fetch = vi.fn().mockResolvedValue({
       ok: false,
       status: 429,
+      headers: { get: () => null },
       text: async () => 'rate limit',
     });
 
@@ -143,8 +160,57 @@ describe('chatCompletion', () => {
         apiKey: 'key-test',
         model: 'mistral-small-latest',
         messages: [{ role: 'user', content: 'x' }],
+        retry: { maxAttempts: 1 },
       }),
     ).rejects.toThrow('Mistral 429');
+  });
+
+  it('retries on 429 then succeeds', async () => {
+    vi.useFakeTimers();
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        headers: { get: () => '1' },
+        text: async () => '{"message":"Rate limit exceeded"}',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+      });
+
+    const promise = chatCompletion({
+      apiKey: 'key-test',
+      model: 'mistral-small-latest',
+      messages: [{ role: 'user', content: 'x' }],
+      retry: { maxAttempts: 3, baseDelayMs: 1000, maxDelayMs: 5000 },
+    });
+
+    await vi.runAllTimersAsync();
+    await expect(promise).resolves.toBe('ok');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
+  it('waits cooldownBeforeMs before first request', async () => {
+    vi.useFakeTimers();
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+    });
+
+    const promise = chatCompletion({
+      apiKey: 'key-test',
+      model: 'mistral-small-latest',
+      messages: [{ role: 'user', content: 'x' }],
+      cooldownBeforeMs: 500,
+    });
+
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(500);
+    await expect(promise).resolves.toBe('ok');
+    vi.useRealTimers();
   });
 
   it('throws on empty content', async () => {

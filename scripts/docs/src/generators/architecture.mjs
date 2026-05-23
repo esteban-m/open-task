@@ -7,6 +7,7 @@ import {
   extractMermaidBlock,
   extractXmlTag,
   resolveMistralCredentials,
+  resolveMistralRequestOptions,
 } from '../services/mistral.mjs';
 import { sanitizeMermaid } from '../services/mermaid.mjs';
 import { writeGeneratedDoc } from '../services/writer.mjs';
@@ -17,6 +18,7 @@ function interpolate(template, vars) {
 
 export async function generateArchitecture(config, paths, env) {
   const { apiKey, model } = resolveMistralCredentials(env, config);
+  const { retry, requestDelayMs } = resolveMistralRequestOptions(env, config);
   const { owner, repo } = parseGithubRepository(
     env.GITHUB_REPOSITORY ?? config.project.repository,
   );
@@ -49,6 +51,7 @@ export async function generateArchitecture(config, paths, env) {
   const explanationRaw = await chatCompletion({
     apiKey,
     model,
+    retry,
     messages: [
       { role: 'system', content: interpolate(config.prompts.architectureExplain, vars) },
       { role: 'user', content: context },
@@ -61,6 +64,8 @@ export async function generateArchitecture(config, paths, env) {
   const mermaidRaw = await chatCompletion({
     apiKey,
     model,
+    retry,
+    cooldownBeforeMs: requestDelayMs,
     messages: [
       { role: 'system', content: interpolate(config.prompts.architectureMermaid, vars) },
       { role: 'user', content: `${context}\n\n## Architecture explanation\n${explanation}` },

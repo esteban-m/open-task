@@ -1,6 +1,34 @@
 import { sanitizeApiText } from './sanitize.mjs';
 
 const MISTRAL_URL = 'https://api.mistral.ai/v1/chat/completions';
+const RETRYABLE_STATUSES = new Set([429, 502, 503, 504]);
+
+const DEFAULT_RETRY = {
+  maxAttempts: 6,
+  baseDelayMs: 2_000,
+  maxDelayMs: 60_000,
+};
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseRetryAfterMs(response, fallbackMs) {
+  const raw = response.headers?.get?.('retry-after');
+  if (!raw) return fallbackMs;
+  const seconds = Number(raw);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * 1_000;
+  const until = Date.parse(raw);
+  if (!Number.isNaN(until)) return Math.max(0, until - Date.now());
+  return fallbackMs;
+}
+
+function resolveRetryOptions(retry) {
+  const maxAttempts = retry?.maxAttempts ?? DEFAULT_RETRY.maxAttempts;
+  const baseDelayMs = retry?.baseDelayMs ?? DEFAULT_RETRY.baseDelayMs;
+  const maxDelayMs = retry?.maxDelayMs ?? DEFAULT_RETRY.maxDelayMs;
+  return { maxAttempts, baseDelayMs, maxDelayMs };
+}
 
 export async function chatCompletion({
   apiKey,
@@ -9,7 +37,11 @@ export async function chatCompletion({
   maxTokens = 8000,
   temperature = 0.2,
   responseFormat,
+  retry,
+  cooldownBeforeMs = 0,
 }) {
+  if (cooldownBeforeMs > 0) await sleep(cooldownBeforeMs);
+
   const safeMessages = messages.map((m) => ({
     role: m.role,
     content: sanitizeApiText(m.content),
@@ -18,17 +50,26 @@ export async function chatCompletion({
   const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature };
   if (responseFormat) body.response_format = responseFormat;
 
-  // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before Mistral
-  const response = await fetch(MISTRAL_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const { maxAttempts, baseDelayMs, maxDelayMs } = resolveRetryOptions(retry);
 
-  if (!response.ok) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before Mistral
+    const response = await fetch(MISTRAL_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      if (!content) throw new Error('Mistral: réponse vide');
+      return content.trim();
+    }
+
     const text = await response.text();
     if (response.status === 401 || response.status === 403) {
       throw new Error(
@@ -37,13 +78,22 @@ export async function chatCompletion({
           + text.slice(0, 200),
       );
     }
+
+    if (RETRYABLE_STATUSES.has(response.status) && attempt < maxAttempts) {
+      const backoff = Math.min(maxDelayMs, baseDelayMs * 2 ** (attempt - 1));
+      const delayMs = parseRetryAfterMs(response, backoff);
+      console.warn(
+        `[mistral] ${response.status} — attente ${Math.ceil(delayMs / 1_000)}s `
+          + `(retry ${attempt}/${maxAttempts - 1})`,
+      );
+      await sleep(delayMs);
+      continue;
+    }
+
     throw new Error(`Mistral ${response.status}: ${text.slice(0, 500)}`);
   }
 
-  const data = await response.json();
-  const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('Mistral: réponse vide');
-  return content.trim();
+  throw new Error('Mistral: échec après retries');
 }
 
 export function extractMermaidBlock(text) {
@@ -72,6 +122,19 @@ export function resolveMistralCredentials(env, config) {
   }
   const model = (env.MISTRAL_MODEL ?? config.mistral.defaultModel).trim();
   return { apiKey: raw, model };
+}
+
+/** Options retry + cooldown pour les appels Mistral (config + env). */
+export function resolveMistralRequestOptions(env, config) {
+  const retryFromEnv = env.MISTRAL_RETRY_MAX ? { maxAttempts: Number(env.MISTRAL_RETRY_MAX) } : {};
+  const delayFromEnv = env.MISTRAL_REQUEST_DELAY_MS
+    ? Number(env.MISTRAL_REQUEST_DELAY_MS)
+    : config.mistral.requestDelayMs ?? 1_500;
+
+  return {
+    retry: { ...config.mistral.retry, ...retryFromEnv },
+    requestDelayMs: delayFromEnv,
+  };
 }
 
 /** Ping minimal Mistral — lève une erreur explicite si la clé est invalide. */

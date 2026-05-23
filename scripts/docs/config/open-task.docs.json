@@ -15,6 +15,12 @@
   },
   "mistral": {
     "defaultModel": "mistral-small-latest",
+    "requestDelayMs": 1500,
+    "retry": {
+      "maxAttempts": 6,
+      "baseDelayMs": 2000,
+      "maxDelayMs": 60000
+    },
     "maxTokens": {
       "architectureExplain": 4000,
       "architectureMermaid": 3000,
