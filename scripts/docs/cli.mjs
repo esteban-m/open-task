@@ -8,6 +8,11 @@ import { runValidateMistral } from './src/commands/validate-mistral.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
+export function shouldRunCli(argv, metaUrl) {
+  const entry = argv[1] ? pathToFileURL(path.resolve(argv[1])).href : '';
+  return metaUrl === entry;
+}
+
 export async function main(argv = process.argv) {
   const command = argv[2] ?? 'generate';
 
@@ -31,10 +36,17 @@ export async function main(argv = process.argv) {
   }
 }
 
-const entry = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : '';
-if (import.meta.url === entry) {
-  main().catch((err) => {
+export async function runCliEntry(argv = process.argv, metaUrl = import.meta.url) {
+  if (!shouldRunCli(argv, metaUrl)) return;
+  await main(argv);
+}
+
+export function bootstrapCli(argv = process.argv, metaUrl = import.meta.url) {
+  if (!shouldRunCli(argv, metaUrl)) return;
+  runCliEntry(argv, metaUrl).catch((err) => {
     console.error(err);
     process.exit(1);
   });
 }
+
+bootstrapCli();
