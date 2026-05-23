@@ -32,6 +32,23 @@ describe('mistral helpers', () => {
     );
   });
 
+  it('resolveMistralCredentials rejects OpenRouter-shaped keys', () => {
+    expect(() =>
+      resolveMistralCredentials(
+        { MISTRAL_API_KEY: 'sk-or-v1-deadbeef' },
+        { mistral: { defaultModel: 'mistral-small-latest' } },
+      ),
+    ).toThrow(/OpenRouter/);
+  });
+
+  it('resolveMistralCredentials trims whitespace', () => {
+    const creds = resolveMistralCredentials(
+      { MISTRAL_API_KEY: '  test-key  ' },
+      { mistral: { defaultModel: 'mistral-small-latest' } },
+    );
+    expect(creds.apiKey).toBe('test-key');
+  });
+
   it('resolveMistralCredentials uses env model override', () => {
     const creds = resolveMistralCredentials(
       { MISTRAL_API_KEY: 'test-key', MISTRAL_MODEL: 'mistral-large-latest' },

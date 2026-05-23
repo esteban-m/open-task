@@ -6,6 +6,7 @@
   "scripts": {
     "generate": "node cli.mjs generate",
     "assemble": "node cli.mjs assemble",
+    "validate-mistral": "node cli.mjs validate-mistral",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage"
   },

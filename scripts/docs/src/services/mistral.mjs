@@ -30,6 +30,13 @@ export async function chatCompletion({
 
   if (!response.ok) {
     const text = await response.text();
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        `Mistral ${response.status}: clé API refusée. `
+          + 'Vérifiez MISTRAL_API_KEY (https://console.mistral.ai/) — pas une clé OpenRouter. '
+          + text.slice(0, 200),
+      );
+    }
     throw new Error(`Mistral ${response.status}: ${text.slice(0, 500)}`);
   }
 
@@ -55,8 +62,27 @@ export function extractXmlTag(text, tag) {
 
 /** Clé et modèle Mistral (priorité MISTRAL_API_KEY, plus de OpenRouter). */
 export function resolveMistralCredentials(env, config) {
-  const apiKey = env.MISTRAL_API_KEY;
-  if (!apiKey) throw new Error('MISTRAL_API_KEY manquant');
-  const model = env.MISTRAL_MODEL ?? config.mistral.defaultModel;
-  return { apiKey, model };
+  const raw = env.MISTRAL_API_KEY?.trim();
+  if (!raw) throw new Error('MISTRAL_API_KEY manquant');
+  if (/^sk-or-v1-/i.test(raw)) {
+    throw new Error(
+      'MISTRAL_API_KEY ressemble à une clé OpenRouter (sk-or-v1-…). '
+        + 'Créez une clé sur https://console.mistral.ai/ et mettez-la dans le secret MISTRAL_API_KEY.',
+    );
+  }
+  const model = (env.MISTRAL_MODEL ?? config.mistral.defaultModel).trim();
+  return { apiKey: raw, model };
+}
+
+/** Ping minimal Mistral — lève une erreur explicite si la clé est invalide. */
+export async function validateMistralApiKey(apiKey, model = 'mistral-small-latest') {
+  const key = apiKey?.trim();
+  if (!key) throw new Error('MISTRAL_API_KEY manquant');
+  await chatCompletion({
+    apiKey: key,
+    model,
+    messages: [{ role: 'user', content: 'ping' }],
+    maxTokens: 8,
+    temperature: 0,
+  });
 }
