@@ -72,7 +72,12 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   }
   copyDir(docsDist, join(outDir, 'docs'));
   copyDir(storybookDist, join(outDir, 'storybook'));
-  writeSwaggerStatic(join(outDir, 'swagger'), openapiJson, repoRoot, swaggerUiRoot);
+  writeSwaggerStatic(
+    join(outDir, 'swagger'),
+    openapiJson,
+    repoRoot,
+    swaggerUiRoot ?? resolveSwaggerUiRoot(repoRoot),
+  );
 
   if (existsSync(demoDir)) {
     copyDir(demoDir, join(outDir, 'demo'));

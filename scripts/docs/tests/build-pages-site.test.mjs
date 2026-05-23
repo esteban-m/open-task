@@ -144,6 +144,52 @@ describe('build-pages-site', () => {
     expect(existsSync(path.join(out, 'demo'))).toBe(false);
   });
 
+  it('runBuildPagesSite sans hero.svg', () => {
+    const repo = path.join(tmp, 'repo-no-hero');
+    const hub = path.join(repo, 'docs/hub');
+    const docsDist = path.join(repo, 'docs/.vitepress/dist');
+    const storybook = path.join(repo, 'frontend/storybook-static');
+    const swaggerUi = path.join(repo, 'backend/node_modules/swagger-ui-dist');
+    const out = path.join(repo, 'out');
+
+    mkdirSync(hub, { recursive: true });
+    writeFileSync(path.join(hub, 'index.html'), '__PAGES_BASE__');
+    mkdirSync(docsDist, { recursive: true });
+    writeFileSync(path.join(docsDist, 'index.html'), 'docs');
+    mkdirSync(storybook, { recursive: true });
+    writeFileSync(path.join(storybook, 'index.html'), 'sb');
+    mkdirSync(swaggerUi, { recursive: true });
+    writeFileSync(path.join(swaggerUi, 'package.json'), '{}');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui.css'), '');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui-bundle.js'), '');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui-standalone-preset.js'), '');
+    writeFileSync(path.join(repo, 'backend/package.json'), '{}');
+    writeFileSync(path.join(repo, 'backend/openapi.json'), '{}');
+
+    runBuildPagesSite(repo, { outDir: out, pagesBase: '/p/' });
+
+    expect(existsSync(path.join(out, 'hero.svg'))).toBe(false);
+    expect(readFileSync(path.join(out, 'index.html'), 'utf8')).toBe('/p/');
+  });
+
+  it('writeSwaggerStatic résout swagger-ui-dist par défaut', () => {
+    const repo = path.join(tmp, 'repo-sw-default');
+    const swaggerDir = path.join(repo, 'backend/node_modules/swagger-ui-dist');
+    mkdirSync(swaggerDir, { recursive: true });
+    writeFileSync(path.join(swaggerDir, 'package.json'), '{}');
+    writeFileSync(path.join(swaggerDir, 'swagger-ui.css'), 'body{}');
+    writeFileSync(path.join(swaggerDir, 'swagger-ui-bundle.js'), '');
+    writeFileSync(path.join(swaggerDir, 'swagger-ui-standalone-preset.js'), '');
+    writeFileSync(path.join(repo, 'backend/package.json'), '{}');
+    const openapi = path.join(repo, 'openapi.json');
+    writeFileSync(openapi, '{"openapi":"3.0.0"}');
+    const out = path.join(tmp, 'swagger-default-out');
+
+    writeSwaggerStatic(out, openapi, repo);
+
+    expect(readFileSync(path.join(out, 'swagger-ui.css'), 'utf8')).toBe('body{}');
+  });
+
   it('entrypoint CLI assemble le dépôt', () => {
     const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../..');
     const hub = path.join(tmp, 'site-cli');
