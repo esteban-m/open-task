@@ -28,6 +28,7 @@ Fixes #<!-- numéro d’issue, ou supprimez cette ligne -->
 
 ## Checklist
 
+- [ ] Branche créée depuis `main` (pas de commit direct sur `main`)
 - [ ] Le code suit les conventions du [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [ ] `cd backend && npm run lint` — OK
 - [ ] `cd backend && npm test` — OK

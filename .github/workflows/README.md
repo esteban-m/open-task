@@ -55,6 +55,7 @@ Toujours sur les PR (ruleset dépôt), même si seuls des fichiers markdown chan
 Ruleset **Protect main — PR obligatoire + CodeQL** (voir [.github/rulesets/protect-main.json](../rulesets/protect-main.json)) :
 
 - PR obligatoire avant merge (pas de push direct sur `main`)
+- **Merge classique par défaut** (`gh pr merge --merge`) — pas de squash sauf demande explicite
 - Pas de force-push (`non_fast_forward`)
 - CodeQL requis
 - **Aucun bypass** (les GIF / Pages ne passent plus par un commit bot sur `main`)
