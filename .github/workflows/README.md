@@ -41,10 +41,10 @@ Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 ## Docs (`docs.yml`)
 
 1. **demo-gifs** — Playwright → `docs/public/demo/` (artefact).
-2. **generate-docs** — génération IA (OpenRouter), build VitePress (inclut les GIF de l’artefact), artefact Pages.
+2. **generate-docs** — génération IA (Mistral), build VitePress (inclut les GIF de l’artefact), artefact Pages.
 3. **deploy-pages** — déploiement (API Pages, **aucun push Git**).
 
-Secret `OPENROUTER_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
+Secret `MISTRAL_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
 
 ## CodeQL (`codeql.yml`)
 

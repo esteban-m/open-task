@@ -62,7 +62,11 @@ export async function registerAndLandOnHome(
   await page.getByTestId('register-emailConfirm').fill(email);
   await page.getByTestId('register-password').fill(DEMO_PASSWORD);
   await page.getByTestId('register-passwordConfirm').fill(DEMO_PASSWORD);
+  const registerDone = page.waitForResponse(
+    (r) => r.url().includes('/auth/register') && r.status() === 201,
+  );
   await page.getByTestId('register-submit').click();
+  await registerDone;
 
   await assertLandOnHome(page);
   await pauseDemoStep(page);

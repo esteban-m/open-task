@@ -83,8 +83,8 @@ async function handleLogin() {
     setUser(user)
 
     bindRealtime()
-    await socket.connect()
-    router.push('/')
+    await router.push('/')
+    void socket.connect()
   } catch (e: unknown) {
     toast.fromApiError(e, 'Identifiants incorrects')
   } finally {

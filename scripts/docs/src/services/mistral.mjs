@@ -1,6 +1,6 @@
 import { sanitizeApiText } from './sanitize.mjs';
 
-const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const MISTRAL_URL = 'https://api.mistral.ai/v1/chat/completions';
 
 export async function chatCompletion({
   apiKey,
@@ -9,8 +9,6 @@ export async function chatCompletion({
   maxTokens = 8000,
   temperature = 0.2,
   responseFormat,
-  referer,
-  appName,
 }) {
   const safeMessages = messages.map((m) => ({
     role: m.role,
@@ -20,26 +18,24 @@ export async function chatCompletion({
   const body = { model, messages: safeMessages, max_tokens: maxTokens, temperature };
   if (responseFormat) body.response_format = responseFormat;
 
-  // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before OpenRouter
-  const response = await fetch(OPENROUTER_URL, {
+  // codeql[js/file-access-to-http]: prompts bounded via sanitizeApiText before Mistral
+  const response = await fetch(MISTRAL_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey}`,
-      'HTTP-Referer': referer ?? process.env.OPENROUTER_SITE_URL ?? 'https://github.com',
-      'X-Title': appName ?? process.env.OPENROUTER_APP_NAME ?? 'Docs',
     },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`OpenRouter ${response.status}: ${text.slice(0, 500)}`);
+    throw new Error(`Mistral ${response.status}: ${text.slice(0, 500)}`);
   }
 
   const data = await response.json();
   const content = data.choices?.[0]?.message?.content;
-  if (!content) throw new Error('OpenRouter: réponse vide');
+  if (!content) throw new Error('Mistral: réponse vide');
   return content.trim();
 }
 
@@ -55,4 +51,12 @@ export function extractMermaidBlock(text) {
 export function extractXmlTag(text, tag) {
   const match = text.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, 'i'));
   return match ? match[1].trim() : text.trim();
+}
+
+/** Clé et modèle Mistral (priorité MISTRAL_API_KEY, plus de OpenRouter). */
+export function resolveMistralCredentials(env, config) {
+  const apiKey = env.MISTRAL_API_KEY;
+  if (!apiKey) throw new Error('MISTRAL_API_KEY manquant');
+  const model = env.MISTRAL_MODEL ?? config.mistral.defaultModel;
+  return { apiKey, model };
 }

@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { bundleSources } from '../services/sources.mjs';
 import { injectDiagram } from '../services/diagrams.mjs';
-import { chatCompletion } from '../services/openrouter.mjs';
+import { chatCompletion, resolveMistralCredentials } from '../services/mistral.mjs';
 import { buildAllowedLinksForPrompt } from '../services/navigation.mjs';
 import { writeGeneratedDoc } from '../services/writer.mjs';
 
@@ -12,10 +12,7 @@ function interpolate(template, vars) {
 }
 
 export async function generateChapters(config, paths, env) {
-  const apiKey = env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error('OPENROUTER_API_KEY manquant');
-
-  const model = env.OPENROUTER_MODEL ?? config.openrouter.defaultModel;
+  const { apiKey, model } = resolveMistralCredentials(env, config);
   const allowedLinks = buildAllowedLinksForPrompt(config);
   const systemPrompt = interpolate(config.prompts.chapterSystem, { allowedLinks });
 
@@ -65,9 +62,7 @@ export async function generateChapters(config, paths, env) {
           ].join('\n'),
         },
       ],
-      maxTokens: config.openrouter.maxTokens.chapter,
-      referer: env.OPENROUTER_SITE_URL,
-      appName: config.openrouter.appName,
+      maxTokens: config.mistral.maxTokens.chapter,
     });
 
     let md = `---

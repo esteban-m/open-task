@@ -154,8 +154,8 @@ async function handleRegister() {
     setUser(user)
 
     bindRealtime()
-    await socket.connect()
-    router.push('/')
+    await router.push('/')
+    void socket.connect()
   } catch (e: unknown) {
     toast.fromApiError(e, 'Erreur lors de la création du compte')
   } finally {

@@ -303,16 +303,16 @@ Sur chaque push sur `main`, le job **Rapports · Codecov & Wiki** de [`.github/w
 
 Documentation technique (Diátaxis) : guide, architecture, backend, frontend, API, schéma BDD — diagrammes Mermaid interactifs (zoom / plein écran).
 
-Générée automatiquement sur chaque push vers `main` (tant que le secret `OPENROUTER_API_KEY` est configuré) :
+Générée automatiquement sur chaque push vers `main` (tant que le secret `MISTRAL_API_KEY` est configuré) :
 
 | Étape | Outil |
 |-------|-------|
-| Diagramme d'architecture | [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [OpenRouter](https://openrouter.ai/) |
+| Diagramme d'architecture | [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [Mistral AI](https://mistral.ai/) |
 | Chapitres métier | [Diátaxis](https://diataxis.fr/) + `scripts/docs/config/open-task.docs.json` |
 | Schéma BDD | Prisma → Mermaid ERD |
 | Site statique | [VitePress](https://vitepress.dev/) → GitHub Pages (workflow `docs.yml`) |
 
-**Maintainers** — secrets *Settings → Secrets → Actions* : `OPENROUTER_API_KEY` (génération IA), `CODECOV_TOKEN` (couverture de tests). Pages en source **GitHub Actions** (*Settings → Pages*). Dispatch manuel *Docs* : option `skip_ai` pour ignorer l’IA.
+**Maintainers** — secrets *Settings → Secrets → Actions* : `MISTRAL_API_KEY` (génération IA), `CODECOV_TOKEN` (couverture de tests). Pages en source **GitHub Actions** (*Settings → Pages*). Dispatch manuel *Docs* : option `skip_ai` pour ignorer l’IA.
 
 Relance manuelle : *Actions → Docs → Run workflow*.
 

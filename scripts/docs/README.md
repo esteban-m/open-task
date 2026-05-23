@@ -7,7 +7,7 @@ scripts/docs/
 ├── config/open-task.docs.json   # manifeste repo (navigation, chapitres, prompts, diagrammes)
 ├── src/
 │   ├── core/                    # chargement config, chemins
-│   ├── services/                # OpenRouter, GitHub, Prisma ERD, liens, Mermaid…
+│   ├── services/                # Mistral AI, GitHub, Prisma ERD, liens, Mermaid…
 │   ├── generators/              # database, api-reference, architecture, chapters, assemble
 │   └── pipeline.mjs             # orchestration
 └── cli.mjs                      # point d'entrée
@@ -32,6 +32,6 @@ Tout ce qui est spécifique au dépôt vit dans [`config/open-task.docs.json`](c
 - injections Mermaid (auth, temps réel)
 - liens « Voir aussi » par défaut (`defaultSeeAlso`) et alias de libellés (`linkLabelAliases`)
 - réécritures de liens (`linkRewrites`)
-- prompts OpenRouter
+- prompts Mistral AI
 
-Secret CI : `OPENROUTER_API_KEY`.
+Secret CI : `MISTRAL_API_KEY` (modèle optionnel : `MISTRAL_MODEL`, défaut `mistral-small-latest`).
