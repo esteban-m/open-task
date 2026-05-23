@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { fn } from 'storybook/test';
 
 import {
   sidebarPanelCollapsedFrameDecorator,
@@ -12,9 +11,6 @@ const meta = {
   title: 'Layout/SidebarPanel',
   component: SidebarPanel,
   decorators: [withStores],
-  args: {
-    onToggleCollapse: fn(),
-  },
   argTypes: {
     collapsed: { control: 'boolean' },
     mobile: { control: 'boolean' },

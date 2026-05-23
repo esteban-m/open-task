@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
-import { fn } from 'storybook/test';
 
 import { mockList } from '../../.storybook/fixtures';
 import { withStores } from '../../.storybook/decorators';
@@ -12,8 +11,6 @@ const meta = {
   parameters: { layout: 'centered' },
   args: {
     list: mockList,
-    onClose: fn(),
-    onSaved: fn(),
   },
 } satisfies Meta<typeof ListEditModal>;
 
