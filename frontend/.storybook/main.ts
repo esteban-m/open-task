@@ -8,23 +8,7 @@ const frontendRoot = dirname(fileURLToPath(new URL('../', import.meta.url)));
 
 const config: StorybookConfig = {
   stories: ['../components/**/*.stories.@(js|jsx|mjs|ts|tsx)'],
-  addons: [
-    {
-      name: '@storybook/addon-docs',
-      options: {
-        vueDocgenOptions: {
-          alias: {
-            '~': frontendRoot,
-            '@': frontendRoot,
-          },
-        },
-      },
-    },
-  ],
-  docs: {
-    autodocs: 'tag',
-    defaultName: 'Documentation',
-  },
+  addons: ['@storybook/addon-docs'],
   framework: {
     name: '@storybook-vue/nuxt',
     options: {},

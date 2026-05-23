@@ -1,21 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
-import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
+import { themePickerFrameDecorator } from '../../.storybook/decorators';
 import ThemePicker from './ThemePicker.vue';
 
 const meta = {
   title: 'UI/ThemePicker',
   component: ThemePicker,
-  tags: ['autodocs'],
-  parameters: vueUsageSnippet('<ThemePicker />'),
+  decorators: [themePickerFrameDecorator],
   argTypes: {
     collapsed: { control: 'boolean' },
   },
-  decorators: [
-    () => ({
-      template: '<div class="w-64"><story /></div>',
-    }),
-  ],
 } satisfies Meta<typeof ThemePicker>;
 
 export default meta;

@@ -4,8 +4,8 @@ import { createPinia } from 'pinia';
 
 import '../assets/css/main.css';
 import { DEFAULT_THEME_ID } from '../config/themes';
+import { codePanelParameters } from './code-panel';
 import { themeDecorator } from './decorators';
-import { storybookDocsDefaults } from './vue-usage-snippet';
 
 const pinia = createPinia();
 
@@ -19,8 +19,8 @@ setup((app) => {
 const preview: Preview = {
   decorators: [themeDecorator],
   parameters: {
-    ...storybookDocsDefaults,
-    layout: 'fullscreen',
+    ...codePanelParameters,
+    layout: 'padded',
     controls: {
       expanded: true,
       matchers: {
