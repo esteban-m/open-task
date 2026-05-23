@@ -54,6 +54,39 @@ describe('generateArchitecture (Mistral)', () => {
     await rm(tmp, { recursive: true, force: true });
   });
 
+  it('utilise fetchGithubTree en CI GitHub', async () => {
+    const { fetchGithubTree } = await import('../src/services/github.mjs');
+    const { chatCompletion } = await import('../src/services/mistral.mjs');
+    fetchGithubTree.mockResolvedValue({
+      fileTree: 'backend/\n',
+      readme: '# CI readme',
+    });
+    chatCompletion
+      .mockResolvedValueOnce('<explanation>CI</explanation>')
+      .mockResolvedValueOnce('```mermaid\nflowchart LR\n  A --> B\n```');
+
+    const config = await loadConfig();
+    const tmp = await mkdtemp(path.join(os.tmpdir(), 'arch-ci-'));
+    const generatedDir = path.join(tmp, 'generated');
+    await mkdir(generatedDir, { recursive: true });
+
+    const paths = {
+      repoRoot: process.cwd(),
+      generatedDir,
+      generatedFile: (name) => path.join(generatedDir, name),
+    };
+
+    await generateArchitecture(config, paths, {
+      MISTRAL_API_KEY: 'test-key',
+      GITHUB_ACTIONS: 'true',
+      GITHUB_TOKEN: 'gh-ci',
+      GITHUB_REPOSITORY: 'esteban-m/open-task',
+    });
+
+    expect(fetchGithubTree).toHaveBeenCalled();
+    await rm(tmp, { recursive: true, force: true });
+  });
+
   it('exige MISTRAL_API_KEY', async () => {
     const config = await loadConfig();
     await expect(

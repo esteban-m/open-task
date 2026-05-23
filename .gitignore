@@ -50,6 +50,10 @@ e2e/test-results/
 .vitest-video.webm
 .vitest-out.gif
 .vitest-not-a-dir-file
+.vitest-docs-api/
+.vitest-docs-diagrams/
+.vitest-docs-assemble/
+.vitest-docs-nav/
 
 e2e/playwright-report/
 e2e/blob-report/

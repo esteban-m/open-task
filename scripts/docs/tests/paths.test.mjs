@@ -21,5 +21,6 @@ describe('createPaths', () => {
     expect(paths.docsDir).toBe(path.join(repoRoot, 'docs'));
     expect(paths.generatedFile('architecture.md')).toContain('docs/generated/architecture.md');
     expect(paths.chapterFile('backend/tasks')).toContain('backend/tasks.md');
+    expect(paths.sourceFile('README.md')).toBe(path.join(repoRoot, 'README.md'));
   });
 });

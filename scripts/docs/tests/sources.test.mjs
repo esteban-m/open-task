@@ -21,4 +21,13 @@ describe('bundleSources', () => {
     const bundle = await bundleSources(repoRoot, ['__missing__.md'], {});
     expect(bundle).toContain('fichier introuvable');
   });
+
+  it('truncates large files and skips when bundle limit exceeded', async () => {
+    const bundle = await bundleSources(repoRoot, ['README.md', 'package.json'], {
+      maxCharsPerFile: 20,
+      maxTotalChars: 80,
+    });
+    expect(bundle).toContain('tronqué');
+    expect(bundle).toContain('limite de contexte');
+  });
 });

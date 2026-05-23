@@ -52,6 +52,57 @@ describe('generateChapters (Mistral)', () => {
     await rm(tmp, { recursive: true, force: true });
   });
 
+  it('injecte un diagramme quand configuré pour le chapitre', async () => {
+    const config = await loadConfig();
+    const injection = config.diagrams[0];
+    const chapter = config.chapters.find((c) => c.path === injection.chapterPath);
+    expect(chapter).toBeTruthy();
+    config.chapters = [chapter];
+
+    const tmp = await mkdtemp(path.join(os.tmpdir(), 'chapters-diagram-'));
+    const generatedDir = path.join(tmp, 'generated');
+    await mkdir(generatedDir, { recursive: true });
+
+    const paths = {
+      repoRoot: process.cwd(),
+      generatedDir,
+      generatedFile: (name) => path.join(generatedDir, name),
+      chapterFile: (chapterPath) => path.join(generatedDir, `${chapterPath}.md`),
+      manifestFile: path.join(generatedDir, '.doc-manifest.json'),
+    };
+
+    await generateChapters(config, paths, { MISTRAL_API_KEY: 'test-key' });
+
+    const md = await readFile(paths.chapterFile(chapter.path), 'utf8');
+    expect(md).toContain(injection.sectionTitle);
+    expect(md).toContain('```mermaid');
+
+    await rm(tmp, { recursive: true, force: true });
+  });
+
+  it('fonctionne sans architecture.md préalable', async () => {
+    const config = await loadConfig();
+    config.chapters = [config.chapters[0]];
+
+    const tmp = await mkdtemp(path.join(os.tmpdir(), 'chapters-no-arch-'));
+    const generatedDir = path.join(tmp, 'generated');
+    await mkdir(generatedDir, { recursive: true });
+
+    const paths = {
+      repoRoot: process.cwd(),
+      generatedDir,
+      generatedFile: (name) => path.join(generatedDir, name),
+      chapterFile: (chapterPath) => path.join(generatedDir, `${chapterPath}.md`),
+      manifestFile: path.join(generatedDir, '.doc-manifest.json'),
+    };
+
+    await generateChapters(config, paths, { MISTRAL_API_KEY: 'test-key' });
+    const md = await readFile(paths.chapterFile(config.chapters[0].path), 'utf8');
+    expect(md).toContain('Contenu généré');
+
+    await rm(tmp, { recursive: true, force: true });
+  });
+
   it('exige MISTRAL_API_KEY', async () => {
     const config = await loadConfig();
     await expect(

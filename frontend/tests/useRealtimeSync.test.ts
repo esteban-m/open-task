@@ -102,6 +102,64 @@ describe('useRealtimeSync', () => {
     expect(tasks.allTasks).toHaveLength(0)
   })
 
+  it('bind applique task:moved, task:completed et task:deleted', () => {
+    const lists = useListsStore()
+    lists.lists = [mockList('l1', 'Liste'), mockList('l2', 'B')]
+    lists.selectList('l1')
+    const tasks = useTasksStore()
+    const task = mockTask('t1', 'l1', 'T')
+    tasks.setAllTasks([task])
+    tasks.setTasks([task])
+
+    const { bind } = useRealtimeSync()
+    bind()
+
+    handlers.get('task:moved')?.({
+      task: { ...task, listId: 'l2' },
+      fromListId: 'l1',
+      toListId: 'l2',
+    })
+    expect(tasks.allTasks[0].listId).toBe('l2')
+
+    handlers.get('task:completed')?.({ ...task, completed: true, completedAt: '2024-01-01' })
+    expect(tasks.allTasks[0].completed).toBe(true)
+
+    handlers.get('task:deleted')?.({ id: 't1', listId: 'l2' })
+    expect(tasks.allTasks).toHaveLength(0)
+  })
+
+  it('list:shared et list:updated mettent à jour les stores', () => {
+    const lists = useListsStore()
+    lists.lists = [mockList('l1', 'Liste', '#fff')]
+    lists.selectList('l1')
+    const tasks = useTasksStore()
+    const task = mockTask('t1', 'l1', 'T')
+    tasks.setAllTasks([{ ...task, list: { id: 'l1', name: 'Liste', color: '#fff' } }])
+
+    const { bind } = useRealtimeSync()
+    bind()
+
+    handlers.get('list:shared')?.({
+      id: 'l2',
+      name: 'Partagée',
+      userId: 'u1',
+      createdAt: '',
+      updatedAt: '',
+    })
+    expect(lists.lists.some((l) => l.id === 'l2')).toBe(true)
+    expect(joinList).toHaveBeenCalledWith('l2')
+
+    handlers.get('list:updated')?.({
+      id: 'l1',
+      name: 'Renommée',
+      userId: 'u1',
+      color: '#000',
+      createdAt: '',
+      updatedAt: '',
+    })
+    expect(lists.lists.find((l) => l.id === 'l1')?.name).toBe('Renommée')
+  })
+
   it('syncListRooms appelle joinLists', () => {
     const lists = useListsStore()
     lists.lists = [mockList('l1', 'A'), mockList('l2', 'B')]

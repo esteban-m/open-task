@@ -18,4 +18,10 @@ describe('github helpers', () => {
     const readme = await readReadme(repoRoot);
     expect(readme).toContain('Open-Task');
   });
+
+  it('buildLocalFileTree respects maxFiles', async () => {
+    const tree = await buildLocalFileTree(repoRoot, 3);
+    const fileLines = tree.split('\n').filter((line) => line && !line.endsWith('/'));
+    expect(fileLines.length).toBeLessThanOrEqual(3);
+  });
 });

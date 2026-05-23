@@ -20,15 +20,20 @@ const io = vi.fn(() => mockIoSocket)
 
 vi.mock('socket.io-client', () => ({ io }))
 
+const getToken = vi.fn(() => 'access-token')
+
 vi.mock('~/composables/useAccessToken', () => ({
   useAccessToken: () => ({
-    getToken: vi.fn(() => 'access-token'),
+    getToken,
+    setToken: vi.fn(),
+    clearToken: vi.fn(),
   }),
 }))
 
 describe('useSocket', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    getToken.mockReturnValue('access-token')
     mockIoSocket.connected = false
     io.mockClear()
   })
@@ -74,6 +79,42 @@ describe('useSocket', () => {
     disconnect()
     expect(mockDisconnect).toHaveBeenCalled()
     expect(isConnected()).toBe(false)
+  })
+
+  it('connect sans token ne crée pas de socket', async () => {
+    getToken.mockReturnValue(null)
+    const { connect } = useSocket()
+    await connect()
+    expect(io).not.toHaveBeenCalled()
+  })
+
+  it('joinList et leaveList ignorent les ids vides', async () => {
+    mockIoSocket.connected = true
+    const { joinList, leaveList, connect } = useSocket()
+    await connect()
+    joinList('')
+    leaveList('')
+    expect(mockEmit).not.toHaveBeenCalled()
+  })
+
+  it('reconnecte une socket existante déconnectée', async () => {
+    mockIoSocket.connected = false
+    const socketApi = useSocket()
+    await socketApi.connect()
+    expect(io).toHaveBeenCalledTimes(1)
+    mockEmit.mockClear()
+    await socketApi.connect()
+    expect(mockConnect).toHaveBeenCalled()
+  })
+
+  it('rejoint les rooms si déjà connecté', async () => {
+    mockIoSocket.connected = true
+    const socketApi = useSocket()
+    await socketApi.connect()
+    socketApi.joinList('list-a')
+    mockEmit.mockClear()
+    await socketApi.connect()
+    expect(mockEmit).toHaveBeenCalledWith('join:list', 'list-a')
   })
 
   it('joinLists enchaîne plusieurs joinList', async () => {
