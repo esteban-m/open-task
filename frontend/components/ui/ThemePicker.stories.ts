@@ -11,7 +11,7 @@ const meta = {
   },
   decorators: [
     () => ({
-      template: '<div class="w-64 p-4 bg-surface border border-border rounded-lg"><story /></div>',
+      template: '<div class="w-64"><story /></div>',
     }),
   ],
 } satisfies Meta<typeof ThemePicker>;
@@ -19,10 +19,5 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Expanded: Story = {
-  args: { collapsed: false },
-};
-
-export const Collapsed: Story = {
-  args: { collapsed: true },
-};
+export const Expanded: Story = { args: { collapsed: false } };
+export const Collapsed: Story = { args: { collapsed: true } };

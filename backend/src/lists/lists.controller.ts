@@ -10,7 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { ListsService } from './lists.service';
 import { CreateListDto, UpdateListDto } from './dto/list.dto';
 import { ShareListDto, resolveShareRole } from './dto/share-list.dto';
@@ -36,18 +36,22 @@ export class ListsController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
   @ApiOperation({ summary: 'Récupérer une liste par son ID' })
   findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.listsService.findOne(id, userId);
   }
 
   @Post()
+  @ApiBody({ type: () => CreateListDto })
   @ApiOperation({ summary: 'Créer une nouvelle liste' })
   create(@Body() dto: CreateListDto, @CurrentUser('id') userId: string) {
     return this.listsService.create(dto, userId);
   }
 
   @Put(':id')
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
+  @ApiBody({ type: () => UpdateListDto })
   @ApiOperation({ summary: 'Mettre à jour une liste' })
   async update(
     @Param('id') id: string,
@@ -61,6 +65,7 @@ export class ListsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
   @ApiOperation({ summary: 'Supprimer une liste et toutes ses tâches' })
   async remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const members = await this.listsService.getSharedUsers(id, userId).catch(() => []);
@@ -71,6 +76,8 @@ export class ListsController {
   }
 
   @Post(':id/share')
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
+  @ApiBody({ type: () => ShareListDto })
   @ApiOperation({ summary: 'Partager une liste avec un email' })
   async shareList(
     @Param('id') listId: string,
@@ -87,6 +94,7 @@ export class ListsController {
   }
 
   @Post('shares/:id/accept')
+  @ApiParam({ name: 'id', description: 'ID du partage (invitation)' })
   @ApiOperation({ summary: 'Accepter une invitation de partage' })
   acceptShare(@Param('id') shareId: string, @CurrentUser('id') userId: string) {
     return this.listsService.acceptShare(shareId, userId);
@@ -94,6 +102,8 @@ export class ListsController {
 
   @Delete('shares/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
+  @ApiBody({ type: () => RevokeShareDto })
   @ApiOperation({ summary: 'Révoquer l\'accès (legacy)' })
   async revokeAccessLegacy(
     @Param('id') listId: string,
@@ -107,6 +117,8 @@ export class ListsController {
 
   @Delete(':id/share/:userId')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
+  @ApiParam({ name: 'userId', description: 'ID de l\'utilisateur à révoquer' })
   @ApiOperation({ summary: 'Révoquer l\'accès d\'un utilisateur à une liste' })
   async revokeShare(
     @Param('id') listId: string,
@@ -119,6 +131,7 @@ export class ListsController {
   }
 
   @Get(':id/shared-users')
+  @ApiParam({ name: 'id', description: 'ID de la liste' })
   @ApiOperation({ summary: 'Récupérer tous les utilisateurs ayant accès à une liste' })
   getSharedUsers(@Param('id') listId: string, @CurrentUser('id') userId: string) {
     return this.listsService.getSharedUsers(listId, userId);

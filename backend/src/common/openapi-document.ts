@@ -7,6 +7,8 @@ export function buildOpenApiDocument(app: INestApplication) {
     .setDescription('API de gestion de tâches Open-Task')
     .setVersion('1.0')
     .addBearerAuth()
+    .addServer('http://localhost:4000', 'Développement local')
+    .addServer('/open-task/swagger', 'GitHub Pages (chemin relatif)')
     .build();
 
   return SwaggerModule.createDocument(app, config);

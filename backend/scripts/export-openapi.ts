@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -40,6 +42,10 @@ async function exportOpenApi(outPath: string) {
   await app.init();
 
   const document = buildOpenApiDocument(app);
+  const schemaCount = Object.keys(document.components?.schemas ?? {}).length;
+  if (schemaCount === 0) {
+    throw new Error('OpenAPI export: aucun schéma DTO — vérifier @ApiBody sur les contrôleurs');
+  }
   writeFileSync(outPath, JSON.stringify(document, null, 2));
   await app.close();
 }

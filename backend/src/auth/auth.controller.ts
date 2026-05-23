@@ -9,7 +9,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
@@ -29,6 +29,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
+  @ApiBody({ type: () => RegisterDto })
   @ApiOperation({ summary: 'Créer un compte' })
   @ApiResponse({ status: 201, description: 'Compte créé avec succès' })
   @ApiResponse({ status: 400, description: 'Données invalides ou compte existant' })
@@ -40,6 +41,7 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: () => LoginDto })
   @ApiOperation({ summary: 'Se connecter' })
   @ApiResponse({ status: 200, description: 'Connexion réussie' })
   @ApiResponse({ status: 401, description: 'Identifiants incorrects' })
