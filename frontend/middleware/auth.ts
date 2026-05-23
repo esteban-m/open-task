@@ -1,3 +1,5 @@
+import { resolveAuthRedirect } from '~/utils/auth-route-guard'
+
 export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.client) {
     await ensureSession()
@@ -7,14 +9,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!pinia) return
 
   const authStore = useAuthStore(pinia)
-  const publicRoutes = ['/login', '/register']
-  const isPublicRoute = publicRoutes.includes(to.path)
-
-  if (!authStore.accessToken && !isPublicRoute) {
-    return navigateTo('/login')
-  }
-
-  if (authStore.accessToken && isPublicRoute) {
-    return navigateTo('/')
+  const target = resolveAuthRedirect(to.path, authStore.accessToken)
+  if (target) {
+    return navigateTo(target)
   }
 })

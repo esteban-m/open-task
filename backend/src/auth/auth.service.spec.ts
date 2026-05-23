@@ -140,6 +140,27 @@ describe('AuthService', () => {
       await expect(service.refresh('invalid_token')).rejects.toThrow(UnauthorizedException);
     });
 
+    it('devrait rejeter un refresh expiré en base', async () => {
+      mockJwtService.verify.mockReturnValue({ sub: 'user-1', email: 'test@example.com' });
+      mockPrismaService.refreshToken.findUnique.mockResolvedValue({
+        token: hashRefreshToken('expired'),
+        expiresAt: new Date(Date.now() - 1000),
+      });
+
+      await expect(service.refresh('expired')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('devrait rejeter si deleteMany ne supprime aucun token (rotation parallèle)', async () => {
+      mockJwtService.verify.mockReturnValue({ sub: 'user-1', email: 'test@example.com' });
+      mockPrismaService.refreshToken.findUnique.mockResolvedValue({
+        token: hashRefreshToken('stale'),
+        expiresAt: new Date(Date.now() + 86_400_000),
+      });
+      mockPrismaService.refreshToken.deleteMany.mockResolvedValue({ count: 0 });
+
+      await expect(service.refresh('stale')).rejects.toThrow(UnauthorizedException);
+    });
+
     it('devrait renouveler les tokens quand le refresh est valide', async () => {
       const refreshToken = 'valid-refresh-token';
       mockJwtService.verify.mockReturnValue({ sub: 'user-1', email: 'test@example.com' });
@@ -167,6 +188,11 @@ describe('AuthService', () => {
   });
 
   describe('getMe', () => {
+    it('lève si l’utilisateur n’existe plus', async () => {
+      mockPrismaService.user.findUnique.mockResolvedValue(null);
+      await expect(service.getMe('ghost')).rejects.toThrow(UnauthorizedException);
+    });
+
     it('retourne le profil utilisateur', async () => {
       mockPrismaService.user.findUnique.mockResolvedValue({
         id: 'user-1',

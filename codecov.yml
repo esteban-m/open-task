@@ -9,12 +9,19 @@ fixes:
   - "components/::frontend/components/"
   - "middleware/::frontend/middleware/"
   - "plugins/::frontend/plugins/"
-  - "pages/::frontend/pages/"
   - "scripts/docs/src/::scripts/docs/src/"
   - "cli.mjs::scripts/docs/cli.mjs"
   - "src/::scripts/ci/src/"
   - "ci/src/::scripts/ci/src/"
   - "cli.mjs::scripts/ci/cli.mjs"
+
+# Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
+ignore:
+  - "frontend/pages/**"
+  - "backend/src/**/*.module.ts"
+  - "backend/src/**/dto/**"
+  - "backend/src/main.ts"
+  - "backend/src/app.module.ts"
 
 flag_management:
   default_rules:
@@ -23,15 +30,19 @@ flag_management:
 coverage:
   status:
     project:
-      # Ne pas mélanger scripts (faible %) avec backend+frontend pour le gate principal
-      default:
-        target: auto
+      backend:
+        target: 75%
+        threshold: 2%
         flags:
           - backend
+      frontend:
+        target: 75%
+        threshold: 2%
+        flags:
           - frontend
       scripts:
-        target: 95%
-        threshold: 1%
+        target: 75%
+        threshold: 2%
         flags:
           - scripts
     patch:

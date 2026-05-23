@@ -162,6 +162,63 @@ describe('Pinia stores', () => {
       expect(store.selectedTaskId).toBeNull()
     })
 
+    it('selectedTask cherche dans allTasks et addTask sans liste connue', () => {
+      const lists = useListsStore()
+      lists.selectList('l1')
+      const store = useTasksStore()
+      const onlyAll = {
+        id: 't-all',
+        shortDescription: 'X',
+        longDescription: null,
+        dueDate: '2026-01-01',
+        completed: false,
+        completedAt: null,
+        listId: 'l1',
+        createdAt: '',
+        updatedAt: '',
+      }
+      store.setAllTasks([onlyAll])
+      store.selectTask('t-all')
+      expect(store.selectedTask?.id).toBe('t-all')
+      store.selectTask('introuvable')
+      expect(store.selectedTask).toBeNull()
+
+      store.addTask({
+        ...onlyAll,
+        id: 't-orphan',
+        listId: 'l-unknown',
+      })
+      expect(store.allTasks.some((t) => t.id === 't-orphan')).toBe(true)
+    })
+
+    it('updateTask et moveTask couvrent les branches restantes', () => {
+      const lists = useListsStore()
+      lists.setLists([
+        { id: 'l1', name: 'A', userId: 'u1', createdAt: '', updatedAt: '' },
+        { id: 'l2', name: 'B', userId: 'u1', createdAt: '', updatedAt: '' },
+      ])
+      lists.selectList('l1')
+      const store = useTasksStore()
+      const task = {
+        id: 't1',
+        shortDescription: 'T',
+        longDescription: null,
+        dueDate: '2026-01-01',
+        completed: false,
+        completedAt: null,
+        listId: 'l1',
+        createdAt: '',
+        updatedAt: '',
+      }
+      store.setTasks([task])
+      store.updateTask({ ...task, listId: 'l2' })
+      expect(store.tasks.find((t) => t.id === 't1')).toBeUndefined()
+
+      store.setTasks([task])
+      store.moveTask({ ...task, shortDescription: 'Moved' }, 'l1')
+      expect(store.tasks[0].shortDescription).toBe('Moved')
+    })
+
     it('getters split active and completed tasks', () => {
       const store = useTasksStore()
       store.setTasks([
@@ -235,6 +292,11 @@ describe('Pinia stores', () => {
         updatedAt: '',
       })
       expect(store.lists).toHaveLength(2)
+
+      store.setLoading(true)
+      expect(store.loading).toBe(true)
+      store.setLoading(false)
+      expect(store.loading).toBe(false)
     })
   })
 })
