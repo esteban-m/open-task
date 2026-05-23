@@ -74,6 +74,15 @@ describe('mistral helpers', () => {
     expect(opts.retry.maxAttempts).toBe(8);
     expect(opts.retry.baseDelayMs).toBe(2000);
   });
+
+  it('resolveMistralRequestOptions uses config defaults', () => {
+    const opts = resolveMistralRequestOptions(
+      {},
+      { mistral: { requestDelayMs: 1200, retry: { maxAttempts: 5 } } },
+    );
+    expect(opts.requestDelayMs).toBe(1200);
+    expect(opts.retry.maxAttempts).toBe(5);
+  });
 });
 
 describe('chatCompletion', () => {
@@ -190,6 +199,56 @@ describe('chatCompletion', () => {
     await vi.runAllTimersAsync();
     await expect(promise).resolves.toBe('ok');
     expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    vi.useRealTimers();
+  });
+
+  it('retries on 503 with Retry-After date header', async () => {
+    vi.useFakeTimers();
+    const future = new Date(Date.now() + 500).toUTCString();
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        headers: { get: (name) => (name === 'retry-after' ? future : null) },
+        text: async () => 'unavailable',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+      });
+
+    const promise = chatCompletion({
+      apiKey: 'key-test',
+      model: 'mistral-small-latest',
+      messages: [{ role: 'user', content: 'x' }],
+      retry: { maxAttempts: 2, baseDelayMs: 10_000, maxDelayMs: 60_000 },
+    });
+
+    await vi.runAllTimersAsync();
+    await expect(promise).resolves.toBe('ok');
+    vi.useRealTimers();
+  });
+
+  it('throws after all retryable attempts fail', async () => {
+    vi.useFakeTimers();
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      headers: { get: () => null },
+      text: async () => 'rate limit',
+    });
+
+    const promise = chatCompletion({
+      apiKey: 'key-test',
+      model: 'mistral-small-latest',
+      messages: [{ role: 'user', content: 'x' }],
+      retry: { maxAttempts: 2, baseDelayMs: 10, maxDelayMs: 20 },
+    });
+
+    const expectation = expect(promise).rejects.toThrow('Mistral 429');
+    await vi.runAllTimersAsync();
+    await expectation;
     vi.useRealTimers();
   });
 
