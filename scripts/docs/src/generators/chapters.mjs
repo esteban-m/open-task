@@ -3,7 +3,11 @@ import path from 'node:path';
 
 import { bundleSources } from '../services/sources.mjs';
 import { injectDiagram } from '../services/diagrams.mjs';
-import { chatCompletion, resolveMistralCredentials } from '../services/mistral.mjs';
+import {
+  chatCompletion,
+  resolveMistralCredentials,
+  resolveMistralRequestOptions,
+} from '../services/mistral.mjs';
 import { buildAllowedLinksForPrompt } from '../services/navigation.mjs';
 import { writeGeneratedDoc } from '../services/writer.mjs';
 
@@ -13,6 +17,7 @@ function interpolate(template, vars) {
 
 export async function generateChapters(config, paths, env) {
   const { apiKey, model } = resolveMistralCredentials(env, config);
+  const { retry, requestDelayMs } = resolveMistralRequestOptions(env, config);
   const allowedLinks = buildAllowedLinksForPrompt(config);
   const systemPrompt = interpolate(config.prompts.chapterSystem, { allowedLinks });
 
@@ -32,7 +37,7 @@ export async function generateChapters(config, paths, env) {
     maxTotalChars: config.sources.bundleMaxTotalChars,
   };
 
-  for (const chapter of config.chapters) {
+  for (const [index, chapter] of config.chapters.entries()) {
     const outPath = paths.chapterFile(chapter.path);
     await mkdir(path.dirname(outPath), { recursive: true });
 
@@ -43,6 +48,8 @@ export async function generateChapters(config, paths, env) {
     const body = await chatCompletion({
       apiKey,
       model,
+      retry,
+      cooldownBeforeMs: index > 0 ? requestDelayMs : 0,
       messages: [
         { role: 'system', content: systemPrompt },
         {
