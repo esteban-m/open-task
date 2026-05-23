@@ -1,5 +1,6 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 
 import IndexPage from '~/pages/index.vue'
 import LoginPage from '~/pages/login.vue'
@@ -28,10 +29,15 @@ vi.mock('~/composables/useListTasks', () => ({
 }))
 
 vi.mock('~/composables/useRealtimeSync', () => ({
-  useRealtimeSync: () => ({ syncListRooms }),
+  useRealtimeSync: () => ({ syncListRooms, bind: vi.fn() }),
 }))
 
 describe('pages smoke', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    get.mockResolvedValue([{ id: 'l1', name: 'Todo' }])
+  })
   it('index charge les listes au montage', async () => {
     localStorage.setItem('selectedListId', 'l1')
     const wrapper = await mountSuspended(IndexPage, { route: '/' })
@@ -54,4 +60,5 @@ describe('pages smoke', () => {
     expect(wrapper.find('[data-testid="register-email"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="register-submit"]').exists()).toBe(true)
   })
+
 })

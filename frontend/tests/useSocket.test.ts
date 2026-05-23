@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { buildUseSocket } from '~/composables/useSocket'
+
 const mockEmit = vi.fn()
 const mockOn = vi.fn()
 const mockOff = vi.fn()
@@ -17,6 +19,11 @@ const mockIoSocket = {
 }
 
 const io = vi.fn(() => mockIoSocket)
+const socketEventHandlers: Record<string, (...args: unknown[]) => void> = {}
+
+mockOn.mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
+  socketEventHandlers[event] = handler
+})
 
 vi.mock('socket.io-client', () => ({ io }))
 
@@ -36,6 +43,7 @@ describe('useSocket', () => {
     getToken.mockReturnValue('access-token')
     mockIoSocket.connected = false
     io.mockClear()
+    for (const key of Object.keys(socketEventHandlers)) delete socketEventHandlers[key]
   })
 
   afterEach(() => {
@@ -117,6 +125,31 @@ describe('useSocket', () => {
     expect(mockEmit).toHaveBeenCalledWith('join:list', 'list-a')
   })
 
+  it('déclenche les handlers connect / disconnect / connect_error', async () => {
+    const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const { connect, joinList } = useSocket()
+    await connect()
+    joinList('room-1')
+    mockIoSocket.connected = true
+    socketEventHandlers.connect?.()
+    expect(mockEmit).toHaveBeenCalledWith('join:list', 'room-1')
+    socketEventHandlers.disconnect?.('transport close')
+    socketEventHandlers.connect_error?.(new Error('refused'))
+    expect(warn).toHaveBeenCalled()
+    log.mockRestore()
+    warn.mockRestore()
+  })
+
+  it('on attache le handler quand la socket existe déjà', async () => {
+    const handler = vi.fn()
+    const socketApi = useSocket()
+    await socketApi.connect()
+    mockOn.mockClear()
+    socketApi.on('task:updated', handler)
+    expect(mockOn).toHaveBeenCalledWith('task:updated', handler)
+  })
+
   it('joinLists enchaîne plusieurs joinList', async () => {
     mockIoSocket.connected = true
     const { joinLists, connect } = useSocket()
@@ -124,5 +157,18 @@ describe('useSocket', () => {
     joinLists(['a', 'b'])
     expect(mockEmit).toHaveBeenCalledWith('join:list', 'a')
     expect(mockEmit).toHaveBeenCalledWith('join:list', 'b')
+  })
+})
+
+describe('buildUseSocket (SSR)', () => {
+  it('expose des no-ops côté serveur', async () => {
+    const api = buildUseSocket(true)
+    await api.connect()
+    api.joinList('x')
+    api.leaveList('x')
+    api.joinLists(['x'])
+    api.on('evt', () => {})
+    expect(api.isConnected()).toBe(false)
+    api.disconnect()
   })
 })

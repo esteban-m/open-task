@@ -4,6 +4,12 @@ import { ColorValidationPipe } from './color-validation.pipe';
 describe('ColorValidationPipe', () => {
   const pipe = new ColorValidationPipe();
 
+  it('returns null, undefined and non-string values unchanged', () => {
+    expect(pipe.transform(null, {} as any)).toBeNull();
+    expect(pipe.transform(undefined, {} as any)).toBeUndefined();
+    expect(pipe.transform(42, {} as any)).toBe(42);
+  });
+
   it('passes through non-color strings', () => {
     expect(pipe.transform('Ma liste', {} as any)).toBe('Ma liste');
     expect(pipe.transform('user@mail.com', {} as any)).toBe('user@mail.com');

@@ -52,6 +52,14 @@ describe('AllExceptionsFilter', () => {
     );
   });
 
+  it('handles unknown non-Error throwables', () => {
+    const { host, json } = mockHost();
+    filter.catch({ code: 'WEIRD' }, host);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Erreur interne du serveur', statusCode: 500 }),
+    );
+  });
+
   it('exposes Error message outside production', () => {
     process.env.NODE_ENV = 'development';
     const { host, json } = mockHost();

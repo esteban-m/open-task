@@ -12,4 +12,12 @@ describe('AppLogo', () => {
     expect(img.attributes('src') ?? '').toMatch(/^data:image\/svg\+xml|^\/hero\.svg/)
     expect(img.classes()).toContain('w-10')
   })
+
+  it('applique les classes sm et lg', async () => {
+    const sm = await mountSuspended(AppLogo, { props: { size: 'sm' } })
+    expect(sm.find('img').classes()).toContain('w-8')
+
+    const lg = await mountSuspended(AppLogo, { props: { size: 'lg' } })
+    expect(lg.find('img').classes()).toContain('w-12')
+  })
 })

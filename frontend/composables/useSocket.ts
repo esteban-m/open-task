@@ -21,11 +21,12 @@ function rejoinLists() {
   }
 }
 
-export function useSocket() {
+/** Factory testable (SSR vs client). */
+export function buildUseSocket(isServer: boolean) {
   const noop = () => {}
 
   async function connect(): Promise<void> {
-    if (import.meta.server) return
+    if (isServer) return
 
     const token = useAccessToken().getToken()
     if (!token) return
@@ -119,7 +120,7 @@ export function useSocket() {
     return Boolean(socket?.connected)
   }
 
-  if (import.meta.server) {
+  if (isServer) {
     return {
       connect: async () => {},
       disconnect: noop,
@@ -132,4 +133,8 @@ export function useSocket() {
   }
 
   return { connect, disconnect, joinList, leaveList, joinLists, on, isConnected }
+}
+
+export function useSocket() {
+  return buildUseSocket(import.meta.server)
 }

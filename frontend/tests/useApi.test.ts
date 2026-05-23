@@ -156,6 +156,25 @@ describe('useApi', () => {
     await expect(mountSuspended(ErrorHarness)).rejects.toMatchObject({ message: 'a, b' })
   })
 
+  it('utilise le message par défaut si le corps d’erreur est invalide', async () => {
+    useAuthStore().setToken('tok')
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ message: 123 }),
+    } as Response)
+
+    const ErrorHarness = defineComponent({
+      async setup() {
+        const api = useApi()
+        await api.get('/lists')
+      },
+      template: '<div />',
+    })
+
+    await expect(mountSuspended(ErrorHarness)).rejects.toMatchObject({ message: 'Erreur' })
+  })
+
   it('refresh échoué rejette avec 401', async () => {
     useAuthStore().setToken('old')
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)

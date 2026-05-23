@@ -128,6 +128,20 @@ describe('useRealtimeSync', () => {
     expect(tasks.allTasks).toHaveLength(0)
   })
 
+  it('list:shared sélectionne la liste si aucune sélection active', () => {
+    const lists = useListsStore()
+    const { bind } = useRealtimeSync()
+    bind()
+    handlers.get('list:shared')?.({
+      id: 'l9',
+      name: 'Nouvelle',
+      userId: 'u1',
+      createdAt: '',
+      updatedAt: '',
+    })
+    expect(lists.selectedListId).toBe('l9')
+  })
+
   it('list:shared et list:updated mettent à jour les stores', () => {
     const lists = useListsStore()
     lists.lists = [mockList('l1', 'Liste', '#fff')]

@@ -25,13 +25,14 @@ coverage:
     project:
       # Ne pas mélanger scripts (faible %) avec backend+frontend pour le gate principal
       default:
-        target: auto
+        target: 100%
+        threshold: 0%
         flags:
           - backend
           - frontend
       scripts:
-        target: 95%
-        threshold: 1%
+        target: 100%
+        threshold: 0%
         flags:
           - scripts
     patch:
