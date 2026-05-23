@@ -4,6 +4,7 @@ import {
   chatCompletion,
   extractMermaidBlock,
   extractXmlTag,
+  isMistralCapacityError,
   resolveMistralCredentials,
   resolveMistralRequestOptions,
   validateMistralApiKey,
@@ -331,8 +332,26 @@ describe('chatCompletion', () => {
   });
 });
 
+describe('isMistralCapacityError', () => {
+  it('détecte le code 3505', () => {
+    const body = JSON.stringify({
+      type: 'service_tier_capacity_exceeded',
+      code: '3505',
+      message: 'Service tier capacity exceeded for this model.',
+    });
+    expect(isMistralCapacityError(429, body)).toBe(true);
+    expect(isMistralCapacityError(500, body)).toBe(false);
+  });
+});
+
 describe('validateMistralApiKey', () => {
   const originalFetch = globalThis.fetch;
+  const capacityBody = JSON.stringify({
+    object: 'error',
+    type: 'service_tier_capacity_exceeded',
+    code: '3505',
+    message: 'Service tier capacity exceeded for this model.',
+  });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
@@ -346,6 +365,63 @@ describe('validateMistralApiKey', () => {
 
     await validateMistralApiKey('  key-test  ');
     expect(globalThis.fetch).toHaveBeenCalled();
+  });
+
+  it('relance une erreur auth sans essayer le fallback', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 401,
+      headers: { get: () => null },
+      text: async () => 'unauthorized',
+    });
+
+    await expect(
+      validateMistralApiKey('key-test', 'mistral-small-latest', {
+        fallbackModels: ['open-mistral-nemo'],
+        retry: { maxAttempts: 1, baseDelayMs: 0, maxDelayMs: 0 },
+      }),
+    ).rejects.toThrow('401');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('échoue si tous les modèles sont saturés', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      headers: { get: () => null },
+      text: async () => capacityBody,
+    });
+
+    await expect(
+      validateMistralApiKey('key-test', 'mistral-small-latest', {
+        fallbackModels: ['open-mistral-nemo'],
+        retry: { maxAttempts: 1, baseDelayMs: 0, maxDelayMs: 0 },
+      }),
+    ).rejects.toThrow('3505');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('bascule sur un modèle de secours si capacité saturée', async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        headers: { get: () => null },
+        text: async () => capacityBody,
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'pong' } }] }),
+      });
+
+    const model = await validateMistralApiKey('key-test', 'mistral-small-latest', {
+      fallbackModels: ['open-mistral-nemo'],
+      retry: { maxAttempts: 1, baseDelayMs: 0, maxDelayMs: 0 },
+    });
+
+    expect(model).toBe('open-mistral-nemo');
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
   });
 
   it('exige une clé', async () => {

@@ -15,11 +15,12 @@
   },
   "mistral": {
     "defaultModel": "mistral-small-latest",
+    "validateFallbackModels": ["open-mistral-nemo", "ministral-8b-latest"],
     "requestDelayMs": 1500,
     "retry": {
-      "maxAttempts": 6,
-      "baseDelayMs": 2000,
-      "maxDelayMs": 60000
+      "maxAttempts": 8,
+      "baseDelayMs": 3000,
+      "maxDelayMs": 90000
     },
     "maxTokens": {
       "architectureExplain": 4000,

@@ -137,15 +137,57 @@ export function resolveMistralRequestOptions(env, config) {
   };
 }
 
+export function isMistralCapacityError(status, bodyText) {
+  if (status !== 429) return false;
+  try {
+    const payload = JSON.parse(bodyText);
+    return payload.code === '3505' || payload.type === 'service_tier_capacity_exceeded';
+  } catch {
+    return /service_tier_capacity_exceeded|"code":"3505"/.test(bodyText);
+  }
+}
+
+function isCapacityExceededError(err) {
+  const msg = String(err?.message ?? err);
+  return isMistralCapacityError(429, msg) || /service_tier_capacity_exceeded/.test(msg);
+}
+
 /** Ping minimal Mistral — lève une erreur explicite si la clé est invalide. */
-export async function validateMistralApiKey(apiKey, model = 'mistral-small-latest') {
+export async function validateMistralApiKey(
+  apiKey,
+  model = 'mistral-small-latest',
+  { retry, fallbackModels = [] } = {},
+) {
   const key = apiKey?.trim();
   if (!key) throw new Error('MISTRAL_API_KEY manquant');
-  await chatCompletion({
-    apiKey: key,
-    model,
-    messages: [{ role: 'user', content: 'ping' }],
-    maxTokens: 8,
-    temperature: 0,
-  });
+
+  const models = [model, ...fallbackModels.filter((m) => m && m !== model)];
+  let lastError;
+
+  for (const tryModel of models) {
+    try {
+      await chatCompletion({
+        apiKey: key,
+        model: tryModel,
+        messages: [{ role: 'user', content: 'ping' }],
+        maxTokens: 8,
+        temperature: 0,
+        retry,
+      });
+      if (tryModel !== model) {
+        console.warn(`[mistral] validation OK via modèle de secours: ${tryModel}`);
+      }
+      return tryModel;
+    } catch (err) {
+      lastError = err;
+      const hasFallback = tryModel !== models.at(-1);
+      if (isCapacityExceededError(err) && hasFallback) {
+        console.warn(`[mistral] capacité saturée sur ${tryModel}, essai modèle suivant…`);
+        continue;
+      }
+      throw err;
+    }
+  }
+
+  throw lastError ?? new Error('Mistral: validation échouée');
 }
