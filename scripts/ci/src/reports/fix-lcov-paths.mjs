@@ -18,8 +18,8 @@ export function rewriteLcovPaths(content, prefix) {
 }
 
 export function runFixLcovPaths(argv) {
-  const file = argv[3];
-  const prefix = argv[4];
+  const file = argv[2];
+  const prefix = argv[3];
   if (!file || !prefix) {
     throw new Error('Usage: node cli.mjs fix-lcov-paths <lcov.info> <prefix>');
   }

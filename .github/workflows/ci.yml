@@ -293,7 +293,7 @@ jobs:
       - name: Restaurer l’arborescence coverage
         run: |
           set -euo pipefail
-          mkdir -p backend/coverage backend/coverage-e2e frontend/coverage scripts/docs/coverage
+          mkdir -p backend/coverage backend/coverage-e2e frontend/coverage scripts/docs/coverage scripts/ci/coverage
 
           pick() {
             local dir=$1 pattern=$2
@@ -322,12 +322,17 @@ jobs:
           s_sum=${s_sum:-$(find _cov/scripts -name coverage-summary.json | head -1)}
           cp "$s_sum" scripts/docs/coverage/coverage-summary.json
           s_lcov=$(pick _cov/scripts '*/scripts/docs/coverage/lcov.info')
-          s_lcov=${s_lcov:-$(find _cov/scripts -name lcov.info | head -1)}
+          s_lcov=${s_lcov:-$(find _cov/scripts -path '*/docs/coverage/lcov.info' | head -1)}
           cp "$s_lcov" scripts/docs/coverage/lcov.info
+
+          s_ci_lcov=$(pick _cov/scripts '*/scripts/ci/coverage/lcov.info')
+          s_ci_lcov=${s_ci_lcov:-$(find _cov/scripts -path '*/ci/coverage/lcov.info' ! -path '*docs*' | head -1)}
+          cp "$s_ci_lcov" scripts/ci/coverage/lcov.info
 
           test -f backend/coverage/coverage-summary.json
           test -f frontend/coverage/coverage-summary.json
           test -f scripts/docs/coverage/coverage-summary.json
+          test -f scripts/ci/coverage/lcov.info
 
       - name: Normaliser chemins LCOV (monorepo → racine dépôt)
         run: |
@@ -336,9 +341,6 @@ jobs:
           node scripts/ci/cli.mjs fix-lcov-paths backend/coverage-e2e/lcov.info backend
           node scripts/ci/cli.mjs fix-lcov-paths frontend/coverage/lcov.info frontend
           node scripts/ci/cli.mjs fix-lcov-paths scripts/docs/coverage/lcov.info scripts/docs
-          s_ci_lcov=$(find _cov/scripts -path '*/scripts/ci/coverage/lcov.info' 2>/dev/null | head -1)
-          s_ci_lcov=${s_ci_lcov:-$(find _cov/scripts -path '*/ci/coverage/lcov.info' ! -path '*docs*' | head -1)}
-          cp "$s_ci_lcov" scripts/ci/coverage/lcov.info
           node scripts/ci/cli.mjs fix-lcov-paths scripts/ci/coverage/lcov.info scripts/ci
 
       - name: Fusionner résumé monorepo

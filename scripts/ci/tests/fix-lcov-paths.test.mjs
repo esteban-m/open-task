@@ -6,6 +6,10 @@ import { describe, expect, it } from 'vitest';
 import { rewriteLcovPaths, runFixLcovPaths } from '../src/reports/fix-lcov-paths.mjs';
 
 describe('rewriteLcovPaths', () => {
+  it('accepte un préfixe déjà terminé par /', () => {
+    expect(rewriteLcovPaths('SF:cli.mjs\n', 'scripts/ci/')).toContain('SF:scripts/ci/cli.mjs');
+  });
+
   it('préfixe chaque SF sans dupliquer le préfixe', () => {
     const input = [
       'TN:',
@@ -32,11 +36,11 @@ describe('rewriteLcovPaths', () => {
     const dir = mkdtempSync(path.join(os.tmpdir(), 'lcov-'));
     const file = path.join(dir, 'lcov.info');
     writeFileSync(file, 'SF:cli.mjs\nDA:1,1\n');
-    runFixLcovPaths(['node', 'cli.mjs', 'fix-lcov-paths', file, 'scripts/ci']);
+    runFixLcovPaths(['node', 'cli.mjs', file, 'scripts/ci']);
     expect(readFileSync(file, 'utf8')).toContain('SF:scripts/ci/cli.mjs');
   });
 
   it('rejette les arguments manquants', () => {
-    expect(() => runFixLcovPaths(['node', 'cli.mjs', 'fix-lcov-paths'])).toThrow(/Usage/);
+    expect(() => runFixLcovPaths(['node', 'cli.mjs'])).toThrow(/Usage/);
   });
 });
