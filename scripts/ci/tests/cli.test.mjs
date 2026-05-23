@@ -18,6 +18,6 @@ describe('cli', () => {
 
   it('main délègue merge-coverage', async () => {
     await main(['node', 'cli.mjs', 'merge-coverage', '-o', 'out.json', 'a.json']);
-    expect(runMergeCoverage).toHaveBeenCalled();
+    expect(runMergeCoverage).toHaveBeenCalledWith(['node', 'cli.mjs', '-o', 'out.json', 'a.json']);
   });
 });

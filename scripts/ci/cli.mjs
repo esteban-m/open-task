@@ -15,22 +15,23 @@ export function shouldRunCli(argv, metaUrl) {
 
 export async function main(argv = process.argv) {
   const command = argv[2];
+  const args = ['node', 'cli.mjs', ...argv.slice(3)];
 
   switch (command) {
     case 'merge-coverage':
-      runMergeCoverage(argv);
+      runMergeCoverage(args);
       break;
     case 'assert-e2e':
-      runAssertE2e(argv);
+      runAssertE2e(args);
       break;
     case 'coverage-markdown':
-      runCoverageMarkdown(argv);
+      runCoverageMarkdown(args);
       break;
     case 'wiki-pages':
-      runWikiPages(argv);
+      runWikiPages(args);
       break;
     case 'gifs':
-      runVideosToGifs(argv);
+      runVideosToGifs(args);
       break;
     default:
       console.error(
