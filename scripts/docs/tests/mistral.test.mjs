@@ -5,6 +5,7 @@ import {
   extractMermaidBlock,
   extractXmlTag,
   resolveMistralCredentials,
+  validateMistralApiKey,
 } from '../src/services/mistral.mjs';
 
 describe('mistral helpers', () => {
@@ -127,7 +128,23 @@ describe('chatCompletion', () => {
         model: 'mistral-small-latest',
         messages: [{ role: 'user', content: 'x' }],
       }),
-    ).rejects.toThrow('Mistral 401');
+    ).rejects.toThrow(/clé API refusée/);
+  });
+
+  it('throws on non-auth HTTP error', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 429,
+      text: async () => 'rate limit',
+    });
+
+    await expect(
+      chatCompletion({
+        apiKey: 'key-test',
+        model: 'mistral-small-latest',
+        messages: [{ role: 'user', content: 'x' }],
+      }),
+    ).rejects.toThrow('Mistral 429');
   });
 
   it('throws on empty content', async () => {
@@ -143,5 +160,27 @@ describe('chatCompletion', () => {
         messages: [{ role: 'user', content: 'x' }],
       }),
     ).rejects.toThrow('Mistral: réponse vide');
+  });
+});
+
+describe('validateMistralApiKey', () => {
+  const originalFetch = globalThis.fetch;
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it('ping réussi', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ choices: [{ message: { content: 'pong' } }] }),
+    });
+
+    await validateMistralApiKey('  key-test  ');
+    expect(globalThis.fetch).toHaveBeenCalled();
+  });
+
+  it('exige une clé', async () => {
+    await expect(validateMistralApiKey('')).rejects.toThrow('MISTRAL_API_KEY manquant');
   });
 });
