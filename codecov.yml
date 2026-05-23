@@ -1,19 +1,7 @@
 # https://docs.codecov.com/docs/codecov-yaml
-# Monorepo : chemins LCOV relatifs → racine du dépôt
-fixes:
-  - "src/::backend/src/"
-  - "composables/::frontend/composables/"
-  - "config/::frontend/config/"
-  - "stores/::frontend/stores/"
-  - "utils/::frontend/utils/"
-  - "components/::frontend/components/"
-  - "middleware/::frontend/middleware/"
-  - "plugins/::frontend/plugins/"
-  - "scripts/docs/src/::scripts/docs/src/"
-  - "cli.mjs::scripts/docs/cli.mjs"
-  - "src/::scripts/ci/src/"
-  - "ci/src/::scripts/ci/src/"
-  - "cli.mjs::scripts/ci/cli.mjs"
+# Les chemins LCOV sont normalisés à la racine du dépôt dans CI
+# (`scripts/ci/cli.mjs fix-lcov-paths`) avant upload — pas de fixes globaux ici
+# (un préfixe `src/` partagé cassait la fusion backend vs scripts).
 
 # Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
 ignore:
@@ -25,7 +13,7 @@ ignore:
 
 flag_management:
   default_rules:
-    carryforward: true
+    carryforward: false
 
 coverage:
   status:
