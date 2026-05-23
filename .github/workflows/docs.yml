@@ -172,6 +172,7 @@ jobs:
           STORYBOOK_BASE: /${{ github.event.repository.name }}/storybook/
         run: |
           npm ci
+          NUXT_STORYBOOK=0 npx nuxi prepare
           npm run build-storybook
 
       - name: Assembler portail GitHub Pages
