@@ -12,6 +12,9 @@ fixes:
   - "pages/::frontend/pages/"
   - "scripts/docs/src/::scripts/docs/src/"
   - "cli.mjs::scripts/docs/cli.mjs"
+  - "src/::scripts/ci/src/"
+  - "ci/src/::scripts/ci/src/"
+  - "cli.mjs::scripts/ci/cli.mjs"
 
 flag_management:
   default_rules:

@@ -19,6 +19,7 @@ describe('demo-slugs', () => {
   it('detectVariantFromDirName', () => {
     expect(detectVariantFromDirName('foo-demo-desktop-bar')).toBe('desktop');
     expect(detectVariantFromDirName('foo-demo-mobile-bar')).toBe('mobile');
+    expect(detectVariantFromDirName('unrelated-folder')).toBe(null);
   });
 
   it('parseResultDir combine slug et variant', () => {
@@ -26,5 +27,12 @@ describe('demo-slugs', () => {
       slug: '02-liste-tache',
       variant: 'desktop',
     });
+    expect(parseResultDir('dossier-sans-demo', null)).toBeNull();
+    expect(parseResultDir('demo-99-inconnu-demo-desktop', null)).toBeNull();
+  });
+
+  it('resolveSlugFromDirName retourne null si aucun slug', () => {
+    expect(resolveSlugFromDirName('demo-99-foo-bar-demo-desktop')).toBeNull();
+    expect(resolveSlugFromDirName('sans-prefixe-demo')).toBeNull();
   });
 });

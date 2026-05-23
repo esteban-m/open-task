@@ -3,7 +3,12 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { detailTable, parseWikiPagesArgs, relSourcePath } from '../src/reports/wiki-pages.mjs';
+import {
+  detailTable,
+  parseWikiPagesArgs,
+  relSourcePath,
+  runWikiPages,
+} from '../src/reports/wiki-pages.mjs';
 
 describe('wiki-pages', () => {
   it('parseWikiPagesArgs lit les packages', () => {
@@ -41,5 +46,69 @@ describe('wiki-pages', () => {
     expect(relSourcePath('/Users/me/open-task/backend/src/a.ts', '/Users/me/open-task')).toBe(
       'backend/src/a.ts',
     );
+    expect(relSourcePath('/github/workspace/open-task/scripts/ci/cli.mjs', '/github/workspace')).toBe(
+      'open-task/scripts/ci/cli.mjs',
+    );
+    expect(relSourcePath('/tmp/autre/dossier/file.ts', '/tmp/autre')).toBe('dossier/file.ts');
+    expect(relSourcePath('C:\\\\only\\\\name.ts', 'C:\\\\other')).toBe('name.ts');
+  });
+
+  it('detailTable sans entrées fichier retourne un placeholder', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-empty-'));
+    const summary = path.join(dir, 'empty.json');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { total: 0, covered: 0, pct: 0 } } }));
+    expect(detailTable(summary, dir)).toContain('Aucun fichier');
+  });
+
+  it('detailTable ignore les entrées sans métrique lines', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-nolines-'));
+    const summary = path.join(dir, 's.json');
+    writeFileSync(
+      summary,
+      JSON.stringify({
+        '/repo/a.ts': { branches: { total: 1, covered: 1, pct: 100 } },
+        '/repo/b.ts': { lines: { total: 2, covered: 1, pct: 50 } },
+      }),
+    );
+    const table = detailTable(summary, '/repo');
+    expect(table).toContain('b.ts');
+    expect(table).not.toContain('a.ts');
+  });
+
+  it('parseWikiPagesArgs exige au moins un package', () => {
+    expect(() => parseWikiPagesArgs(['node', 'cli', '--out-dir', 'out'])).toThrow(/Usage/);
+  });
+
+  it('runWikiPages écrit index et pages paquet', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-run-'));
+    const summary = path.join(dir, 'summary.json');
+    const lines = path.join(dir, 'lines.md');
+    const badge = path.join(dir, 'badge.md');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { total: 1, covered: 1, pct: 100 } } }));
+    writeFileSync(lines, '| Lignes | 1/1 | 100% |');
+    writeFileSync(badge, '![lines](badge)');
+
+    const outDir = path.join(dir, 'wiki-out');
+    const repoRoot = path.join(dir, 'repo');
+    runWikiPages([
+      'node',
+      'cli',
+      '--out-dir',
+      outDir,
+      '--sha',
+      'abc123',
+      '--run-url',
+      'https://example.com/run/1',
+      '--repo-root',
+      repoRoot,
+      '--package',
+      `Couverture-des-tests:Vue d'ensemble:${summary}:${lines}:${badge}`,
+      '--package',
+      `Couverture-CI:Scripts CI:${summary}:/missing/lines.md:${badge}`,
+    ]);
+
+    expect(readFileSync(path.join(outDir, 'Couverture-des-tests.md'), 'utf8')).toContain('Vue d’ensemble');
+    expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Scripts CI');
+    expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Indisponible');
   });
 });

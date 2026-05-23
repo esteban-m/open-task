@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import path from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { pathToFileURL } from 'node:url';
 
 import { runAssertE2e } from './src/reports/assert-e2e.mjs';
 import { runMergeCoverage } from './src/reports/merge-summaries.mjs';
