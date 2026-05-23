@@ -136,6 +136,32 @@ describe('Pinia stores', () => {
       expect(store.allTasks[0].listId).toBe('l2')
     })
 
+    it('clearTasks et moveTask ajoutent sur liste cible', () => {
+      const lists = useListsStore()
+      lists.setLists([
+        { id: 'l1', name: 'A', userId: 'u1', createdAt: '', updatedAt: '' },
+        { id: 'l2', name: 'B', userId: 'u1', createdAt: '', updatedAt: '' },
+      ])
+      lists.selectList('l2')
+      const store = useTasksStore()
+      const task = {
+        id: 't1',
+        shortDescription: 'T',
+        longDescription: null,
+        dueDate: '2026-01-01',
+        completed: false,
+        completedAt: null,
+        listId: 'l2',
+        createdAt: '',
+        updatedAt: '',
+      }
+      store.moveTask(task, 'l1')
+      expect(store.tasks.some((t) => t.id === 't1')).toBe(true)
+      store.clearTasks()
+      expect(store.tasks).toHaveLength(0)
+      expect(store.selectedTaskId).toBeNull()
+    })
+
     it('getters split active and completed tasks', () => {
       const store = useTasksStore()
       store.setTasks([

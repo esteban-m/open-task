@@ -119,6 +119,60 @@ describe('useApi', () => {
     )
   })
 
+  it('PUT PATCH DELETE et erreurs tableau sont gérés', async () => {
+    useAuthStore().setToken('tok')
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ ok: true }),
+    } as Response)
+
+    const MethodsHarness = defineComponent({
+      async setup() {
+        const api = useApi()
+        await api.put('/tasks/1', { a: 1 })
+        await api.patch('/tasks/1', { b: 2 })
+        await api.del('/tasks/1')
+        return {}
+      },
+      template: '<div />',
+    })
+    await mountSuspended(MethodsHarness)
+    expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/tasks/1'), expect.objectContaining({ method: 'PUT' }))
+
+    vi.mocked(fetch).mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ message: ['a', 'b'] }),
+    } as Response)
+
+    const ErrorHarness = defineComponent({
+      async setup() {
+        const api = useApi()
+        await api.get('/lists')
+      },
+      template: '<div />',
+    })
+    await expect(mountSuspended(ErrorHarness)).rejects.toMatchObject({ message: 'a, b' })
+  })
+
+  it('refresh échoué rejette avec 401', async () => {
+    useAuthStore().setToken('old')
+    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)
+    vi.mocked($fetch).mockRejectedValue(new Error('refresh failed'))
+
+    const RefreshFailHarness = defineComponent({
+      async setup() {
+        const api = useApi()
+        await api.get('/lists')
+      },
+      template: '<div />',
+    })
+
+    await expect(mountSuspended(RefreshFailHarness)).rejects.toMatchObject({ status: 401 })
+    expect(useAuthStore().accessToken).toBeNull()
+  })
+
   it('returns empty object for empty 200 body', async () => {
     useAuthStore().setToken('tok')
     vi.mocked(fetch).mockResolvedValue({

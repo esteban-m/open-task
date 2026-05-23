@@ -160,6 +160,15 @@ describe('links', () => {
       }
     });
 
+    it('removes invalid bare paths listed with a dash', () => {
+      const input = `## Voir aussi
+- /generated/unknown-module
+`;
+      const out = repairVoirAussiSection(input, validLinks, rewrites, docMaps);
+      expect(out).not.toContain('unknown-module');
+      expect(out).toContain('[Architecture système](/generated/architecture)');
+    });
+
     it('keeps valid relative links and preserves non-list lines', () => {
       const input = `## Voir aussi
 Note intro

@@ -19,6 +19,11 @@ describe('mistral helpers', () => {
     expect(extractMermaidBlock('flowchart TB\n  A --> B')).toBe('flowchart TB\n  A --> B');
   });
 
+  it('extractMermaidBlock from graph and erDiagram', () => {
+    expect(extractMermaidBlock('graph TD\n  A --> B')).toContain('graph TD');
+    expect(extractMermaidBlock('erDiagram\n  USER ||--o{ TASK : has')).toContain('erDiagram');
+  });
+
   it('extractMermaidBlock returns null when no diagram', () => {
     expect(extractMermaidBlock('plain text')).toBeNull();
   });
@@ -228,6 +233,44 @@ describe('chatCompletion', () => {
     await vi.runAllTimersAsync();
     await expect(promise).resolves.toBe('ok');
     vi.useRealTimers();
+  });
+
+  it('uses fallback delay when Retry-After is invalid', async () => {
+    vi.useFakeTimers();
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        headers: { get: () => 'not-a-date' },
+        text: async () => 'rate limit',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: 'ok' } }] }),
+      });
+
+    const promise = chatCompletion({
+      apiKey: 'key-test',
+      model: 'mistral-small-latest',
+      messages: [{ role: 'user', content: 'x' }],
+      retry: { maxAttempts: 2, baseDelayMs: 100, maxDelayMs: 200 },
+    });
+
+    await vi.runAllTimersAsync();
+    await expect(promise).resolves.toBe('ok');
+    vi.useRealTimers();
+  });
+
+  it('throws when maxAttempts is zero', async () => {
+    await expect(
+      chatCompletion({
+        apiKey: 'key-test',
+        model: 'mistral-small-latest',
+        messages: [{ role: 'user', content: 'x' }],
+        retry: { maxAttempts: 0 },
+      }),
+    ).rejects.toThrow('Mistral: échec après retries');
   });
 
   it('throws after all retryable attempts fail', async () => {

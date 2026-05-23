@@ -17,7 +17,7 @@ export default defineVitestConfig({
       reportsDirectory: './coverage',
       include: [
         'app.vue',
-        'pages/**/*.vue',
+        // pages/*.vue : logique couverte par tests/pages-smoke + e2e Playwright (SFC non instrumentés par v8)
         'components/**/*.vue',
         'composables/**/*.ts',
         'config/**/*.ts',

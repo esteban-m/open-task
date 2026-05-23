@@ -12,6 +12,11 @@ describe('mermaid', () => {
     expect(out).toContain('A["API: REST"]');
   });
 
+  it('leaves simple labels without special characters unchanged', () => {
+    const input = 'flowchart TB\n  A[Simple] --> B';
+    expect(sanitizeMermaid(input)).toContain('A[Simple]');
+  });
+
   it('leaves already quoted labels unchanged', () => {
     const input = 'flowchart TB\n  A["Already quoted"] --> B';
     expect(sanitizeMermaid(input)).toContain('A["Already quoted"]');
