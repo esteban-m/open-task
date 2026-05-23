@@ -12,7 +12,7 @@ function copyDir(src, dest) {
   cpSync(src, dest, { recursive: true });
 }
 
-function resolveSwaggerUiRoot(repoRoot) {
+export function resolveSwaggerUiRoot(repoRoot) {
   const req = createRequire(join(repoRoot, 'backend/package.json'));
   return dirname(req.resolve('swagger-ui-dist/swagger-ui.css'));
 }

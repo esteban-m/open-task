@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
 import path from 'node:path';
@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
   pagesBaseFromRepo,
+  resolveSwaggerUiRoot,
   runBuildPagesSite,
   writeSwaggerStatic,
 } from '../src/build-pages-site.mjs';
@@ -33,13 +34,15 @@ describe('build-pages-site', () => {
     expect(pagesBaseFromRepo(repoRoot)).toBe('/open-task/');
   });
 
-  it('writeSwaggerStatic résout swagger-ui-dist depuis backend', () => {
-    const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../..');
-    const openapi = path.join(tmp, 'openapi-backend.json');
-    writeFileSync(openapi, '{"openapi":"3.0.0"}');
-    const out = path.join(tmp, 'swagger-backend');
-    writeSwaggerStatic(out, openapi, repoRoot);
-    expect(existsSync(path.join(out, 'swagger-ui.css'))).toBe(true);
+  it('resolveSwaggerUiRoot lit backend/node_modules/swagger-ui-dist', () => {
+    const repo = path.join(tmp, 'fake-repo');
+    const swaggerDir = path.join(repo, 'backend/node_modules/swagger-ui-dist');
+    mkdirSync(swaggerDir, { recursive: true });
+    writeFileSync(path.join(swaggerDir, 'package.json'), '{"name":"swagger-ui-dist"}');
+    writeFileSync(path.join(swaggerDir, 'swagger-ui.css'), 'body{}');
+    writeFileSync(path.join(repo, 'backend/package.json'), '{"name":"backend"}');
+
+    expect(realpathSync(resolveSwaggerUiRoot(repo))).toBe(realpathSync(swaggerDir));
   });
 
   it('writeSwaggerStatic copie openapi et génère index.html', () => {
