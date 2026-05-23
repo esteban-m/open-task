@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
-import path from 'path';
+import { resolve } from 'path';
 
-const configPath = path.resolve(__dirname, '../../../config/open-task.e2e.json');
+const configPath = resolve(__dirname, '../../../config/open-task.e2e.json');
 const stack = JSON.parse(readFileSync(configPath, 'utf8')) as {
   testUser: { password: string; emailDomain: string };
 };
