@@ -41,8 +41,15 @@ Sans Docker, lancez PostgreSQL localement et suivez les variables du `.env.examp
    npm run test:e2e:playwright
    ```
 4. Ouvrez une **pull request** vers `main` : le modèle [.github/pull_request_template.md](.github/pull_request_template.md) est pré-rempli (résumé, `Fixes #123`, checklist tests / secrets).
+5. **Merge** : une fois la CI verte, fusionnez avec un **merge classique** (commit de merge Git), pas un squash :
 
-**Ne poussez pas directement sur `main`.** Une [ruleset dépôt](.github/rulesets/protect-main.json) impose une PR (merge squash/rebase/merge), interdit le force-push et exige CodeQL — sans bypass (y compris pour `github-actions[bot]` sur cette branche).
+   ```bash
+   gh pr merge <numéro> --merge --delete-branch
+   ```
+
+   L’historique `main` doit conserver la trace de la branche (`Merge pull request #N from …/fix/...`). Le squash n’est utilisé que si le mainteneur le demande explicitement.
+
+**Ne poussez pas directement sur `main`.** Une [ruleset dépôt](.github/rulesets/protect-main.json) impose une PR, interdit le force-push et exige CodeQL — sans bypass (y compris pour `github-actions[bot]` sur cette branche).
 
 La CI (lint, unit, e2e, CodeQL) doit passer ; les revues peuvent demander des ajustements.
 

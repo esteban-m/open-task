@@ -1,0 +1,32 @@
+---
+description: Branche + PR + merge classique (jamais squash par défaut)
+alwaysApply: true
+---
+
+# Git — branche, PR, merge classique
+
+## Avant tout commit
+
+1. **Ne jamais** committer sur `main` (local ou remote).
+2. Créer une branche depuis `main` : `fix/...`, `feat/...`, `docs/...`, `chore/...`.
+3. Commits sur la branche, push, ouvrir une PR vers `main`.
+
+## Merge des PR
+
+**Par défaut : merge classique** (commit de merge, branche visible dans l'historique).
+
+```bash
+gh pr merge <num> --merge --delete-branch
+```
+
+- **Interdit par défaut** : `--squash` et `--rebase` (sauf demande explicite du mainteneur).
+- Ne pas utiliser `--admin` pour contourner la ruleset.
+- Après merge : `git checkout main && git pull` (sync locale uniquement).
+
+## Exemple d'historique attendu sur `main`
+
+```
+Merge pull request #N from esteban-m/fix/ma-branche
+```
+
+Pas un commit squash du type `fix: … (#N)` avec un seul parent.
