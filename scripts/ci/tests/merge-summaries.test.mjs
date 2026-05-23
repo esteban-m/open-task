@@ -45,6 +45,25 @@ describe('merge-summaries', () => {
     expect(merged['file:b.ts']).toBeDefined();
   });
 
+  it('fusionne deux fichiers avec la même clé', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cov-merge-dup-'));
+    const a = path.join(dir, 'a.json');
+    const b = path.join(dir, 'b.json');
+    const entry = { lines: { total: 5, covered: 3, skipped: 0, pct: 60 } };
+    const total = { lines: { total: 5, covered: 3, skipped: 0, pct: 60 } };
+    writeFileSync(a, JSON.stringify({ 'file/shared.ts': entry, total }));
+    writeFileSync(
+      b,
+      JSON.stringify({
+        'file/shared.ts': { lines: { total: 5, covered: 2, skipped: 0, pct: 40 } },
+        total: { lines: { total: 5, covered: 2, skipped: 0, pct: 40 } },
+      }),
+    );
+    const merged = mergeSummaries([a, b]);
+    expect(merged['file/shared.ts'].lines.covered).toBe(5);
+    expect(merged['file/shared.ts'].lines.total).toBe(10);
+  });
+
   it('parseMergeArgs exige des entrées', () => {
     expect(() => parseMergeArgs(['node', 'cli'])).toThrow(/Usage/);
   });

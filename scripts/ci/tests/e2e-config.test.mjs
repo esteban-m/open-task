@@ -35,6 +35,15 @@ describe('e2e-config', () => {
     expect(cfg.stack.apiBaseUrl).toContain(':4999');
   });
 
+  it('ignore les variables env non numériques', () => {
+    process.env.BACKEND_PORT = 'pas-un-port';
+    process.env.DEMO_GIF_FPS = 'abc';
+    resetE2eConfigCache();
+    const cfg = loadE2eConfig();
+    expect(cfg.stack.backendPort).toBe(4000);
+    expect(cfg.demo.gif.fps).toBe(8);
+  });
+
   it('demoSlugs triés par longueur décroissante', () => {
     const slugs = demoSlugs();
     expect(slugs[0]).toBe('03-vues-kanban-calendrier');

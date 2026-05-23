@@ -11,6 +11,11 @@ export default defineConfig({
       include: ['src/**/*.mjs', 'cli.mjs'],
       exclude: ['tests/**', 'node_modules/**'],
       all: true,
+      thresholds: {
+        lines: 100,
+        functions: 100,
+        statements: 100,
+      },
     },
   },
 });

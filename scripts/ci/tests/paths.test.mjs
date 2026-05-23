@@ -17,5 +17,8 @@ describe('paths', () => {
 
     const pkgFromCli = packageRoot(new URL('../cli.mjs', import.meta.url).href);
     expect(pkgFromCli.endsWith(`${path.sep}scripts${path.sep}ci`)).toBe(true);
+
+    const pkgFromTests = packageRoot(import.meta.url);
+    expect(pkgFromTests.endsWith(`${path.sep}scripts${path.sep}ci`)).toBe(true);
   });
 });

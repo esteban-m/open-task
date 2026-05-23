@@ -69,6 +69,11 @@ describe('summary-markdown', () => {
     ).toThrow(/total\.lines/);
   });
 
+  it('badgeColor aux limites exactes', () => {
+    expect(badgeColor(85, 65, 85)).toBe('brightgreen');
+    expect(badgeColor(65, 65, 85)).toBe('yellow');
+  });
+
   it('runCoverageMarkdown génère les fichiers', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'cov-md-run-'));
     const summary = path.join(dir, 's.json');

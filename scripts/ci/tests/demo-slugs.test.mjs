@@ -27,5 +27,12 @@ describe('demo-slugs', () => {
       slug: '02-liste-tache',
       variant: 'desktop',
     });
+    expect(parseResultDir('dossier-sans-demo', null)).toBeNull();
+    expect(parseResultDir('demo-99-inconnu-demo-desktop', null)).toBeNull();
+  });
+
+  it('resolveSlugFromDirName retourne null si aucun slug', () => {
+    expect(resolveSlugFromDirName('demo-99-foo-bar-demo-desktop')).toBeNull();
+    expect(resolveSlugFromDirName('sans-prefixe-demo')).toBeNull();
   });
 });

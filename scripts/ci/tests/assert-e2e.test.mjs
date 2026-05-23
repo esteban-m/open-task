@@ -30,6 +30,19 @@ describe('assert-e2e', () => {
     expect(() => assertE2eCoverage('/nonexistent/summary.json')).toThrow(/introuvable/);
   });
 
+  it('runAssertE2e signale une couverture insuffisante', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'e2e-run-bad-'));
+    const file = path.join(dir, 'summary.json');
+    writeFileSync(
+      file,
+      JSON.stringify({ total: { lines: { total: 10, covered: 1, pct: 10 } } }),
+    );
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    expect(() => runAssertE2e(['node', 'cli', file])).toThrow(/invalide/);
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('::error::'));
+    errSpy.mockRestore();
+  });
+
   it('runAssertE2e log OK sur couverture valide', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'e2e-run-'));
     const file = path.join(dir, 'summary.json');

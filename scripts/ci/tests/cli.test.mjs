@@ -20,7 +20,7 @@ vi.mock('../src/core/e2e-config.mjs', () => ({
   printStackEnv: vi.fn(() => 'export FOO=bar\n'),
 }));
 
-const { main, shouldRunCli } = await import('../cli.mjs');
+const { main, runCliEntry, shouldRunCli } = await import('../cli.mjs');
 const { runMergeCoverage } = await import('../src/reports/merge-summaries.mjs');
 const { runAssertE2e } = await import('../src/reports/assert-e2e.mjs');
 const { runCoverageMarkdown } = await import('../src/reports/summary-markdown.mjs');
@@ -64,6 +64,28 @@ describe('cli', () => {
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined);
     const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     await main(['node', 'cli.mjs', 'unknown-cmd']);
+    expect(exit).toHaveBeenCalledWith(1);
+    exit.mockRestore();
+    err.mockRestore();
+  });
+
+  it('runCliEntry ignore un entrypoint différent', async () => {
+    vi.clearAllMocks();
+    const meta = new URL('../cli.mjs', import.meta.url).href;
+    await runCliEntry(['node', '/autre/cli.mjs'], meta);
+    expect(runMergeCoverage).not.toHaveBeenCalled();
+  });
+
+  it('runCliEntry quitte sur erreur', async () => {
+    const meta = new URL('../cli.mjs', import.meta.url).href;
+    const cliPath = fileURLToPath(new URL('../cli.mjs', import.meta.url));
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined);
+    const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(runMergeCoverage).mockImplementation(() => {
+      throw new Error('boom');
+    });
+    await runCliEntry(['node', cliPath, 'merge-coverage'], meta);
+    expect(err).toHaveBeenCalled();
     expect(exit).toHaveBeenCalledWith(1);
     exit.mockRestore();
     err.mockRestore();
