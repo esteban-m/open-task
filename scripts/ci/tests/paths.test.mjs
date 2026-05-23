@@ -11,6 +11,7 @@ describe('paths', () => {
     expect(pkg.endsWith(`${path.sep}scripts${path.sep}ci`)).toBe(true);
     const root = repoRoot(coreUrl);
     expect(existsSync(path.join(root, 'config', 'open-task.e2e.json'))).toBe(true);
+    expect(existsSync(path.join(root, 'config', 'open-task.docs.json'))).toBe(true);
     const cliRoot = repoRoot(new URL('../cli.mjs', import.meta.url).href);
     expect(cliRoot).toBe(root);
   });

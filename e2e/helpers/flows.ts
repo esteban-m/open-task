@@ -1,5 +1,5 @@
 import { expect, type Page } from '@playwright/test';
-import { loadE2eConfig, todayIsoDateLocal } from '../../config/load-e2e.mjs';
+import { loadE2eConfig, todayIsoDateLocal } from '../../scripts/ci/src/core/e2e-config.mjs';
 import { pauseDemoStep } from './demo-pause';
 
 const cfg = loadE2eConfig();

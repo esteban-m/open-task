@@ -2,7 +2,7 @@
 
 Outils Node pour la pipeline GitHub Actions (couverture, wiki, GIF démo).
 
-Configuration E2E partagée : [`config/open-task.e2e.json`](../config/open-task.e2e.json) via [`config/load-e2e.mjs`](../config/load-e2e.mjs) (réexport `src/core/e2e-config.mjs`).
+Configuration E2E : [`config/open-task.e2e.json`](../config/open-task.e2e.json) chargée par [`src/core/load-e2e.mjs`](src/core/load-e2e.mjs) (réexport `e2e-config.mjs`).
 
 ## Structure
 
@@ -11,7 +11,8 @@ scripts/ci/
   cli.mjs                 # Point d’entrée
   run-playwright-stack.sh # Stack Postgres + Nest + Nuxt + Playwright
   src/
-    core/e2e-config.mjs   # → config/load-e2e.mjs
+    core/load-e2e.mjs     # lit config/open-task.e2e.json
+    core/e2e-config.mjs # réexport public
     core/paths.mjs
     reports/              # merge, assert e2e, markdown, wiki
     playwright/           # slugs démo, vidéos → GIF

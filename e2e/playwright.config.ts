@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-import { desktopDemoTestMatch, loadE2eConfig } from '../config/load-e2e.mjs';
+import { desktopDemoTestMatch, loadE2eConfig } from '../scripts/ci/src/core/e2e-config.mjs';
 
 const cfg = loadE2eConfig();
 const isDemo = process.env.PLAYWRIGHT_DEMO === '1';

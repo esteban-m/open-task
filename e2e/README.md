@@ -2,7 +2,7 @@
 
 Tests navigateur contre le **vrai** backend (`nest build` + `node dist/main`) et le frontend (`nuxt preview`).
 
-Configuration centralisée : [`config/open-task.e2e.json`](../config/open-task.e2e.json) (ports, timeouts, démos GIF, utilisateur test). Chargée via [`config/load-e2e.mjs`](../config/load-e2e.mjs) dans `playwright.config.ts` et `helpers/`.
+Configuration : [`config/open-task.e2e.json`](../config/open-task.e2e.json) — chargée par [`scripts/ci/src/core/e2e-config.mjs`](../scripts/ci/src/core/e2e-config.mjs) (`playwright.config.ts`, `helpers/`).
 
 ```bash
 # Smoke CI (rapide)

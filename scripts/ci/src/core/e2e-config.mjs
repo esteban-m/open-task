@@ -7,4 +7,4 @@ export {
   resetE2eConfigCache,
   todayIsoDateLocal,
   todayIsoDateUtc,
-} from '../../../../config/load-e2e.mjs';
+} from './load-e2e.mjs';

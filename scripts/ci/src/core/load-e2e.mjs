@@ -1,10 +1,13 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const CONFIG_DIR = path.dirname(fileURLToPath(import.meta.url));
+import { repoRoot } from './paths.mjs';
 
 let cache = null;
+
+function configDir() {
+  return path.join(repoRoot(), 'config');
+}
 
 function num(envVal, fallback) {
   if (envVal === undefined || envVal === '') return fallback;
@@ -57,7 +60,7 @@ function applyEnv(raw) {
 /** Charge `config/open-task.e2e.json` (cache + surcharge env). */
 export function loadE2eConfig() {
   if (!cache) {
-    const raw = readFileSync(path.join(CONFIG_DIR, 'open-task.e2e.json'), 'utf8');
+    const raw = readFileSync(path.join(configDir(), 'open-task.e2e.json'), 'utf8');
     cache = applyEnv(JSON.parse(raw));
   }
   return cache;

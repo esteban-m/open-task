@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { loadE2eConfig } from '../../config/load-e2e.mjs';
+import { loadE2eConfig } from '../../scripts/ci/src/core/e2e-config.mjs';
 
 const cfg = loadE2eConfig();
 const pauses = cfg.demo.pauses;

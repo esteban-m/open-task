@@ -1,11 +1,10 @@
-# Configuration dépôt
+# Configuration dépôt (JSON uniquement)
 
-Fichiers JSON partagés (même principe que `scripts/docs/config/open-task.docs.json`).
+Manifestes partagés — **pas de code ici**. Les chargeurs vivent dans les paquets scripts :
 
-| Fichier | Consommateurs | Rôle |
-|---------|---------------|------|
-| [`open-task.e2e.json`](open-task.e2e.json) | `e2e/`, `scripts/ci/`, tests backend e2e | Stack Playwright, démos GIF, utilisateur test |
+| Fichier | Chargeur | Consommateurs |
+|---------|----------|---------------|
+| [`open-task.e2e.json`](open-task.e2e.json) | [`scripts/ci/src/core/load-e2e.mjs`](../scripts/ci/src/core/load-e2e.mjs) | `e2e/`, `scripts/ci/`, tests backend e2e |
+| [`open-task.docs.json`](open-task.docs.json) | [`scripts/docs/src/core/config.mjs`](../scripts/docs/src/core/config.mjs) | pipeline doc-as-code |
 
-Chargeur unique : [`load-e2e.mjs`](load-e2e.mjs) (`loadE2eConfig()`).
-
-Variables d’environnement optionnelles (surcharge) : `BACKEND_PORT`, `FRONTEND_PORT`, `PLAYWRIGHT_BASE_URL`, `DEMO_GIF_FPS`, `DEMO_STEP_PAUSE_MS`, etc.
+Variables d’environnement (surcharge E2E) : `BACKEND_PORT`, `FRONTEND_PORT`, `PLAYWRIGHT_BASE_URL`, `DEMO_GIF_FPS`, `DEMO_STEP_PAUSE_MS`, etc.

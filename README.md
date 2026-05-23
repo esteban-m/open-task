@@ -133,7 +133,7 @@ open-task/
 │   ├── composables/          # useApi · useSocket · useRealtimeSync · useTheme
 │   └── middleware/           # Protection des routes
 │
-├── config/                   # open-task.e2e.json — stack Playwright / démos / test user
+├── config/                   # open-task.{e2e,docs}.json — manifestes JSON (chargeurs dans scripts/)
 ├── e2e/                      # Playwright smoke + démos GIF
 ├── docker-compose.yml
 ├── .env.example
@@ -311,7 +311,7 @@ Générée automatiquement sur chaque push vers `main` (tant que le secret `MIST
 | Étape | Outil |
 |-------|-------|
 | Diagramme d'architecture | [GitDiagram](https://github.com/ahmedkhaleel2004/gitdiagram) + [Mistral AI](https://mistral.ai/) |
-| Chapitres métier | [Diátaxis](https://diataxis.fr/) + `scripts/docs/config/open-task.docs.json` |
+| Chapitres métier | [Diátaxis](https://diataxis.fr/) + `config/open-task.docs.json` |
 | Schéma BDD | Prisma → Mermaid ERD |
 | Site statique | [VitePress](https://vitepress.dev/) → GitHub Pages (workflow `docs.yml`) |
 
