@@ -1,17 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
+import { desktopDemoTestMatch, loadE2eConfig } from '../scripts/ci/src/core/e2e-config.mjs';
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:3000';
+const cfg = loadE2eConfig();
 const isDemo = process.env.PLAYWRIGHT_DEMO === '1';
+const isCi = Boolean(process.env.CI);
+const pw = cfg.playwright;
+const demo = cfg.demo;
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 90_000,
-  expect: { timeout: 15_000 },
-  retries: process.env.CI ? (isDemo ? 1 : 2) : 0,
-  workers: 4,
-  reporter: process.env.CI ? [['github'], ['list']] : [['list']],
+  timeout: pw.timeoutMs,
+  expect: { timeout: pw.expectTimeoutMs },
+  retries: isCi ? (isDemo ? pw.retries.ciDemo : pw.retries.ci) : pw.retries.local,
+  workers: pw.workers,
+  reporter: isCi ? [['github'], ['list']] : [['list']],
   use: {
-    baseURL,
+    baseURL: cfg.stack.playwrightBaseUrl,
     trace: isDemo ? 'off' : 'on-first-retry',
     screenshot: isDemo ? 'off' : 'only-on-failure',
     video: isDemo ? 'on' : 'retain-on-failure',
@@ -24,23 +28,22 @@ export default defineConfig({
     },
     {
       name: 'demo-desktop',
-      testMatch: [/demo\/0[1-4]-.*\.demo\.ts/, /demo\/0[6-9]-.*\.demo\.ts/],
-      /** Suffixe projet tronqué sur noms longs (03, 08) → variant via dossier parent */
-      outputDir: 'test-results/demo-desktop',
+      testMatch: desktopDemoTestMatch(cfg),
+      outputDir: demo.projects.desktopOutputDir,
       use: {
         ...devices['Desktop Chrome'],
         video: 'on',
-        launchOptions: { slowMo: 240 },
+        launchOptions: { slowMo: demo.slowMoMs },
       },
     },
     {
       name: 'demo-mobile',
       testMatch: /demo\/.*\.demo\.ts/,
-      outputDir: 'test-results/demo-mobile',
+      outputDir: demo.projects.mobileOutputDir,
       use: {
         ...devices['Pixel 5'],
         video: 'on',
-        launchOptions: { slowMo: 240 },
+        launchOptions: { slowMo: demo.slowMoMs },
       },
     },
   ],

@@ -1,16 +1,26 @@
 import { expect, type Page } from '@playwright/test';
-import { todayIsoDate } from './dates';
+import { loadE2eConfig, todayIsoDateLocal } from '../../scripts/ci/src/core/e2e-config.mjs';
 import { pauseDemoStep } from './demo-pause';
 
-export const DEMO_PASSWORD = 'password123';
+const cfg = loadE2eConfig();
+const pauses = cfg.demo.pauses;
+const timeouts = cfg.playwright;
+
+export const testPassword = cfg.testUser.password;
+/** @deprecated Utiliser testPassword — alias legacy des flows. */
+export const DEMO_PASSWORD = testPassword;
 
 export function uniqueEmail(prefix: string) {
-  return `${prefix}-${Date.now()}@example.com`;
+  return `${prefix}-${Date.now()}@${cfg.testUser.emailDomain}`;
+}
+
+export function todayIsoDate() {
+  return todayIsoDateLocal();
 }
 
 /** Accueil chargé : sidebar desktop visible, ou bouton menu mobile. */
 export async function assertLandOnHome(page: Page) {
-  await expect(page).toHaveURL('/', { timeout: 30_000 });
+  await expect(page).toHaveURL('/', { timeout: timeouts.navigationTimeoutMs });
   const mobileMenu = page.getByRole('button', { name: 'Ouvrir les listes' });
   if (await mobileMenu.isVisible()) {
     await expect(mobileMenu).toBeVisible();
@@ -53,16 +63,16 @@ export async function registerAndLandOnHome(
   opts?: { firstName?: string; lastName?: string; email?: string },
 ) {
   const email = opts?.email ?? uniqueEmail('demo');
-  const firstName = opts?.firstName ?? 'Demo';
-  const lastName = opts?.lastName ?? 'User';
+  const firstName = opts?.firstName ?? cfg.testUser.defaultFirstName;
+  const lastName = opts?.lastName ?? cfg.testUser.defaultLastName;
 
   await page.goto('/register');
   await page.getByTestId('register-firstName').fill(firstName);
   await page.getByTestId('register-lastName').fill(lastName);
   await page.getByTestId('register-email').fill(email);
   await page.getByTestId('register-emailConfirm').fill(email);
-  await page.getByTestId('register-password').fill(DEMO_PASSWORD);
-  await page.getByTestId('register-passwordConfirm').fill(DEMO_PASSWORD);
+  await page.getByTestId('register-password').fill(testPassword);
+  await page.getByTestId('register-passwordConfirm').fill(testPassword);
   const registerDone = page.waitForResponse(
     (r) => r.url().includes('/auth/register') && r.status() === 201,
   );
@@ -78,7 +88,7 @@ export async function registerAndLandOnHome(
 export async function login(page: Page, email: string) {
   await page.goto('/login');
   await page.getByTestId('login-email').fill(email);
-  await page.getByTestId('login-password').fill(DEMO_PASSWORD);
+  await page.getByTestId('login-password').fill(testPassword);
   await page.getByTestId('login-submit').click();
   await assertLandOnHome(page);
 }
@@ -87,7 +97,7 @@ export async function logoutFromApp(page: Page) {
   await ensureListSidebar(page);
   const sidebar = await activeListSidebar(page);
   await sidebar.getByTestId('logout-btn').click();
-  await page.waitForURL('/login', { timeout: 30_000 });
+  await page.waitForURL('/login', { timeout: timeouts.navigationTimeoutMs });
 }
 
 export async function createList(page: Page, name: string) {
@@ -101,10 +111,10 @@ export async function createList(page: Page, name: string) {
 
   // Mobile : le tiroir se ferme après création (voir SidebarPanel.createList).
   if (isMobile) {
-    await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: timeouts.expectTimeoutMs });
   } else {
     await expect(sidebar.getByRole('button', { name: new RegExp(name) }).first()).toBeVisible({
-      timeout: 15_000,
+      timeout: timeouts.expectTimeoutMs,
     });
   }
   await closeMobileListDrawerIfOpen(page);
@@ -125,8 +135,8 @@ export async function addTask(page: Page, shortDescription: string, dueDate = to
   await page.getByTestId('task-short-input').fill(shortDescription);
   await page.getByTestId('task-due-date').fill(dueDate);
   await page.getByTestId('task-submit').click();
-  await expect(page.getByText(shortDescription).first()).toBeVisible({ timeout: 15_000 });
-  await pauseDemoStep(page, 700);
+  await expect(page.getByText(shortDescription).first()).toBeVisible({ timeout: timeouts.expectTimeoutMs });
+  await pauseDemoStep(page, pauses.afterTaskMs);
 }
 
 export async function switchView(page: Page, view: 'list' | 'kanban' | 'calendar') {
@@ -136,7 +146,7 @@ export async function switchView(page: Page, view: 'list' | 'kanban' | 'calendar
   } else if (view === 'calendar') {
     await expect(page.getByRole('heading', { name: 'Calendrier' })).toBeVisible();
   }
-  await pauseDemoStep(page, 900);
+  await pauseDemoStep(page, pauses.afterViewMs);
 }
 
 export async function openMobileListDrawer(page: Page) {
@@ -149,7 +159,7 @@ export async function selectListByName(page: Page, name: string) {
   const sidebar = await activeListSidebar(page);
   await sidebar.getByRole('button', { name: new RegExp(name) }).first().click();
   await closeMobileListDrawerIfOpen(page);
-  await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('main').getByRole('heading', { name })).toBeVisible({ timeout: timeouts.expectTimeoutMs });
   await pauseDemoStep(page);
 }
 
@@ -167,11 +177,11 @@ export async function shareListWithEmail(
   if (!isMobile) await listBtn.hover();
   await shareBtn.click({ force: true });
   // Ne pas fermer le tiroir ici : le backdrop est sous la modale (z-110) → clic bloqué jusqu'au timeout test.
-  await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole('heading', { name: 'Partager la liste' })).toBeVisible({ timeout: timeouts.expectTimeoutMs });
   await page.getByTestId('share-email-input').fill(inviteEmail);
   await page.getByTestId('share-role-select').selectOption(role);
   await page.getByTestId('share-submit').click();
-  await expect(page.getByText(inviteEmail).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(inviteEmail).first()).toBeVisible({ timeout: timeouts.expectTimeoutMs });
   await page.getByTestId('share-modal-close').click();
   if (isMobile) await closeMobileListDrawerIfOpen(page);
   await pauseDemoStep(page);
@@ -183,19 +193,19 @@ export async function switchTheme(page: Page, themeId: string) {
   await sidebar.getByTestId('theme-picker-toggle').click();
   await page.getByTestId(`theme-option-${themeId}`).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', themeId);
-  await pauseDemoStep(page, 900);
+  await pauseDemoStep(page, pauses.afterThemeMs);
 }
 
 export async function setCalendarScale(page: Page, scale: 'month' | 'week' | 'day') {
   await switchView(page, 'calendar');
   await page.getByTestId(`calendar-scale-${scale}`).click();
-  await pauseDemoStep(page, 1100);
+  await pauseDemoStep(page, pauses.afterCalendarScaleMs);
 }
 
 /** Glisse une tâche (texte visible) vers la colonne Kanban d’une autre liste. */
 export async function dragTaskToListInKanban(page: Page, taskLabel: string, targetListName: string) {
   await switchView(page, 'kanban');
-  await pauseDemoStep(page, 400);
+  await pauseDemoStep(page, pauses.beforeDragMs);
   const taskCard = page.locator('[draggable="true"]').filter({ hasText: taskLabel }).first();
   await expect(taskCard).toBeVisible();
   const targetColumn = page
@@ -204,6 +214,6 @@ export async function dragTaskToListInKanban(page: Page, taskLabel: string, targ
   await taskCard.scrollIntoViewIfNeeded();
   await targetColumn.scrollIntoViewIfNeeded();
   await taskCard.dragTo(targetColumn, { targetPosition: { x: 40, y: 120 } });
-  await expect(targetColumn.filter({ hasText: taskLabel })).toBeVisible({ timeout: 20_000 });
-  await pauseDemoStep(page, 1000);
+  await expect(targetColumn.filter({ hasText: taskLabel })).toBeVisible({ timeout: timeouts.expectTimeoutMs + 5000 });
+  await pauseDemoStep(page, pauses.afterDragMs);
 }

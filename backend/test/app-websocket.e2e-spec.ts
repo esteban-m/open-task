@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
-import { todayIsoDate } from './helpers/dates';
+import { TEST_USER_PASSWORD, testEmail, todayIsoDate } from './helpers/stack';
 
 function connectSocket(port: number, token: string): Promise<Socket> {
   return new Promise((resolve, reject) => {
@@ -63,8 +63,8 @@ describe('WebSocket TasksGateway (e2e)', () => {
   let listId: string;
 
   const user = {
-    email: `ws-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('ws'),
+    password: TEST_USER_PASSWORD,
     firstName: 'WS',
     lastName: 'Test',
   };
@@ -180,8 +180,8 @@ describe('WebSocket TasksGateway (e2e)', () => {
 
   it('join:list refusé pour une liste sans accès', async () => {
     const stranger = {
-      email: `ws-stranger-${Date.now()}@example.com`,
-      password: 'password123',
+      email: testEmail('ws-stranger'),
+      password: TEST_USER_PASSWORD,
       firstName: 'Str',
       lastName: 'Anger',
     };
@@ -245,8 +245,8 @@ describe('WebSocket TasksGateway (e2e)', () => {
 
   it('notifie list:deleted et list:revoked aux membres', async () => {
     const guest = {
-      email: `ws-guest-${Date.now()}@example.com`,
-      password: 'password123',
+      email: testEmail('ws-guest'),
+      password: TEST_USER_PASSWORD,
       firstName: 'Guest',
       lastName: 'WS',
     };

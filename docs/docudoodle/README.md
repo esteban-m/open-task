@@ -1,6 +1,6 @@
 # Génération de documentation
 
-La doc n'est **pas** générée fichier par fichier. Le manifeste `scripts/docs/config/open-task.docs.json` définit des chapitres cohérents (Diátaxis).
+La doc n'est **pas** générée fichier par fichier. Le manifeste `config/open-task.docs.json` définit des chapitres cohérents (Diátaxis).
 
 - **Stable (git)** : `docs/guide/`, `docs/reference/`, `docs/operations/`
 - **IA (CI)** : `docs/generated/` — un appel Mistral par chapitre métier

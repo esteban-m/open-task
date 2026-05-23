@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
-import { todayIsoDate } from './helpers/dates';
+import { TEST_USER_PASSWORD, testEmail, todayIsoDate } from './helpers/stack';
 
 /**
  * Test E2E : flux complet
@@ -14,8 +14,8 @@ describe('Flux complet (e2e)', () => {
   let taskId: string;
 
   const testUser = {
-    email: `test-e2e-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('test-e2e'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Test',
     lastName: 'E2E',
   };

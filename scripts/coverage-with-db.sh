@@ -20,7 +20,7 @@ Usage: ./scripts/coverage-with-db.sh [--keep-db] [--skip-docker]
   --keep-db      Ne pas arrêter le conteneur Postgres à la fin
   --skip-docker  Postgres déjà lancé (DATABASE_URL doit être défini)
 
-Variables (défaut = docker-compose.test.yml sur le port 5433) :
+Variables (défaut = `config/open-task.e2e.json` via `scripts/ci/cli.mjs stack-env`) :
   DATABASE_URL, JWT_SECRET, JWT_REFRESH_SECRET, FRONTEND_URL
 EOF
       exit 0
@@ -29,15 +29,11 @@ EOF
   esac
 done
 
-# Forcer l’URL Postgres test quand on démarre Docker (évite un DATABASE_URL dev/sqlite déjà exporté).
+# Forcer l’URL Postgres test quand on démarre Docker (évite un DATABASE_URL dev déjà exporté).
 if [[ "$SKIP_DOCKER" == false ]]; then
-  export DATABASE_URL="postgresql://test:test@127.0.0.1:5433/opentask_test"
-else
-  export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@127.0.0.1:5433/opentask_test}"
+  unset DATABASE_URL
 fi
-export JWT_SECRET="${JWT_SECRET:-ci_test_secret}"
-export JWT_REFRESH_SECRET="${JWT_REFRESH_SECRET:-ci_test_refresh_secret}"
-export FRONTEND_URL="${FRONTEND_URL:-http://localhost:3000}"
+eval "$(node "${ROOT}/scripts/ci/cli.mjs" stack-env)"
 
 cleanup() {
   if [[ "$KEEP_DB" == true || "$SKIP_DOCKER" == true ]]; then

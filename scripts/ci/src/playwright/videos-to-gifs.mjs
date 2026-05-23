@@ -3,14 +3,8 @@ import { mkdirSync, readdirSync, realpathSync, statSync, writeFileSync } from 'n
 import path from 'node:path';
 
 import { repoRoot } from '../core/paths.mjs';
-import {
-  EXPECTED_BY_VARIANT,
-  parseResultDir,
-} from './demo-slugs.mjs';
-
-export const FPS = Number(process.env.DEMO_GIF_FPS || '8');
-export const WIDTH_DESKTOP = Number(process.env.DEMO_GIF_WIDTH_DESKTOP || '960');
-export const WIDTH_MOBILE = Number(process.env.DEMO_GIF_WIDTH_MOBILE || '390');
+import { expectedGifsByVariant, loadE2eConfig } from '../core/e2e-config.mjs';
+import { parseResultDir } from './demo-slugs.mjs';
 
 export function resolveSafeDir(input, defaultRel, root = repoRoot()) {
   const arg = (input || defaultRel).trim();
@@ -94,9 +88,9 @@ export function findVideos(resultsDir) {
   return found;
 }
 
-export function toGif(videoPath, outPath, width) {
+export function toGif(videoPath, outPath, width, fps) {
   mkdirSync(path.dirname(outPath), { recursive: true });
-  const vf = `fps=${FPS},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
+  const vf = `fps=${fps},scale=${width}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=128[p];[s1][p]paletteuse=dither=bayer:bayer_scale=5`;
   const result = spawnSync(
     'ffmpeg',
     ['-y', '-i', videoPath, '-vf', vf, '-loop', '0', outPath],
@@ -130,10 +124,11 @@ export function buildManifest(entries) {
   return `${lines.join('\n')}\n`;
 }
 
-export function validateExpectedGifs(written) {
+export function validateExpectedGifs(written, config = loadE2eConfig()) {
+  const expectedByVariant = expectedGifsByVariant(config);
   const writtenKeys = new Set(written.map((e) => `${e.variant}/${e.slug}`));
   const missing = [];
-  for (const [variant, slugs] of Object.entries(EXPECTED_BY_VARIANT)) {
+  for (const [variant, slugs] of Object.entries(expectedByVariant)) {
     for (const slug of slugs) {
       if (!writtenKeys.has(`${variant}/${slug}`)) {
         missing.push(`${variant}/${slug}.gif`);
@@ -144,8 +139,10 @@ export function validateExpectedGifs(written) {
 }
 
 export function runVideosToGifs(argv = process.argv, root = repoRoot()) {
-  const resultsDir = resolveSafeDir(argv[2], 'e2e/test-results', root);
-  const outRoot = resolveSafeDir(argv[3], 'docs/public/demo', root);
+  const config = loadE2eConfig();
+  const { gif, paths: demoPaths } = config.demo;
+  const resultsDir = resolveSafeDir(argv[2], demoPaths.testResults, root);
+  const outRoot = resolveSafeDir(argv[3], demoPaths.output, root);
 
   if (!hasFfmpeg()) {
     throw new Error('ffmpeg introuvable — installer ffmpeg pour générer les GIF.');
@@ -158,19 +155,19 @@ export function runVideosToGifs(argv = process.argv, root = repoRoot()) {
 
   const written = [];
   for (const { slug, variant, videoPath } of videos) {
-    const width = variant === 'mobile' ? WIDTH_MOBILE : WIDTH_DESKTOP;
+    const width = variant === 'mobile' ? gif.widthMobile : gif.widthDesktop;
     const outPath = path.join(outRoot, variant, `${slug}.gif`);
     console.log(`[gif] ${videoPath} → ${outPath} (${width}px)`);
-    toGif(videoPath, outPath, width);
+    toGif(videoPath, outPath, width, gif.fps);
     written.push({ slug, variant });
   }
 
   mkdirSync(outRoot, { recursive: true });
   writeFileSync(path.join(outRoot, 'INDEX.md'), buildManifest(written));
 
-  const missing = validateExpectedGifs(written);
+  const missing = validateExpectedGifs(written, config);
   if (missing.length > 0) {
-    const expected = Object.values(EXPECTED_BY_VARIANT).flat().length;
+    const expected = Object.values(expectedGifsByVariant(config)).flat().length;
     throw new Error(
       `${missing.length} GIF manquant(s) (${written.length}/${expected} attendus): ${missing.join(', ')}`,
     );

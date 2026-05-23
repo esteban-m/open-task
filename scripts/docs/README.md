@@ -4,7 +4,6 @@ Structure **config + services + generators** :
 
 ```
 scripts/docs/
-├── config/open-task.docs.json   # manifeste repo (navigation, chapitres, prompts, diagrammes)
 ├── src/
 │   ├── core/                    # chargement config, chemins
 │   ├── services/                # Mistral AI, GitHub, Prisma ERD, liens, Mermaid…
@@ -25,7 +24,7 @@ Couverture avec Postgres (tout le monorepo, racine du dépôt) : `npm run test:c
 
 ## Configuration
 
-Tout ce qui est spécifique au dépôt vit dans [`config/open-task.docs.json`](config/open-task.docs.json) :
+Tout ce qui est spécifique au dépôt vit dans [`config/open-task.docs.json`](../../config/open-task.docs.json) (racine du dépôt) :
 
 - catégories Diátaxis et pages statiques
 - chapitres IA (sources, plan `##`)

@@ -2,7 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { closeE2eApp, createE2eApp } from './e2e-app';
-import { todayIsoDate } from './helpers/dates';
+import { TEST_USER_PASSWORD, testEmail, todayIsoDate } from './helpers/stack';
 
 describe('API listes & tâches (e2e)', () => {
   let app: INestApplication;
@@ -13,15 +13,15 @@ describe('API listes & tâches (e2e)', () => {
   let guestId: string;
 
   const owner = {
-    email: `api-owner-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('api-owner'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Owner',
     lastName: 'API',
   };
 
   const guest = {
-    email: `api-guest-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('api-guest'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Guest',
     lastName: 'API',
   };
