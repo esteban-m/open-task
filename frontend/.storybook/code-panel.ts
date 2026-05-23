@@ -1,7 +1,6 @@
-/** Panneau Code uniquement — pas d’onglet Docs par composant. */
+/** Panneau Code dynamique — pas d’autodocs (pas de tag, pas de `autodocs` dans main). */
 export const codePanelParameters = {
   docs: {
-    disable: true,
     codePanel: true,
     canvas: { sourceState: 'shown' as const },
     source: {
