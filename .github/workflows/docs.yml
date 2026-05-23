@@ -124,6 +124,14 @@ jobs:
             exit 1
           fi
 
+      - name: Valider clé Mistral
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
+        env:
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
+        working-directory: scripts/docs
+        run: npm run validate-mistral
+
       - name: Générer contenu (BDD, API, IA)
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
