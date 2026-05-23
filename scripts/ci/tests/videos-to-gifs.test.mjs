@@ -1,5 +1,4 @@
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -34,12 +33,31 @@ import { repoRoot } from '../src/core/paths.mjs';
 
 const { spawnSync } = await import('node:child_process');
 
+function workDir(name) {
+  return path.join(repoRoot(), name);
+}
+
 describe('videos-to-gifs helpers', () => {
   afterEach(() => {
     e2eMocks.expectedOverride = null;
     resetE2eConfigCache();
     vi.mocked(spawnSync).mockReset();
     vi.mocked(spawnSync).mockReturnValue({ status: 0 });
+    for (const dir of [
+      '.vitest-nested-results',
+      '.vitest-vid-work',
+      '.vitest-vid-alt',
+      '.vitest-fake-root',
+      '.vitest-playwright-results',
+      '.vitest-demo-out',
+      '.vitest-empty-results',
+      '.vitest-empty-out',
+    ]) {
+      rmSync(workDir(dir), { recursive: true, force: true });
+    }
+    for (const file of ['.vitest-video.webm', '.vitest-out.gif', '.vitest-not-a-dir-file']) {
+      rmSync(workDir(file), { force: true });
+    }
   });
 
   it('buildManifest liste desktop et mobile', () => {
@@ -65,16 +83,18 @@ describe('videos-to-gifs helpers', () => {
     const abs = path.join(root, 'e2e/test-results');
     expect(resolveSafeDir(abs, 'e2e/test-results', root)).toBe(abs);
     expect(() => resolveSafeDir('../escape', 'e2e/test-results', root)).toThrow(/invalide/);
-    const fakeRoot = mkdtempSync(path.join(tmpdir(), 'repo-root-'));
-    const outside = mkdtempSync(path.join(tmpdir(), 'outside-repo-'));
+
+    const fakeRoot = workDir('.vitest-fake-root');
+    const outside = workDir('.vitest-outside-repo');
+    mkdirSync(fakeRoot, { recursive: true });
+    mkdirSync(outside, { recursive: true });
     expect(() => resolveSafeDir(outside, 'x', fakeRoot)).toThrow(/hors du dépôt/);
   });
 
   it('scanResultRoot gère répertoire absent et imbrication', () => {
     expect(scanResultRoot('/chemin/inexistant', 'desktop')).toEqual([]);
 
-    const root = repoRoot();
-    const base = path.join(root, '.vitest-nested-results');
+    const base = workDir('.vitest-nested-results');
     const inner = path.join(
       base,
       'demo-desktop',
@@ -87,32 +107,29 @@ describe('videos-to-gifs helpers', () => {
 
     const found = scanResultRoot(path.join(base, 'demo-desktop'), 'desktop');
     expect(found.some((v) => v.slug === '01-inscription')).toBe(true);
-    rmSync(base, { recursive: true, force: true });
   });
 
   it('toGif propage une erreur ffmpeg', () => {
-    const root = repoRoot();
-    const video = path.join(root, '.vitest-video.webm');
-    const out = path.join(root, '.vitest-out.gif');
+    const video = workDir('.vitest-video.webm');
+    const out = workDir('.vitest-out.gif');
     writeFileSync(video, 'mock');
     vi.mocked(spawnSync).mockReturnValue({ status: 1, stderr: 'ffmpeg failed' });
     expect(() => toGif(video, out, 100, 8)).toThrow(/ffmpeg/);
-    rmSync(video, { force: true });
-    rmSync(out, { force: true });
   });
 
   it('findVideoWebm trouve video.webm ou premier .webm', () => {
-    const dir = mkdtempSync(path.join(tmpdir(), 'vid-'));
+    const dir = workDir('.vitest-vid-work');
     const nested = path.join(dir, 'demo-01-inscription-demo-desktop');
     mkdirSync(nested, { recursive: true });
     writeFileSync(path.join(nested, 'video.webm'), 'mock');
     expect(findVideoWebm(nested)).toBe(path.join(nested, 'video.webm'));
 
-    const alt = mkdtempSync(path.join(tmpdir(), 'vid-alt-'));
+    const alt = workDir('.vitest-vid-alt');
+    mkdirSync(alt, { recursive: true });
     writeFileSync(path.join(alt, 'capture.webm'), 'mock');
     expect(findVideoWebm(alt)).toBe(path.join(alt, 'capture.webm'));
 
-    const notDir = path.join(tmpdir(), `not-a-dir-${Date.now()}`);
+    const notDir = workDir('.vitest-not-a-dir-file');
     writeFileSync(notDir, 'mock');
     expect(findVideoWebm(notDir)).toBeNull();
   });
@@ -125,22 +142,19 @@ describe('videos-to-gifs helpers', () => {
   });
 
   it('findVideos détecte les vidéos sous la racine du dépôt', () => {
-    const root = repoRoot();
-    const results = path.join(root, '.vitest-playwright-results');
+    const results = workDir('.vitest-playwright-results');
     const desktopDir = path.join(results, 'demo-desktop', 'demo-02-liste-tache-abc-demo-desktop');
     mkdirSync(desktopDir, { recursive: true });
     writeFileSync(path.join(desktopDir, 'video.webm'), 'mock');
 
     const found = findVideos(results);
     expect(found.some((v) => v.slug === '02-liste-tache' && v.variant === 'desktop')).toBe(true);
-
-    rmSync(results, { recursive: true, force: true });
   });
 
   it('runVideosToGifs termine quand tous les GIF attendus sont là', () => {
     const root = repoRoot();
-    const results = path.join(root, '.vitest-playwright-results');
-    const out = path.join(root, '.vitest-demo-out');
+    const results = workDir('.vitest-playwright-results');
+    const out = workDir('.vitest-demo-out');
     const desktop = path.join(results, 'demo-desktop', 'demo-01-inscription-x-demo-desktop');
     mkdirSync(desktop, { recursive: true });
     writeFileSync(path.join(desktop, 'video.webm'), 'mock');
@@ -153,14 +167,12 @@ describe('videos-to-gifs helpers', () => {
     expect(log).toHaveBeenCalledWith(expect.stringMatching(/\[gif\] 1 GIF/));
 
     log.mockRestore();
-    rmSync(results, { recursive: true, force: true });
-    rmSync(out, { recursive: true, force: true });
   });
 
   it('runVideosToGifs convertit puis valide les GIF attendus', () => {
     const root = repoRoot();
-    const results = path.join(root, '.vitest-playwright-results');
-    const out = path.join(root, '.vitest-demo-out');
+    const results = workDir('.vitest-playwright-results');
+    const out = workDir('.vitest-demo-out');
     const desktop = path.join(results, 'demo-desktop', 'demo-01-inscription-x-demo-desktop');
     mkdirSync(desktop, { recursive: true });
     writeFileSync(path.join(desktop, 'video.webm'), 'mock');
@@ -173,8 +185,6 @@ describe('videos-to-gifs helpers', () => {
       expect(err.message).toMatch(/GIF manquant/);
     }
     expect(spawnSync).toHaveBeenCalled();
-    rmSync(results, { recursive: true, force: true });
-    rmSync(out, { recursive: true, force: true });
   });
 
   it('runVideosToGifs échoue sans ffmpeg', () => {
@@ -185,12 +195,10 @@ describe('videos-to-gifs helpers', () => {
   it('runVideosToGifs échoue sans vidéos', () => {
     vi.mocked(spawnSync).mockReturnValue({ status: 0 });
     const root = repoRoot();
-    const empty = path.join(root, '.vitest-empty-results');
-    const out = path.join(root, '.vitest-empty-out');
+    const empty = workDir('.vitest-empty-results');
+    const out = workDir('.vitest-empty-out');
     mkdirSync(empty, { recursive: true });
     mkdirSync(out, { recursive: true });
     expect(() => runVideosToGifs(['node', 'cli', empty, out], root)).toThrow(/Aucune vidéo/);
-    rmSync(empty, { recursive: true, force: true });
-    rmSync(out, { recursive: true, force: true });
   });
 });
