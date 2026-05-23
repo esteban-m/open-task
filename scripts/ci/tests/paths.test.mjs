@@ -14,5 +14,8 @@ describe('paths', () => {
     expect(existsSync(path.join(root, 'config', 'open-task.docs.json'))).toBe(true);
     const cliRoot = repoRoot(new URL('../cli.mjs', import.meta.url).href);
     expect(cliRoot).toBe(root);
+
+    const pkgFromCli = packageRoot(new URL('../cli.mjs', import.meta.url).href);
+    expect(pkgFromCli.endsWith(`${path.sep}scripts${path.sep}ci`)).toBe(true);
   });
 });

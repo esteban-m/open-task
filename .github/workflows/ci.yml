@@ -358,7 +358,7 @@ jobs:
             --package "Couverture-des-tests:Vue d'ensemble (monorepo):coverage-summary.wiki.json:wiki-fragments/global-lines.md:wiki-fragments/global-badge.md" \
             --package "Couverture-Backend:Backend (NestJS):backend/coverage/coverage-summary.json:wiki-fragments/backend-lines.md:wiki-fragments/backend-badge.md" \
             --package "Couverture-Frontend:Frontend (Nuxt / Vitest):frontend/coverage/coverage-summary.json:wiki-fragments/frontend-lines.md:wiki-fragments/frontend-badge.md" \
-            --package "Couverture-Scripts:Scripts (pipeline docs):scripts/docs/coverage/coverage-summary.json:wiki-fragments/scripts-lines.md:wiki-fragments/scripts-badge.md"
+            --package "Couverture-Scripts:Scripts (docs + CI):scripts/docs/coverage/coverage-summary.json:wiki-fragments/scripts-lines.md:wiki-fragments/scripts-badge.md"
 
       - name: Codecov · backend
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
@@ -390,7 +390,7 @@ jobs:
           files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
           flags: scripts
           name: scripts
-          directory: scripts/docs
+          directory: .
           disable_search: true
           verbose: false
           fail_ci_if_error: true

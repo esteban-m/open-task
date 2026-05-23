@@ -19,6 +19,7 @@ describe('demo-slugs', () => {
   it('detectVariantFromDirName', () => {
     expect(detectVariantFromDirName('foo-demo-desktop-bar')).toBe('desktop');
     expect(detectVariantFromDirName('foo-demo-mobile-bar')).toBe('mobile');
+    expect(detectVariantFromDirName('unrelated-folder')).toBe(null);
   });
 
   it('parseResultDir combine slug et variant', () => {

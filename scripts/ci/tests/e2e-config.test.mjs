@@ -61,6 +61,13 @@ describe('e2e-config', () => {
     expect(env).toContain('export E2E_TEST_PASSWORD=');
   });
 
+  it('printStackEnv propage PLAYWRIGHT_DEMO si défini', () => {
+    process.env.PLAYWRIGHT_DEMO = '1';
+    resetE2eConfigCache();
+    expect(printStackEnv()).toContain('export PLAYWRIGHT_DEMO="1"');
+    delete process.env.PLAYWRIGHT_DEMO;
+  });
+
   it('todayIsoDate helpers format YYYY-MM-DD', () => {
     expect(todayIsoDateUtc()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     expect(todayIsoDateLocal()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
