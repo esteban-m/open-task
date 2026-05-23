@@ -103,5 +103,5 @@ Un propriétaire invite un collègue par email ; le collaborateur voit la liste 
 - [Documentation technique](https://esteban-m.github.io/open-task/docs/) (GitHub Pages)
 - [Storybook UI](https://esteban-m.github.io/open-task/storybook/)
 - [Swagger API](https://esteban-m.github.io/open-task/swagger/)
-- [README](../README.md) — installation Docker, API, WebSocket temps réel
+- [README du dépôt](https://github.com/esteban-m/open-task/blob/main/README.md) — installation Docker, API, WebSocket temps réel
 - Rôles viewer / editor / admin : doc **Backend** et **Fonctionnalités** du README
