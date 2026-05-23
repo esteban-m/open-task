@@ -15,9 +15,10 @@ const config: StorybookConfig = {
   },
   staticDirs: ['../public'],
   async viteFinal(config) {
-    return mergeConfig(config, {
-      base: storybookBase,
-    });
+    const merged = mergeConfig(config, { base: storybookBase });
+    // @storybook-vue/nuxt merges Nuxt vite config after; keep GH Pages base path.
+    merged.base = storybookBase;
+    return merged;
   },
 };
 
