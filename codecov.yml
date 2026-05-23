@@ -39,6 +39,7 @@ coverage:
     patch:
       default:
         target: auto
+        threshold: 5%
 
 comment:
   layout: reach,diff,flags,files
