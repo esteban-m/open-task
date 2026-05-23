@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
+import { todayIsoDate } from './helpers/dates';
 
 /**
  * Test E2E : flux complet
@@ -65,7 +66,7 @@ describe('Flux complet (e2e)', () => {
       .set('Authorization', `Bearer ${accessToken}`)
       .send({
         shortDescription: 'Tâche E2E',
-        dueDate: '2024-12-31',
+        dueDate: todayIsoDate(),
       })
       .expect(201);
 

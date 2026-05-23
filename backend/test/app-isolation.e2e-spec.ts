@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
+import { todayIsoDate } from './helpers/dates';
 
 /** Vérifie qu'un utilisateur ne peut pas accéder aux données d'un autre. */
 describe('Isolation des données (e2e)', () => {
@@ -53,7 +54,7 @@ describe('Isolation des données (e2e)', () => {
     const task = await request(app.getHttpServer())
       .post(`/lists/${listIdA}/tasks`)
       .set('Authorization', `Bearer ${tokenA}`)
-      .send({ shortDescription: 'Tâche secrète', dueDate: '2025-12-31' });
+      .send({ shortDescription: 'Tâche secrète', dueDate: todayIsoDate() });
     taskIdA = task.body.id;
 
     await request(app.getHttpServer())
@@ -87,7 +88,7 @@ describe('Isolation des données (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/lists/${listIdA}/tasks`)
       .set('Authorization', `Bearer ${tokenB}`)
-      .send({ shortDescription: 'Intrusion', dueDate: '2025-12-31' })
+      .send({ shortDescription: 'Intrusion', dueDate: todayIsoDate() })
       .expect(403);
   });
 

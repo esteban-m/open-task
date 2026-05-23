@@ -100,11 +100,11 @@ jobs:
           DATABASE_URL: postgresql://test:test@localhost:5432/opentask_test
         run: |
           npm run test:e2e:coverage -- --silent
-          node ../scripts/ci/assert-e2e-coverage.mjs coverage-e2e/coverage-summary.json
+          node ../scripts/ci/cli.mjs assert-e2e coverage-e2e/coverage-summary.json
 
       - name: Fusionner résumés unit + e2e
         run: |
-          node scripts/ci/merge-coverage-summaries.mjs \
+          node scripts/ci/cli.mjs merge-coverage \
             -o backend/coverage/coverage-summary.json \
             backend/coverage/coverage-summary.json \
             backend/coverage-e2e/coverage-summary.json
@@ -157,7 +157,7 @@ jobs:
           path: frontend/coverage/
 
   scripts:
-    name: Scripts · pipeline docs
+    name: Scripts · docs & CI
     runs-on: ubuntu-latest
 
     steps:
@@ -167,15 +167,33 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: scripts/docs/package-lock.json
+          cache-dependency-path: |
+            scripts/docs/package-lock.json
+            scripts/ci/package-lock.json
 
-      - name: Dépendances
+      - name: Dépendances docs
         working-directory: scripts/docs
         run: npm ci
 
-      - name: Tests (coverage)
+      - name: Tests docs (coverage)
         working-directory: scripts/docs
         run: npm run test:coverage -- --silent
+
+      - name: Dépendances CI
+        working-directory: scripts/ci
+        run: npm ci
+
+      - name: Tests CI (coverage)
+        working-directory: scripts/ci
+        run: npm run test:coverage -- --silent
+
+      - name: Fusionner coverage scripts (docs + ci)
+        run: |
+          node scripts/ci/cli.mjs merge-coverage \
+            -o scripts/docs/coverage/coverage-summary.merged.json \
+            scripts/docs/coverage/coverage-summary.json \
+            scripts/ci/coverage/coverage-summary.json
+          cp scripts/docs/coverage/coverage-summary.merged.json scripts/docs/coverage/coverage-summary.json
 
       - name: Artefacts coverage
         uses: actions/upload-artifact@v6
@@ -183,7 +201,9 @@ jobs:
           name: coverage-scripts
           retention-days: 1
           if-no-files-found: error
-          path: scripts/docs/coverage/
+          path: |
+            scripts/docs/coverage/
+            scripts/ci/coverage/
 
   e2e-playwright:
     name: E2E · Playwright full-stack
@@ -311,7 +331,7 @@ jobs:
 
       - name: Fusionner résumé monorepo
         run: |
-          node scripts/ci/merge-coverage-summaries.mjs \
+          node scripts/ci/cli.mjs merge-coverage \
             -o coverage-summary.wiki.json \
             backend/coverage/coverage-summary.json \
             frontend/coverage/coverage-summary.json \
@@ -319,18 +339,18 @@ jobs:
 
       - name: Markdown synthèse (badges + tableaux)
         run: |
-          node scripts/ci/coverage-summary-markdown.mjs \
+          node scripts/ci/cli.mjs coverage-markdown \
             --summary coverage-summary.wiki.json --prefix global --warning 65 --good 85
-          node scripts/ci/coverage-summary-markdown.mjs \
+          node scripts/ci/cli.mjs coverage-markdown \
             --summary backend/coverage/coverage-summary.json --prefix backend --warning 65 --good 85
-          node scripts/ci/coverage-summary-markdown.mjs \
+          node scripts/ci/cli.mjs coverage-markdown \
             --summary frontend/coverage/coverage-summary.json --prefix frontend --warning 65 --good 85
-          node scripts/ci/coverage-summary-markdown.mjs \
+          node scripts/ci/cli.mjs coverage-markdown \
             --summary scripts/docs/coverage/coverage-summary.json --prefix scripts --warning 40 --good 55
 
       - name: Pages wiki (markdown)
         run: |
-          node scripts/ci/build-wiki-coverage-pages.mjs \
+          node scripts/ci/cli.mjs wiki-pages \
             --out-dir wiki-out \
             --sha "${{ github.sha }}" \
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
@@ -367,7 +387,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: scripts/docs/coverage/lcov.info
+          files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
           flags: scripts
           name: scripts
           directory: scripts/docs

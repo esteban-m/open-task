@@ -18,13 +18,13 @@ scripts ────────┘
 e2e-playwright ───► Playwright (backend build + preview Nuxt + navigateur)
 ```
 
-1. **backend** — Service Postgres (port 5432), Prisma migrate, tests unitaires puis **e2e avec `DATABASE_URL`** (sinon les tests passent mais la couverture e2e reste à 0 %). Vérification via `scripts/ci/assert-e2e-coverage.mjs`.
+1. **backend** — Service Postgres (port 5432), Prisma migrate, tests unitaires puis **e2e avec `DATABASE_URL`** (sinon les tests e2e passent mais la couverture e2e reste à 0 %). Vérification via `scripts/ci/cli.mjs assert-e2e`.
 2. **frontend** — `nuxt prepare`, lint, Vitest coverage.
-3. **scripts** — Vitest du pipeline `scripts/docs`.
+3. **scripts** — Vitest `scripts/docs` + `scripts/ci` (pipeline doc + outils CI).
 4. **e2e-playwright** — Postgres, `nest build` + serveur backend, `nuxt build` + preview, scénario UI (inscription → liste → tâche → logout/login). Script : `scripts/ci/run-playwright-stack.sh`.
 5. **report** — Télécharge les artefacts, fusionne les `coverage-summary.json`, publie Codecov et (sur `main` uniquement) le wiki.
 
-Backend e2e (Jest) : `test/app-*.e2e-spec.ts` — auth (refresh, logout, `/me`), API (update, partage, révocation), flux existants. Garde-fou : `scripts/ci/assert-e2e-coverage.mjs` (≥ 55 % lignes e2e).
+Backend e2e (Jest) : `test/app-*.e2e-spec.ts` — auth (refresh, logout, `/me`), API (update, partage, révocation), flux existants. Garde-fou : `scripts/ci/cli.mjs assert-e2e` (≥ 55 % lignes e2e).
 
 Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, ffmpeg requis).
 

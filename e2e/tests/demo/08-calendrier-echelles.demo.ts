@@ -6,7 +6,7 @@ test.describe('Démo — Calendrier', () => {
   test('echelles', async ({ page }) => {
     await registerAndLandOnHome(page);
     await createList(page, 'Planning');
-    await addTask(page, 'Rendez-vous démo', '2026-06-20');
+    await addTask(page, 'Rendez-vous démo');
 
     await setCalendarScale(page, 'month');
     await setCalendarScale(page, 'week');

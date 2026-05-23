@@ -92,7 +92,7 @@ if [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   npm test -- --project=demo-desktop --project=demo-mobile
   log "Conversion vidéos → GIF (docs/public/demo)"
   cd "${ROOT}"
-  node scripts/ci/playwright-videos-to-gifs.mjs "${ROOT}/e2e/test-results" "${ROOT}/docs/public/demo"
+  node scripts/ci/cli.mjs gifs "${ROOT}/e2e/test-results" "${ROOT}/docs/public/demo"
 else
   npm test -- --project=smoke-desktop
 fi

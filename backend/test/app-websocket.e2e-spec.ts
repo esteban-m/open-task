@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { io, Socket } from 'socket.io-client';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
+import { todayIsoDate } from './helpers/dates';
 
 function connectSocket(port: number, token: string): Promise<Socket> {
   return new Promise((resolve, reject) => {
@@ -127,7 +128,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
     await request(app.getHttpServer())
       .post(`/lists/${listId}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ shortDescription: 'Tâche temps réel', dueDate: '2026-12-01' })
+      .send({ shortDescription: 'Tâche temps réel', dueDate: todayIsoDate() })
       .expect(201);
 
     const payload = await eventPromise;
@@ -153,7 +154,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
     const task = await request(app.getHttpServer())
       .post(`/lists/${listId}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ shortDescription: 'À déplacer', dueDate: '2026-12-04' })
+      .send({ shortDescription: 'À déplacer', dueDate: todayIsoDate() })
       .expect(201);
 
     const socket = await connectSocket(port, token);
@@ -198,7 +199,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
     const task = await request(app.getHttpServer())
       .post(`/lists/${listId}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ shortDescription: 'À modifier', dueDate: '2026-12-03' })
+      .send({ shortDescription: 'À modifier', dueDate: todayIsoDate() })
       .expect(201);
 
     const socket = await connectToList(port, token, listId);
@@ -222,7 +223,7 @@ describe('WebSocket TasksGateway (e2e)', () => {
     const task = await request(app.getHttpServer())
       .post(`/lists/${listId}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ shortDescription: 'À terminer', dueDate: '2026-12-02' })
+      .send({ shortDescription: 'À terminer', dueDate: todayIsoDate() })
       .expect(201);
 
     const socket = await connectToList(port, token, listId);

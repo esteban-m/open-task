@@ -1,4 +1,5 @@
 import { expect, type Page } from '@playwright/test';
+import { todayIsoDate } from './dates';
 import { pauseDemoStep } from './demo-pause';
 
 export const DEMO_PASSWORD = 'password123';
@@ -119,7 +120,7 @@ export async function activeListSidebar(page: Page) {
   return page.locator('aside.left-sidebar-desktop');
 }
 
-export async function addTask(page: Page, shortDescription: string, dueDate = '2026-12-31') {
+export async function addTask(page: Page, shortDescription: string, dueDate = todayIsoDate()) {
   await page.getByTestId('add-task-btn').click();
   await page.getByTestId('task-short-input').fill(shortDescription);
   await page.getByTestId('task-due-date').fill(dueDate);
