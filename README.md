@@ -17,7 +17,7 @@
 | **Backend** | [![NestJS](https://img.shields.io/badge/NestJS-11-E0234E?logo=nestjs&logoColor=white)](https://nestjs.com/) [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/) [![Prisma](https://img.shields.io/badge/Prisma-5-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/) [![Socket.io](https://img.shields.io/badge/Socket.io-realtime-010101?logo=socket.io&logoColor=white)](https://socket.io/) |
 | **Frontend** | [![Nuxt](https://img.shields.io/badge/Nuxt-3.21-00DC82?logo=nuxt&logoColor=white)](https://nuxt.com/) [![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org/) [![Pinia](https://img.shields.io/badge/Pinia-3-FFD859?logo=pinia&logoColor=black)](https://pinia.vuejs.org/) [![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)](https://vite.dev/) [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/) |
 
-[Démarrage rapide](#démarrage-rapide) · [Guide d’utilisation](docs/USAGE.md) · [Documentation](https://esteban-m.github.io/open-task/) · [Fonctionnalités](#fonctionnalités) · [Architecture](#architecture) · [Sécurité](#sécurité) · [Tests](#tests) · [Contribuer](#contribuer)
+[Démarrage rapide](#démarrage-rapide) · [Guide d’utilisation](docs/guide/usage.md) · [Documentation](https://esteban-m.github.io/open-task/) · [Fonctionnalités](#fonctionnalités) · [Architecture](#architecture) · [Sécurité](#sécurité) · [Tests](#tests) · [Contribuer](#contribuer)
 
 </div>
 
@@ -66,7 +66,7 @@ docker compose up --build
 
 Parcours illustrés **desktop et mobile**, enregistrés par Playwright en CI et publiés sur **GitHub Pages** (`/demo/…` — pas de fichiers GIF dans le dépôt).
 
-Voir le **[guide complet](docs/USAGE.md)** (inscription, listes, tâches, vues, connexion, mobile, thèmes, Kanban drag & drop, calendrier, partage).
+Voir le **[guide complet](docs/guide/usage.md)** (inscription, listes, tâches, vues, connexion, mobile, thèmes, Kanban drag & drop, calendrier, partage).
 
 <p align="center">
   <img src="https://esteban-m.github.io/open-task/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />

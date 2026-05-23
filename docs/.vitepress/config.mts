@@ -6,6 +6,20 @@ const repo = process.env.GITHUB_REPOSITORY ?? 'esteban-m/open-task';
 const repoName = repo.split('/')[1];
 const base = process.env.DOCS_BASE ?? `/${repoName}/docs/`;
 
+const sidebar = generatedSidebar.map((group: { text?: string; items?: { text: string; link: string }[] }) => {
+  if (group.text !== 'Guide' || !group.items) return group;
+  const hasUsage = group.items.some((item) => item.link === '/guide/usage');
+  if (hasUsage) return group;
+  return {
+    ...group,
+    items: [
+      group.items[0],
+      { text: "Guide d'utilisation (GIF)", link: '/guide/usage' },
+      ...group.items.slice(1),
+    ],
+  };
+});
+
 export default withMermaid(
   defineConfig({
     title: 'Open-Task',
@@ -15,9 +29,6 @@ export default withMermaid(
     cleanUrls: true,
     lastUpdated: true,
     appearance: 'dark',
-
-    /** Guide utilisateur (GIF sur Pages) — voir docs/USAGE.md sur le dépôt GitHub */
-    srcExclude: ['USAGE.md'],
 
     ignoreDeadLinks: [
       /^http:\/\/localhost/,
@@ -33,12 +44,13 @@ export default withMermaid(
       nav: [
         { text: 'Portail', link: '../' },
         { text: 'Guide', link: '/guide/getting-started' },
+        { text: 'Démos GIF', link: '/guide/usage' },
         { text: 'Architecture', link: '/generated/architecture' },
         { text: 'Backend', link: '/generated/backend/authentication' },
         { text: 'API', link: '/generated/api-reference' },
         { text: 'GitHub', link: `https://github.com/${repo}` },
       ],
-      sidebar: generatedSidebar,
+      sidebar,
       socialLinks: [{ icon: 'github', link: `https://github.com/${repo}` }],
       footer: {
         message: 'Documentation générée automatiquement (doc-as-code)',

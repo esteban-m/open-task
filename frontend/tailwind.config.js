@@ -6,7 +6,10 @@ module.exports = {
     './pages/**/*.vue',
     './plugins/**/*.{js,ts}',
     './.storybook/**/*.{js,ts}',
+    './composables/**/*.{js,ts}',
+    './stores/**/*.{js,ts}',
     './app.vue',
+    './components/**/*.stories.@(js|ts)',
   ],
   theme: {
     extend: {

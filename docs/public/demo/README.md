@@ -9,7 +9,7 @@ Les GIF ne sont **pas** versionnés dans Git. Ils sont générés par Playwright
 | `desktop/` | Chrome ~1280px |
 | `mobile/` | Pixel 5 |
 
-Scénarios : `01-inscription` … `09-partage-liste` (voir le [guide d’utilisation](https://github.com/esteban-m/open-task/blob/main/docs/USAGE.md)).
+Scénarios : `01-inscription` … `09-partage-liste` (voir le [guide d’utilisation](https://esteban-m.github.io/open-task/docs/guide/usage)).
 
 **Local** (ffmpeg requis) :
 

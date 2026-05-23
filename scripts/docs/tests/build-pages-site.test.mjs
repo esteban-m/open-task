@@ -107,6 +107,7 @@ describe('build-pages-site', () => {
     expect(readFileSync(path.join(out, 'storybook', 'index.html'), 'utf8')).toContain('sb');
     expect(readFileSync(path.join(out, 'swagger', 'openapi.json'), 'utf8')).toContain('paths');
     expect(readFileSync(path.join(out, 'demo', 'readme.txt'), 'utf8')).toBe('demo');
+    expect(readFileSync(path.join(out, 'demo', 'index.html'), 'utf8')).toContain('/open-task/docs/guide/usage');
   });
 
   it('runBuildPagesSite sans dossier démo', () => {

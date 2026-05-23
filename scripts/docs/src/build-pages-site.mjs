@@ -17,6 +17,26 @@ export function resolveSwaggerUiRoot(repoRoot) {
   return dirname(req.resolve('swagger-ui-dist/swagger-ui.css'));
 }
 
+export function writeDemoIndexRedirect(demoOutDir, pagesBase) {
+  mkdirSync(demoOutDir, { recursive: true });
+  const usageUrl = `${pagesBase}docs/guide/usage`;
+  writeFileSync(
+    join(demoOutDir, 'index.html'),
+    `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="refresh" content="0; url=${usageUrl}" />
+  <title>Open-Task — Démos</title>
+  <link rel="canonical" href="${usageUrl}" />
+</head>
+<body>
+  <p>Redirection vers le <a href="${usageUrl}">guide d'utilisation (GIF)</a>…</p>
+</body>
+</html>`,
+  );
+}
+
 export function writeSwaggerStatic(destDir, openapiJson, repoRoot, swaggerUiRoot = resolveSwaggerUiRoot(repoRoot)) {
   mkdirSync(destDir, { recursive: true });
   copyDir(swaggerUiRoot, destDir);
@@ -81,6 +101,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
 
   if (existsSync(demoDir)) {
     copyDir(demoDir, join(outDir, 'demo'));
+    writeDemoIndexRedirect(join(outDir, 'demo'), pagesBase);
   }
 
   const hubIndex = join(outDir, 'index.html');
