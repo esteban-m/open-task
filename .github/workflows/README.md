@@ -36,7 +36,7 @@ Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, f
 
 Les GIF publiés en production passent par **Docs** → GitHub Pages (`https://<user>.github.io/open-task/demo/…`).
 
-Guide : [`docs/guide/usage.md`](../docs/guide/usage.md).
+Guide : [`USAGE.md`](../USAGE.md).
 
 ## Docs (`docs.yml`)
 

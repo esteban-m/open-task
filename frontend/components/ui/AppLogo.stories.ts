@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import AppLogo from './AppLogo.vue';
 
 const meta = {
   title: 'UI/AppLogo',
   component: AppLogo,
   tags: ['autodocs'],
+  parameters: vueUsageSnippet('<AppLogo size="md" />'),
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import SidebarPanel from './SidebarPanel.vue';
 
 const meta = {
@@ -8,6 +9,7 @@ const meta = {
   component: SidebarPanel,
   tags: ['autodocs'],
   decorators: [withStores],
+  parameters: vueUsageSnippet('<SidebarPanel :collapsed="false" @toggle-collapse="toggle" />'),
   argTypes: {
     collapsed: { control: 'boolean' },
     mobile: { control: 'boolean' },

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import LeftSidebar from './LeftSidebar.vue';
 
 const meta = {
@@ -8,6 +9,7 @@ const meta = {
   component: LeftSidebar,
   tags: ['autodocs'],
   decorators: [withStores],
+  parameters: vueUsageSnippet('<LeftSidebar />'),
 } satisfies Meta<typeof LeftSidebar>;
 
 export default meta;

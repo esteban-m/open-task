@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import MarkdownContent from './MarkdownContent.vue';
 
 const meta = {
   title: 'Common/MarkdownContent',
   component: MarkdownContent,
   tags: ['autodocs'],
+  parameters: vueUsageSnippet('<MarkdownContent :content="markdown" :compact="false" />'),
   argTypes: {
     compact: { control: 'boolean' },
     interactiveChecklists: { control: 'boolean' },

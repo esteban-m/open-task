@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { mockList } from '../../.storybook/fixtures';
 import { withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import ListEditModal from './ListEditModal.vue';
 
 const meta = {
@@ -9,6 +10,7 @@ const meta = {
   component: ListEditModal,
   tags: ['autodocs'],
   decorators: [withStores],
+  parameters: vueUsageSnippet('<ListEditModal :list="list" @close="onClose" @saved="onSaved" />'),
   args: {
     list: mockList,
   },

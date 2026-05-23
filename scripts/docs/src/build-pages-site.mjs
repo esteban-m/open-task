@@ -19,7 +19,7 @@ export function resolveSwaggerUiRoot(repoRoot) {
 
 export function writeDemoIndexRedirect(demoOutDir, pagesBase) {
   mkdirSync(demoOutDir, { recursive: true });
-  const usageUrl = `${pagesBase}docs/guide/usage`;
+  const usageUrl = `${pagesBase}USAGE.html`;
   writeFileSync(
     join(demoOutDir, 'index.html'),
     `<!DOCTYPE html>
@@ -32,6 +32,57 @@ export function writeDemoIndexRedirect(demoOutDir, pagesBase) {
 </head>
 <body>
   <p>Redirection vers le <a href="${usageUrl}">guide d'utilisation (GIF)</a>…</p>
+</body>
+</html>`,
+  );
+}
+
+export function writeUsageHtmlPage(outDir, repoRoot) {
+  const usageMd = resolve(repoRoot, 'USAGE.md');
+  if (!existsSync(usageMd)) return;
+
+  const markdown = readFileSync(usageMd, 'utf8');
+  writeFileSync(join(outDir, 'USAGE.md'), markdown);
+
+  let bodyHtml;
+  try {
+    const req = createRequire(join(repoRoot, 'frontend/package.json'));
+    const { marked } = req('marked');
+    bodyHtml = marked.parse(markdown);
+  } catch {
+    bodyHtml = `<pre>${markdown.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</pre>`;
+  }
+
+  writeFileSync(
+    join(outDir, 'USAGE.html'),
+    `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Open-Task — Guide d'utilisation (GIF)</title>
+  <link rel="icon" type="image/svg+xml" href="./hero.svg" />
+  <style>
+    :root { color-scheme: dark; --bg: #0b1220; --text: #f8fafc; --muted: #94a3b8; --link: #93c5fd; --border: #1f2937; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+    a { color: var(--link); }
+    h1, h2 { letter-spacing: -0.02em; }
+    h2 { margin-top: 2.5rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { border: 1px solid var(--border); padding: 0.5rem; vertical-align: top; }
+    img { max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); }
+    blockquote { margin: 1rem 0; padding: 0.75rem 1rem; border-left: 3px solid #3b82f6; background: rgba(59,130,246,0.08); color: var(--muted); }
+    .top { margin-bottom: 1.5rem; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <p class="top"><a href="./">← Portail</a> · <a href="./docs/">Documentation</a> · <a href="./storybook/">Storybook</a></p>
+    ${bodyHtml}
+  </div>
 </body>
 </html>`,
   );
@@ -90,6 +141,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   if (existsSync(hubHero)) {
     cpSync(hubHero, join(outDir, 'hero.svg'));
   }
+  writeUsageHtmlPage(outDir, repoRoot);
   copyDir(docsDist, join(outDir, 'docs'));
   copyDir(storybookDist, join(outDir, 'storybook'));
   writeSwaggerStatic(

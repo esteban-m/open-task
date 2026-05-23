@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { wideDecorator, withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import CalendarView from './CalendarView.vue';
 
 const meta = {
@@ -10,6 +11,7 @@ const meta = {
   decorators: [withStores, wideDecorator],
   parameters: {
     layout: 'fullscreen',
+    ...vueUsageSnippet('<CalendarView />'),
   },
 } satisfies Meta<typeof CalendarView>;
 
