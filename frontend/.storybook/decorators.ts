@@ -42,3 +42,35 @@ export const withStores: Decorator = () => ({
   },
   template: '<story />',
 });
+
+export const sidebarFrameDecorator: Decorator = () => ({
+  template: '<div class="w-72 h-[560px] border border-border rounded-lg overflow-hidden"><story /></div>',
+});
+
+export const sidebarPanelFrameDecorator: Decorator = () => ({
+  template: '<div class="w-72 h-[520px] border border-border rounded-lg overflow-hidden flex flex-col"><story /></div>',
+});
+
+export const sidebarPanelCollapsedFrameDecorator: Decorator = () => ({
+  template: '<div class="w-16 h-[520px] border border-border rounded-lg overflow-hidden flex flex-col"><story /></div>',
+});
+
+export const rightSidebarFrameDecorator: Decorator = () => ({
+  template: '<div class="w-80 h-[560px] border border-border rounded-lg overflow-hidden"><story /></div>',
+});
+
+export const mainContentFrameDecorator: Decorator = () => ({
+  template: '<div class="h-[560px] flex flex-col border border-border rounded-lg overflow-hidden"><story /></div>',
+});
+
+export const kanbanFrameDecorator: Decorator = () => ({
+  template: '<div class="h-[420px] flex flex-col"><story /></div>',
+});
+
+export const calendarFrameDecorator: Decorator = () => ({
+  template: '<div class="h-[480px] flex flex-col"><story /></div>',
+});
+
+export const themePickerFrameDecorator: Decorator = () => ({
+  template: '<div class="w-64"><story /></div>',
+});

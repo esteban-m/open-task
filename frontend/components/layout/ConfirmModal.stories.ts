@@ -1,19 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
-import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import ConfirmModal from './ConfirmModal.vue';
 
 const meta = {
   title: 'Layout/ConfirmModal',
   component: ConfirmModal,
-  tags: ['autodocs'],
-  parameters: vueUsageSnippet(`<ConfirmModal
-  title="Supprimer la liste ?"
-  message="Cette action est irréversible."
-  confirm-label="Supprimer"
-  @confirm="onConfirm"
-  @cancel="onCancel"
-/>`),
+  parameters: { layout: 'centered' },
   args: {
     title: 'Supprimer la liste ?',
     message: 'Cette action est irréversible. Toutes les tâches associées seront supprimées.',

@@ -1,16 +1,15 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
-import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import MarkdownContent from './MarkdownContent.vue';
 
 const meta = {
   title: 'Common/MarkdownContent',
   component: MarkdownContent,
-  tags: ['autodocs'],
-  parameters: vueUsageSnippet('<MarkdownContent :content="markdown" :compact="false" />'),
+  parameters: { layout: 'centered' },
   argTypes: {
     compact: { control: 'boolean' },
     interactiveChecklists: { control: 'boolean' },
+    content: { control: 'text' },
   },
 } satisfies Meta<typeof MarkdownContent>;
 
@@ -22,7 +21,7 @@ const sample = `# Notes
 - [ ] Point ouvert
 - [x] Point fait
 
-**Gras** et _italique_ avec une [lien](https://example.com).`;
+**Gras** et _italique_ avec un [lien](https://example.com).`;
 
 export const Default: Story = {
   args: { content: sample, compact: false, interactiveChecklists: false },
