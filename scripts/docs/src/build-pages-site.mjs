@@ -1,9 +1,8 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 
-function pagesBaseFromRepo(repoRoot) {
+export function pagesBaseFromRepo(repoRoot) {
   const name = process.env.GITHUB_REPOSITORY?.split('/')[1]
     ?? JSON.parse(readFileSync(join(repoRoot, 'config/open-task.docs.json'), 'utf8')).project.repository.split('/')[1];
   return `/${name}/`;
@@ -18,8 +17,7 @@ function resolveSwaggerUiRoot(repoRoot) {
   return dirname(req.resolve('swagger-ui-dist/swagger-ui.css'));
 }
 
-function writeSwaggerStatic(destDir, openapiJson, repoRoot) {
-  const swaggerUiRoot = resolveSwaggerUiRoot(repoRoot);
+export function writeSwaggerStatic(destDir, openapiJson, repoRoot, swaggerUiRoot = resolveSwaggerUiRoot(repoRoot)) {
   mkdirSync(destDir, { recursive: true });
   copyDir(swaggerUiRoot, destDir);
   writeFileSync(join(destDir, 'openapi.json'), readFileSync(openapiJson, 'utf8'));
@@ -62,6 +60,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   const openapiJson = resolve(options.openapiJson ?? join(repoRoot, 'backend/openapi.json'));
   const hubDir = resolve(options.hubDir ?? join(repoRoot, 'site'));
   const demoDir = resolve(options.demoDir ?? join(repoRoot, 'docs/public/demo'));
+  const swaggerUiRoot = options.swaggerUiRoot;
 
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
@@ -69,7 +68,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   copyDir(hubDir, outDir);
   copyDir(docsDist, join(outDir, 'docs'));
   copyDir(storybookDist, join(outDir, 'storybook'));
-  writeSwaggerStatic(join(outDir, 'swagger'), openapiJson, repoRoot);
+  writeSwaggerStatic(join(outDir, 'swagger'), openapiJson, repoRoot, swaggerUiRoot);
 
   if (existsSync(demoDir)) {
     copyDir(demoDir, join(outDir, 'demo'));
@@ -79,8 +78,4 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   writeFileSync(hubIndex, readFileSync(hubIndex, 'utf8').replaceAll('__PAGES_BASE__', pagesBase));
 
   console.log(`[pages] Site assemblé → ${outDir} (base ${pagesBase})`);
-}
-
-if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  runBuildPagesSite(resolve(dirname(fileURLToPath(import.meta.url)), '../..'));
 }

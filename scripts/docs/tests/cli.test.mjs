@@ -7,9 +7,13 @@ vi.mock('../src/generators/assemble.mjs', () => ({ runAssemble: vi.fn() }));
 vi.mock('../src/commands/validate-mistral.mjs', () => ({
   runValidateMistral: vi.fn(async () => 'mistral-small-latest'),
 }));
+vi.mock('../src/build-pages-site.mjs', () => ({
+  runBuildPagesSite: vi.fn(),
+}));
 
 const { bootstrapCli, main, runCliEntry, shouldRunCli } = await import('../cli.mjs');
 const { runValidateMistral } = await import('../src/commands/validate-mistral.mjs');
+const { runBuildPagesSite } = await import('../src/build-pages-site.mjs');
 
 describe('cli main', () => {
   beforeEach(() => {
@@ -73,6 +77,11 @@ describe('cli main', () => {
   it('validate-mistral délègue à runValidateMistral', async () => {
     await main(['node', 'cli.mjs', 'validate-mistral']);
     expect(runValidateMistral).toHaveBeenCalled();
+  });
+
+  it('build-pages délègue à runBuildPagesSite', async () => {
+    await main(['node', 'cli.mjs', 'build-pages']);
+    expect(runBuildPagesSite).toHaveBeenCalled();
   });
 
   it('commande inconnue quitte avec code 1', async () => {

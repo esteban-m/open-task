@@ -63,6 +63,7 @@ BACK_PID=$!
 log "Frontend : install + build + preview :${FRONTEND_PORT}"
 (
   cd "${ROOT}/frontend"
+  export NUXT_STORYBOOK=0
   npm ci
   npx nuxt prepare
   npm run build
