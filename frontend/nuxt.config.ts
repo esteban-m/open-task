@@ -1,7 +1,11 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
+/** GitHub Pages subpath when building static Storybook (see docs.yml STORYBOOK_BASE). */
+const storybookBase = process.env.STORYBOOK_BASE?.replace(/\/?$/, '/') ?? ''
+
 export default defineNuxtConfig({
   app: {
+    baseURL: storybookBase || '/',
     head: {
       title: 'Open-Task',
       meta: [{ charset: 'utf-8', name: 'viewport', content: 'width=device-width, initial-scale=1' }],
