@@ -169,7 +169,6 @@ jobs:
       - name: Storybook (build statique)
         working-directory: frontend
         env:
-          NUXT_STORYBOOK: '0'
           STORYBOOK_BASE: /${{ github.event.repository.name }}/storybook/
         run: |
           npm ci
