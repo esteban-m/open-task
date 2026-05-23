@@ -1,3 +1,5 @@
+import type { TaskList } from '~/stores/lists'
+
 /** Logique de la page d’accueil (listes, socket, vues calendrier/kanban). */
 export function useHomePage() {
   const api = useApi()
@@ -9,7 +11,7 @@ export function useHomePage() {
 
   onMounted(async () => {
     try {
-      const lists = await api.get<{ id: string }[]>('/lists')
+      const lists = await api.get<TaskList[]>('/lists')
       listsStore.setLists(lists)
       syncListRooms()
 

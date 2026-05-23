@@ -136,5 +136,5 @@ export function buildUseSocket(isServer: boolean) {
 }
 
 export function useSocket() {
-  return buildUseSocket(import.meta.server)
+  return buildUseSocket(import.meta.server === true)
 }
