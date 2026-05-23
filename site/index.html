@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Open-Task — Portail développeur</title>
+  <link rel="icon" type="image/svg+xml" href="./hero.svg" />
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1220;
+      --surface: #111827;
+      --border: #1f2937;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --brand: #3b82f6;
+      --brand-2: #6366f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(59, 130, 246, 0.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 0%, rgba(99, 102, 241, 0.14), transparent 55%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+    header { text-align: center; margin-bottom: 2.5rem; }
+    .logo { width: 88px; height: 88px; margin: 0 auto 1rem; display: block; }
+    h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); margin: 0 0 0.5rem; letter-spacing: -0.02em; }
+    .tagline { color: var(--muted); max-width: 42rem; margin: 0 auto; font-size: 1.05rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      padding: 1.25rem 1.25rem 1.1rem;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      box-shadow: 0 1px 0 rgba(255,255,255,0.04) inset;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(59, 130, 246, 0.45);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+    }
+    .card h2 { margin: 0 0 0.35rem; font-size: 1.15rem; }
+    .card p { margin: 0; color: var(--muted); font-size: 0.95rem; }
+    .icon { font-size: 1.6rem; margin-bottom: 0.65rem; display: block; }
+    .badge {
+      display: inline-block;
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #bfdbfe;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+    }
+    footer {
+      margin-top: 2.5rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    footer a { color: #93c5fd; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img class="logo" src="./hero.svg" width="88" height="88" alt="Open-Task" />
+      <h1>Open-Task</h1>
+      <p class="tagline">
+        Portail développeur — documentation technique, catalogue de composants UI et API REST interactive.
+      </p>
+    </header>
+
+    <div class="grid">
+      <a class="card" href="__PAGES_BASE__docs/">
+        <span class="icon" aria-hidden="true">📘</span>
+        <h2>Documentation</h2>
+        <p>Guide, architecture, chapitres backend/frontend, référence API et démos GIF.</p>
+        <span class="badge">VitePress</span>
+      </a>
+
+      <a class="card" href="__PAGES_BASE__storybook/">
+        <span class="icon" aria-hidden="true">🎨</span>
+        <h2>Storybook</h2>
+        <p>Composants Vue/Nuxt isolés — logo, thèmes, UI réutilisable.</p>
+        <span class="badge">@nuxtjs/storybook</span>
+      </a>
+
+      <a class="card" href="__PAGES_BASE__swagger/">
+        <span class="icon" aria-hidden="true">⚡</span>
+        <h2>Swagger</h2>
+        <p>Spécification OpenAPI générée depuis NestJS — endpoints, schémas et auth Bearer.</p>
+        <span class="badge">OpenAPI 3</span>
+      </a>
+    </div>
+
+    <footer>
+      <p>
+        <a href="https://github.com/esteban-m/open-task">Code source</a>
+        · démos <a href="__PAGES_BASE__demo/">GIF</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>

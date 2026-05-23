@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
+import { buildOpenApiDocument } from './common/openapi-document';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -31,14 +32,7 @@ async function bootstrap() {
   app.useGlobalFilters(new AllExceptionsFilter());
 
   if (process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true') {
-    const config = new DocumentBuilder()
-      .setTitle('Open-Task API')
-      .setDescription('API de gestion de tâches Open-Task')
-      .setVersion('1.0')
-      .addBearerAuth()
-      .build();
-
-    const document = SwaggerModule.createDocument(app, config);
+    const document = buildOpenApiDocument(app);
     SwaggerModule.setup('api', app, document);
   }
 

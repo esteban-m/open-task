@@ -6,7 +6,7 @@
   "scripts": {
     "prebuild": "node ../scripts/docs/cli.mjs assemble",
     "predev": "node ../scripts/docs/cli.mjs assemble",
-    "build": "vitepress build && rm -rf ../docs-site && cp -r .vitepress/dist ../docs-site",
+    "build": "vitepress build",
     "dev": "vitepress dev",
     "preview": "vitepress preview"
   },

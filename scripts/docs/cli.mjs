@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runPipeline } from './src/pipeline.mjs';
 import { runAssemble } from './src/generators/assemble.mjs';
 import { runValidateMistral } from './src/commands/validate-mistral.mjs';
+import { runBuildPagesSite } from './src/build-pages-site.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
@@ -28,9 +29,12 @@ export async function main(argv = process.argv) {
       console.log(`[mistral] OK — modèle ${model}`);
       break;
     }
+    case 'build-pages':
+      runBuildPagesSite(REPO_ROOT);
+      break;
     default:
       console.error(
-        `Commande inconnue: ${command}\nUsage: node cli.mjs [generate|assemble|validate-mistral]`,
+        `Commande inconnue: ${command}\nUsage: node cli.mjs [generate|assemble|validate-mistral|build-pages]`,
       );
       process.exit(1);
   }

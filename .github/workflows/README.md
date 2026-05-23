@@ -3,7 +3,7 @@
 | Workflow | Déclencheur | Rôle |
 |----------|-------------|------|
 | [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Codecov, wiki (main) |
-| [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Playwright → GIF → VitePress → **GitHub Pages** (GIF sous `/demo/`) |
+| [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Playwright → GIF → portail Pages (docs + Storybook + Swagger) |
 | [**Demo assets**](demo-assets.yml) | PR, `workflow_dispatch` | Valide les démos Playwright + artefact (pas de push `main`) |
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
 
@@ -41,8 +41,18 @@ Guide : [`docs/USAGE.md`](../docs/USAGE.md).
 ## Docs (`docs.yml`)
 
 1. **demo-gifs** — Playwright → `docs/public/demo/` (artefact).
-2. **generate-docs** — génération IA (Mistral), build VitePress (inclut les GIF de l’artefact), artefact Pages.
+2. **generate-docs** — génération IA (Mistral), build VitePress (`/docs/`), export OpenAPI, build Storybook (`/storybook/`), assemblage portail (`docs-site/`).
 3. **deploy-pages** — déploiement (API Pages, **aucun push Git**).
+
+Structure GitHub Pages :
+
+| Chemin | Contenu |
+|--------|---------|
+| `/` | Portail (accueil) |
+| `/docs/` | Documentation VitePress |
+| `/storybook/` | Composants UI (Storybook) |
+| `/swagger/` | API OpenAPI interactive |
+| `/demo/` | GIF Playwright |
 
 Secret `MISTRAL_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
 

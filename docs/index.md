@@ -15,11 +15,14 @@ hero:
       text: Démarrage rapide
       link: /guide/getting-started
     - theme: alt
-      text: Architecture
-      link: /generated/architecture
+      text: Storybook
+      link: ../storybook/
     - theme: alt
-      text: Modèle de données
-      link: /generated/database
+      text: Swagger
+      link: ../swagger/
+    - theme: alt
+      text: Portail
+      link: ../
 
 features:
   - icon: 📘

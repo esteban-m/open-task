@@ -27,7 +27,12 @@ export default defineNuxtConfig({
     }
   },
 
-  modules: ['@nuxt/test-utils/module', '@nuxtjs/tailwindcss', '@pinia/nuxt'],
+  modules: [
+    '@nuxt/test-utils/module',
+    '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
+    ...(process.env.NUXT_STORYBOOK !== '0' ? ['@nuxtjs/storybook'] as const : []),
+  ],
 
   // components/ui/AppLogo.vue → <AppLogo /> (sans préfixe Ui)
   components: [{ path: '~/components/ui', pathPrefix: false }],
@@ -40,4 +45,12 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2026-05-15',
+
+  ...(process.env.NUXT_STORYBOOK !== '0'
+    ? {
+        storybook: {
+          enabled: true,
+        },
+      }
+    : {}),
 })
