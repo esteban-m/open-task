@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
-import { todayIsoDate } from './helpers/dates';
+import { TEST_USER_PASSWORD, testEmail, todayIsoDate } from './helpers/stack';
 
 /** Vérifie qu'un utilisateur ne peut pas accéder aux données d'un autre. */
 describe('Isolation des données (e2e)', () => {
@@ -13,22 +13,22 @@ describe('Isolation des données (e2e)', () => {
   let taskIdA: string;
 
   const userA = {
-    email: `user-a-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('user-a'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Alice',
     lastName: 'Test',
   };
 
   const userB = {
-    email: `user-b-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('user-b'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Bob',
     lastName: 'Test',
   };
 
   const userC = {
-    email: `user-c-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('user-c'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Carol',
     lastName: 'Test',
   };

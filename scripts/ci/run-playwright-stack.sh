@@ -5,8 +5,6 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 COMPOSE_FILE="${ROOT}/docker-compose.test.yml"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-opentask-e2e}"
-BACKEND_PORT="${BACKEND_PORT:-4000}"
-FRONTEND_PORT="${FRONTEND_PORT:-3000}"
 SKIP_DOCKER=false
 KEEP_STACK=false
 
@@ -22,17 +20,12 @@ for arg in "$@"; do
   esac
 done
 
-export DATABASE_URL="${DATABASE_URL:-postgresql://test:test@127.0.0.1:5433/opentask_test}"
-export JWT_SECRET="${JWT_SECRET:-ci_test_secret_long_enough_for_local}"
-export JWT_REFRESH_SECRET="${JWT_REFRESH_SECRET:-ci_test_refresh_secret_long_enough}"
-export FRONTEND_URL="http://127.0.0.1:${FRONTEND_PORT}"
-export NUXT_PUBLIC_API_BASE_URL="http://127.0.0.1:${BACKEND_PORT}"
-export NUXT_PUBLIC_WS_BASE_URL="http://127.0.0.1:${BACKEND_PORT}"
-export PLAYWRIGHT_BASE_URL="http://127.0.0.1:${FRONTEND_PORT}"
+# Variables stack depuis config/open-task.e2e.json (surcharge env possible)
+if [[ "$SKIP_DOCKER" == false ]]; then
+  unset DATABASE_URL
+fi
+eval "$(node "${ROOT}/scripts/ci/cli.mjs" stack-env)"
 export NODE_ENV="${NODE_ENV:-development}"
-export PORT="${BACKEND_PORT}"
-# Propagé au backend (sous-processus) : assouplit le throttle /auth pendant les démos Playwright
-export PLAYWRIGHT_DEMO="${PLAYWRIGHT_DEMO:-}"
 
 BACK_PID=""
 FRONT_PID=""
@@ -80,7 +73,7 @@ FRONT_PID=$!
 log "Attente backend /health et frontend…"
 cd "${ROOT}/e2e"
 npm ci
-npx wait-on -t 120000 \
+npx wait-on -t "${WAIT_ON_TIMEOUT_MS:-120000}" \
   "http-get://127.0.0.1:${BACKEND_PORT}/health" \
   "http-get://127.0.0.1:${FRONTEND_PORT}"
 
@@ -92,7 +85,7 @@ if [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   npm test -- --project=demo-desktop --project=demo-mobile
   log "Conversion vidéos → GIF (docs/public/demo)"
   cd "${ROOT}"
-  node scripts/ci/cli.mjs gifs "${ROOT}/e2e/test-results" "${ROOT}/docs/public/demo"
+  node scripts/ci/cli.mjs gifs
 else
   npm test -- --project=smoke-desktop
 fi

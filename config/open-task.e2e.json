@@ -1,0 +1,67 @@
+{
+  "stack": {
+    "backendPort": 4000,
+    "frontendPort": 3000,
+    "postgresPort": 5433,
+    "postgresUser": "test",
+    "postgresPassword": "test",
+    "postgresDb": "opentask_test",
+    "waitOnTimeoutMs": 120000,
+    "jwtSecret": "ci_test_secret_long_enough_for_local",
+    "jwtRefreshSecret": "ci_test_refresh_secret_long_enough"
+  },
+  "testUser": {
+    "password": "password123",
+    "emailDomain": "example.com",
+    "defaultFirstName": "Demo",
+    "defaultLastName": "User"
+  },
+  "playwright": {
+    "timeoutMs": 90000,
+    "expectTimeoutMs": 15000,
+    "navigationTimeoutMs": 30000,
+    "workers": 4,
+    "retries": {
+      "local": 0,
+      "ci": 2,
+      "ciDemo": 1
+    }
+  },
+  "demo": {
+    "slowMoMs": 240,
+    "pauses": {
+      "stepMs": 500,
+      "sceneMs": 1500,
+      "afterTaskMs": 700,
+      "afterViewMs": 900,
+      "afterThemeMs": 900,
+      "afterCalendarScaleMs": 1100,
+      "beforeDragMs": 400,
+      "afterDragMs": 1000
+    },
+    "gif": {
+      "fps": 8,
+      "widthDesktop": 960,
+      "widthMobile": 390
+    },
+    "paths": {
+      "testResults": "e2e/test-results",
+      "output": "docs/public/demo"
+    },
+    "scenarios": [
+      { "id": "01", "slug": "01-inscription", "file": "01-inscription.demo.ts", "desktop": true, "mobile": true },
+      { "id": "02", "slug": "02-liste-tache", "file": "02-liste-tache.demo.ts", "desktop": true, "mobile": true },
+      { "id": "03", "slug": "03-vues-kanban-calendrier", "file": "03-vues-kanban-calendrier.demo.ts", "desktop": true, "mobile": true },
+      { "id": "04", "slug": "04-connexion", "file": "04-connexion.demo.ts", "desktop": true, "mobile": true },
+      { "id": "05", "slug": "05-mobile-navigation", "file": "05-mobile-navigation.demo.ts", "desktop": false, "mobile": true },
+      { "id": "06", "slug": "06-themes", "file": "06-themes.demo.ts", "desktop": true, "mobile": true },
+      { "id": "07", "slug": "07-kanban-drag", "file": "07-kanban-drag.demo.ts", "desktop": true, "mobile": true },
+      { "id": "08", "slug": "08-calendrier-echelles", "file": "08-calendrier-echelles.demo.ts", "desktop": true, "mobile": true },
+      { "id": "09", "slug": "09-partage-liste", "file": "09-partage-liste.demo.ts", "desktop": true, "mobile": true }
+    ],
+    "projects": {
+      "desktopOutputDir": "test-results/demo-desktop",
+      "mobileOutputDir": "test-results/demo-mobile"
+    }
+  }
+}

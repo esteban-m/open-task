@@ -133,6 +133,8 @@ open-task/
 │   ├── composables/          # useApi · useSocket · useRealtimeSync · useTheme
 │   └── middleware/           # Protection des routes
 │
+├── config/                   # open-task.e2e.json — stack Playwright / démos / test user
+├── e2e/                      # Playwright smoke + démos GIF
 ├── docker-compose.yml
 ├── .env.example
 └── .github/workflows/        # ci.yml · codeql.yml · docs.yml
@@ -208,7 +210,8 @@ Les tests e2e incluent un scénario d'**isolation multi-utilisateurs** (`test/ap
 La couverture **backend e2e** exécute de vrais flux HTTP contre **PostgreSQL** (comme en CI). Sans base, seuls les tests unitaires mockés tournent — les chiffres sont trompeurs.
 
 ```bash
-# Depuis la racine : Postgres Docker (port 5433) + migrations + unit+e2e+frontend+scripts
+# Depuis la racine : Postgres Docker + migrations + unit+e2e+frontend+scripts
+# (ports / JWT / mot de passe test → config/open-task.e2e.json)
 npm run test:coverage
 
 # Garder le conteneur Postgres pour enchaîner plusieurs runs
@@ -219,7 +222,7 @@ npm run test:coverage:keep-db
 
 ```bash
 docker compose -f docker-compose.test.yml -p opentask-test up -d --wait
-export DATABASE_URL=postgresql://test:test@127.0.0.1:5433/opentask_test
+eval "$(node scripts/ci/cli.mjs stack-env)"
 cd backend && npx prisma migrate deploy && npm run test:coverage:ci
 ```
 

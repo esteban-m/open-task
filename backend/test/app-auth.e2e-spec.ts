@@ -1,12 +1,13 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { closeE2eApp, createE2eApp } from './e2e-app';
+import { TEST_USER_PASSWORD, testEmail } from './helpers/stack';
 
 describe('Auth & santé (e2e)', () => {
   let app: INestApplication;
   const user = {
-    email: `auth-e2e-${Date.now()}@example.com`,
-    password: 'password123',
+    email: testEmail('auth-e2e'),
+    password: TEST_USER_PASSWORD,
     firstName: 'Auth',
     lastName: 'E2E',
   };

@@ -1,4 +1,5 @@
 # PostgreSQL dédié aux tests (unit+e2e coverage). Ne pas confondre avec docker-compose.yml (dev).
+# Postgres dédié aux tests E2E / couverture (port = config/open-task.e2e.json → stack.postgresPort).
 # Port 5433 pour éviter le conflit avec Postgres dev sur 5432.
 services:
   postgres:

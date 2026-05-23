@@ -7,6 +7,7 @@ import { runMergeCoverage } from './src/reports/merge-summaries.mjs';
 import { runCoverageMarkdown } from './src/reports/summary-markdown.mjs';
 import { runWikiPages } from './src/reports/wiki-pages.mjs';
 import { runVideosToGifs } from './src/playwright/videos-to-gifs.mjs';
+import { printStackEnv } from './src/core/e2e-config.mjs';
 
 export function shouldRunCli(argv, metaUrl) {
   const entry = argv[1] ? pathToFileURL(path.resolve(argv[1])).href : '';
@@ -33,10 +34,13 @@ export async function main(argv = process.argv) {
     case 'gifs':
       runVideosToGifs(args);
       break;
+    case 'stack-env':
+      process.stdout.write(printStackEnv());
+      break;
     default:
       console.error(
         `Commande inconnue: ${command ?? '(vide)'}\n`
-          + 'Usage: node cli.mjs <merge-coverage|assert-e2e|coverage-markdown|wiki-pages|gifs> [args…]',
+          + 'Usage: node cli.mjs <merge-coverage|assert-e2e|coverage-markdown|wiki-pages|gifs|stack-env> [args…]',
       );
       process.exit(1);
   }
