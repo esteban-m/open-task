@@ -89,6 +89,11 @@ describe('mistral helpers', () => {
     expect(opts.requestDelayMs).toBe(1200);
     expect(opts.retry.maxAttempts).toBe(5);
   });
+
+  it('resolveMistralRequestOptions retombe sur 1500 ms si requestDelayMs absent', () => {
+    const opts = resolveMistralRequestOptions({}, { mistral: { retry: { maxAttempts: 5 } } });
+    expect(opts.requestDelayMs).toBe(1500);
+  });
 });
 
 describe('chatCompletion', () => {
@@ -341,6 +346,17 @@ describe('isMistralCapacityError', () => {
     });
     expect(isMistralCapacityError(429, body)).toBe(true);
     expect(isMistralCapacityError(500, body)).toBe(false);
+  });
+
+  it('détecte le type sans code JSON', () => {
+    const body = JSON.stringify({ type: 'service_tier_capacity_exceeded' });
+    expect(isMistralCapacityError(429, body)).toBe(true);
+  });
+
+  it('détecte via regex si le corps n’est pas du JSON', () => {
+    expect(isMistralCapacityError(429, 'service_tier_capacity_exceeded')).toBe(true);
+    expect(isMistralCapacityError(429, '{"code":"3505"}')).toBe(true);
+    expect(isMistralCapacityError(429, '{"type":"rate_limit"}')).toBe(false);
   });
 });
 
