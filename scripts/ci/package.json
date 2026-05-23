@@ -1,0 +1,19 @@
+{
+  "name": "open-task-ci-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Outils CI : couverture, wiki, Playwright → GIF",
+  "scripts": {
+    "merge-coverage": "node cli.mjs merge-coverage",
+    "assert-e2e": "node cli.mjs assert-e2e",
+    "coverage-markdown": "node cli.mjs coverage-markdown",
+    "wiki-pages": "node cli.mjs wiki-pages",
+    "gifs": "node cli.mjs gifs",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.2.4",
+    "vitest": "^3.2.4"
+  }
+}

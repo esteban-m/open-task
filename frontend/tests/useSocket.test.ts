@@ -75,4 +75,13 @@ describe('useSocket', () => {
     expect(mockDisconnect).toHaveBeenCalled()
     expect(isConnected()).toBe(false)
   })
+
+  it('joinLists enchaîne plusieurs joinList', async () => {
+    mockIoSocket.connected = true
+    const { joinLists, connect } = useSocket()
+    await connect()
+    joinLists(['a', 'b'])
+    expect(mockEmit).toHaveBeenCalledWith('join:list', 'a')
+    expect(mockEmit).toHaveBeenCalledWith('join:list', 'b')
+  })
 })

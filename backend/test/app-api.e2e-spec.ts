@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { closeE2eApp, createE2eApp } from './e2e-app';
+import { todayIsoDate } from './helpers/dates';
 
 describe('API listes & tâches (e2e)', () => {
   let app: INestApplication;
@@ -48,7 +49,7 @@ describe('API listes & tâches (e2e)', () => {
     const task = await request(app.getHttpServer())
       .post(`/lists/${listId}/tasks`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ shortDescription: 'Tâche API', dueDate: '2026-12-31' })
+      .send({ shortDescription: 'Tâche API', dueDate: todayIsoDate() })
       .expect(201);
     taskId = task.body.id;
   });

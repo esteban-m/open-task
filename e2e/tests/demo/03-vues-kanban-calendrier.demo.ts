@@ -7,7 +7,7 @@ test.describe('Démo — Vues Kanban et Calendrier', () => {
   test('vues', async ({ page }) => {
     await registerAndLandOnHome(page);
     await createList(page, 'Planning');
-    await addTask(page, 'Réunion équipe', '2026-06-15');
+    await addTask(page, 'Réunion équipe');
 
     await switchView(page, 'kanban');
     await pauseDemoStep(page, 1200);

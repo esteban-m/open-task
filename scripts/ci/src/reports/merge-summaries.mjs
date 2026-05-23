@@ -1,13 +1,8 @@
-#!/usr/bin/env node
-/**
- * Fusionne plusieurs coverage-summary.json (format Istanbul) en un seul fichier.
- * Usage: node scripts/ci/merge-coverage-summaries.mjs -o out.json a.json b.json
- */
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const METRICS = ['lines', 'statements', 'functions', 'branches'];
+export const METRICS = ['lines', 'statements', 'functions', 'branches'];
 
-function parseArgs(argv) {
+export function parseMergeArgs(argv) {
   const inputs = [];
   let output = 'coverage-summary.json';
   for (let i = 2; i < argv.length; i += 1) {
@@ -18,8 +13,7 @@ function parseArgs(argv) {
     }
   }
   if (inputs.length === 0) {
-    console.error('Usage: merge-coverage-summaries.mjs -o out.json file1.json [file2.json ...]');
-    process.exit(1);
+    throw new Error('Usage: merge-coverage -o out.json file1.json [file2.json ...]');
   }
   return { inputs, output };
 }
@@ -40,7 +34,7 @@ function withPct(metric) {
   };
 }
 
-function mergeSummaries(files) {
+export function mergeSummaries(files) {
   const merged = {};
 
   for (const file of files) {
@@ -52,9 +46,7 @@ function mergeSummaries(files) {
         continue;
       }
       for (const metric of METRICS) {
-        merged[key][metric] = withPct(
-          addMetric(merged[key][metric], entry[metric]),
-        );
+        merged[key][metric] = withPct(addMetric(merged[key][metric], entry[metric]));
       }
     }
   }
@@ -71,6 +63,8 @@ function mergeSummaries(files) {
   return merged;
 }
 
-const { inputs, output } = parseArgs(process.argv);
-writeFileSync(output, `${JSON.stringify(mergeSummaries(inputs), null, 2)}\n`, 'utf8');
-console.log(`[merge-coverage] ${inputs.length} fichier(s) → ${output}`);
+export function runMergeCoverage(argv = process.argv) {
+  const { inputs, output } = parseMergeArgs(argv);
+  writeFileSync(output, `${JSON.stringify(mergeSummaries(inputs), null, 2)}\n`, 'utf8');
+  console.log(`[merge-coverage] ${inputs.length} fichier(s) → ${output}`);
+}
