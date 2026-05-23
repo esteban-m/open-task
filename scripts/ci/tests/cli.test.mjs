@@ -19,6 +19,9 @@ vi.mock('../src/playwright/videos-to-gifs.mjs', () => ({
 vi.mock('../src/core/e2e-config.mjs', () => ({
   printStackEnv: vi.fn(() => 'export FOO=bar\n'),
 }));
+vi.mock('../src/reports/fix-lcov-paths.mjs', () => ({
+  runFixLcovPaths: vi.fn(),
+}));
 
 const { main, runCliEntry, shouldRunCli } = await import('../cli.mjs');
 const { runMergeCoverage } = await import('../src/reports/merge-summaries.mjs');
@@ -27,6 +30,7 @@ const { runCoverageMarkdown } = await import('../src/reports/summary-markdown.mj
 const { runWikiPages } = await import('../src/reports/wiki-pages.mjs');
 const { runVideosToGifs } = await import('../src/playwright/videos-to-gifs.mjs');
 const { printStackEnv } = await import('../src/core/e2e-config.mjs');
+const { runFixLcovPaths } = await import('../src/reports/fix-lcov-paths.mjs');
 
 describe('cli', () => {
   it('shouldRunCli détecte le entrypoint', () => {
@@ -41,15 +45,22 @@ describe('cli', () => {
     expect(runMergeCoverage).toHaveBeenCalledWith(['node', 'cli.mjs', '-o', 'out.json', 'a.json']);
   });
 
-  it('main délègue assert-e2e, coverage-markdown, wiki-pages, gifs', async () => {
+  it('main délègue assert-e2e, coverage-markdown, wiki-pages, gifs, fix-lcov-paths', async () => {
     await main(['node', 'cli.mjs', 'assert-e2e', 'summary.json']);
     await main(['node', 'cli.mjs', 'coverage-markdown', '--summary', 's.json']);
     await main(['node', 'cli.mjs', 'wiki-pages', '--out-dir', 'out']);
     await main(['node', 'cli.mjs', 'gifs']);
+    await main(['node', 'cli.mjs', 'fix-lcov-paths', 'lcov.info', 'backend']);
     expect(runAssertE2e).toHaveBeenCalled();
     expect(runCoverageMarkdown).toHaveBeenCalled();
     expect(runWikiPages).toHaveBeenCalled();
     expect(runVideosToGifs).toHaveBeenCalled();
+    expect(runFixLcovPaths).toHaveBeenCalledWith([
+      'node',
+      'cli.mjs',
+      'lcov.info',
+      'backend',
+    ]);
   });
 
   it('stack-env écrit sur stdout', async () => {

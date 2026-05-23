@@ -329,6 +329,18 @@ jobs:
           test -f frontend/coverage/coverage-summary.json
           test -f scripts/docs/coverage/coverage-summary.json
 
+      - name: Normaliser chemins LCOV (monorepo → racine dépôt)
+        run: |
+          set -euo pipefail
+          node scripts/ci/cli.mjs fix-lcov-paths backend/coverage/lcov.info backend
+          node scripts/ci/cli.mjs fix-lcov-paths backend/coverage-e2e/lcov.info backend
+          node scripts/ci/cli.mjs fix-lcov-paths frontend/coverage/lcov.info frontend
+          node scripts/ci/cli.mjs fix-lcov-paths scripts/docs/coverage/lcov.info scripts/docs
+          s_ci_lcov=$(find _cov/scripts -path '*/scripts/ci/coverage/lcov.info' 2>/dev/null | head -1)
+          s_ci_lcov=${s_ci_lcov:-$(find _cov/scripts -path '*/ci/coverage/lcov.info' ! -path '*docs*' | head -1)}
+          cp "$s_ci_lcov" scripts/ci/coverage/lcov.info
+          node scripts/ci/cli.mjs fix-lcov-paths scripts/ci/coverage/lcov.info scripts/ci
+
       - name: Fusionner résumé monorepo
         run: |
           node scripts/ci/cli.mjs merge-coverage \
@@ -378,7 +390,6 @@ jobs:
           files: frontend/coverage/lcov.info
           flags: frontend
           name: frontend
-          directory: frontend
           disable_search: true
           verbose: false
           fail_ci_if_error: true
