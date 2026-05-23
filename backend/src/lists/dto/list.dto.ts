@@ -2,13 +2,13 @@ import { IsString, MinLength, MaxLength, IsOptional, Matches } from 'class-valid
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateListDto {
-  @ApiProperty({ example: 'Ma liste de travail' })
+  @ApiProperty({ type: String, example: 'Ma liste de travail' })
   @IsString()
   @MinLength(1, { message: 'Le nom ne peut pas être vide' })
   @MaxLength(100, { message: 'Le nom ne peut pas dépasser 100 caractères' })
   name: string;
 
-  @ApiPropertyOptional({ example: '#3B82F6', description: 'List color in hex format' })
+  @ApiPropertyOptional({ type: String, example: '#3B82F6', description: 'List color in hex format' })
   @IsOptional()
   @IsString()
   @Matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {
@@ -18,14 +18,14 @@ export class CreateListDto {
 }
 
 export class UpdateListDto {
-  @ApiPropertyOptional({ example: 'Nouveau nom' })
+  @ApiPropertyOptional({ type: String, example: 'Nouveau nom' })
   @IsOptional()
   @IsString()
   @MinLength(1)
   @MaxLength(100)
   name?: string;
 
-  @ApiPropertyOptional({ example: '#3B82F6', description: 'List color in hex format' })
+  @ApiPropertyOptional({ type: String, example: '#3B82F6', description: 'List color in hex format' })
   @IsOptional()
   @IsString()
   @Matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, {

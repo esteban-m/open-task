@@ -11,7 +11,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody, ApiParam } from '@nestjs/swagger';
 import { TasksService } from './tasks.service';
 import { TasksGateway } from './tasks.gateway';
 import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
@@ -35,18 +35,22 @@ export class TasksController {
   }
 
   @Get('lists/:listId/tasks')
+  @ApiParam({ name: 'listId', description: 'ID de la liste' })
   @ApiOperation({ summary: 'Récupérer toutes les tâches d\'une liste' })
   findAll(@Param('listId') listId: string, @CurrentUser('id') userId: string) {
     return this.tasksService.findAllByList(listId, userId);
   }
 
   @Get('tasks/:id')
+  @ApiParam({ name: 'id', description: 'ID de la tâche' })
   @ApiOperation({ summary: 'Récupérer une tâche par son ID' })
   findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     return this.tasksService.findOne(id, userId);
   }
 
   @Post('lists/:listId/tasks')
+  @ApiParam({ name: 'listId', description: 'ID de la liste' })
+  @ApiBody({ type: () => CreateTaskDto })
   @ApiOperation({ summary: 'Créer une tâche dans une liste' })
   async create(
     @Param('listId') listId: string,
@@ -59,6 +63,8 @@ export class TasksController {
   }
 
   @Put('tasks/:id')
+  @ApiParam({ name: 'id', description: 'ID de la tâche' })
+  @ApiBody({ type: () => UpdateTaskDto })
   @ApiOperation({ summary: 'Mettre à jour une tâche' })
   async update(
     @Param('id') id: string,
@@ -84,6 +90,7 @@ export class TasksController {
 
   @Delete('tasks/:id')
   @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'id', description: 'ID de la tâche' })
   @ApiOperation({ summary: 'Supprimer une tâche' })
   async remove(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const task = await this.tasksService.findOne(id, userId);

@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 const ROLES = ['viewer', 'editor', 'admin'] as const;
 
 export class ShareListDto {
-  @ApiProperty({ example: 'collegue@example.com' })
+  @ApiProperty({ type: String, example: 'collegue@example.com' })
   @IsEmail({}, { message: 'Email invalide' })
   invitedEmail: string;
 
