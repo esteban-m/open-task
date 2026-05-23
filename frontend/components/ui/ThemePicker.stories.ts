@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import ThemePicker from './ThemePicker.vue';
 
 const meta = {
   title: 'UI/ThemePicker',
   component: ThemePicker,
   tags: ['autodocs'],
+  parameters: vueUsageSnippet('<ThemePicker />'),
   argTypes: {
     collapsed: { control: 'boolean' },
   },

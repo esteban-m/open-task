@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import ToastContainer from './ToastContainer.vue';
 import { useToast } from '../../composables/useToast';
 
@@ -7,6 +8,7 @@ const meta = {
   title: 'UI/ToastContainer',
   component: ToastContainer,
   tags: ['autodocs'],
+  parameters: vueUsageSnippet('<ToastContainer />'),
 } satisfies Meta<typeof ToastContainer>;
 
 export default meta;

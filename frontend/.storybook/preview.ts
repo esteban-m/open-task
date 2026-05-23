@@ -5,6 +5,7 @@ import { createPinia } from 'pinia';
 import '../assets/css/main.css';
 import { DEFAULT_THEME_ID } from '../config/themes';
 import { themeDecorator } from './decorators';
+import { storybookDocsDefaults } from './vue-usage-snippet';
 
 const pinia = createPinia();
 
@@ -18,14 +19,21 @@ setup((app) => {
 const preview: Preview = {
   decorators: [themeDecorator],
   parameters: {
+    ...storybookDocsDefaults,
     layout: 'fullscreen',
     controls: {
+      expanded: true,
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/i,
       },
     },
     backgrounds: { disable: true },
+    options: {
+      storySort: {
+        order: ['UI', 'Layout', 'Tasks', 'Lists', 'Kanban', 'Calendar', 'Common'],
+      },
+    },
   },
 };
 

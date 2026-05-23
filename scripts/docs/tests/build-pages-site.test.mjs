@@ -10,6 +10,7 @@ import {
   resolveSwaggerUiRoot,
   runBuildPagesSite,
   writeSwaggerStatic,
+  writeUsageHtmlPage,
 } from '../src/build-pages-site.mjs';
 
 describe('build-pages-site', () => {
@@ -89,6 +90,7 @@ describe('build-pages-site', () => {
 
     const openapi = path.join(repo, 'openapi.json');
     writeFileSync(openapi, '{"paths":{}}');
+    writeFileSync(path.join(repo, 'USAGE.md'), '# Guide\n\n![demo](https://example.com/x.gif)\n');
 
     runBuildPagesSite(repo, {
       outDir: out,
@@ -107,7 +109,17 @@ describe('build-pages-site', () => {
     expect(readFileSync(path.join(out, 'storybook', 'index.html'), 'utf8')).toContain('sb');
     expect(readFileSync(path.join(out, 'swagger', 'openapi.json'), 'utf8')).toContain('paths');
     expect(readFileSync(path.join(out, 'demo', 'readme.txt'), 'utf8')).toBe('demo');
-    expect(readFileSync(path.join(out, 'demo', 'index.html'), 'utf8')).toContain('/open-task/docs/guide/usage');
+    expect(readFileSync(path.join(out, 'demo', 'index.html'), 'utf8')).toContain('/open-task/USAGE.html');
+    expect(readFileSync(path.join(out, 'USAGE.html'), 'utf8')).toContain('Guide');
+    expect(readFileSync(path.join(out, 'USAGE.md'), 'utf8')).toContain('# Guide');
+  });
+
+  it('writeUsageHtmlPage ignore si USAGE.md absent', () => {
+    const repo = path.join(tmp, 'no-usage');
+    const out = path.join(repo, 'site');
+    mkdirSync(out, { recursive: true });
+    writeUsageHtmlPage(out, repo);
+    expect(existsSync(path.join(out, 'USAGE.html'))).toBe(false);
   });
 
   it('runBuildPagesSite sans dossier démo', () => {

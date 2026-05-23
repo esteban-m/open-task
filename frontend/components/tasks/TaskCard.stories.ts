@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { mockTask, mockTaskDone } from '../../.storybook/fixtures';
 import { withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import { useTasksStore } from '../../stores/tasks';
 import TaskCard from './TaskCard.vue';
 
@@ -10,6 +11,7 @@ const meta = {
   component: TaskCard,
   tags: ['autodocs'],
   decorators: [withStores],
+  parameters: vueUsageSnippet('<TaskCard :task="task" />'),
 } satisfies Meta<typeof TaskCard>;
 
 export default meta;

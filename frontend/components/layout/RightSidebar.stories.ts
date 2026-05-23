@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { mockTask } from '../../.storybook/fixtures';
 import { withStores } from '../../.storybook/decorators';
+import { vueUsageSnippet } from '../../.storybook/vue-usage-snippet';
 import { useTasksStore } from '../../stores/tasks';
 import RightSidebar from './RightSidebar.vue';
 
@@ -10,6 +11,7 @@ const meta = {
   component: RightSidebar,
   tags: ['autodocs'],
   decorators: [withStores],
+  parameters: vueUsageSnippet('<RightSidebar />'),
 } satisfies Meta<typeof RightSidebar>;
 
 export default meta;
