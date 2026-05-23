@@ -82,7 +82,7 @@ describe('useSocket', () => {
   })
 
   it('connect sans token ne crée pas de socket', async () => {
-    getToken.mockReturnValue(null)
+    getToken.mockReturnValue(undefined as unknown as string)
     const { connect } = useSocket()
     await connect()
     expect(io).not.toHaveBeenCalled()
