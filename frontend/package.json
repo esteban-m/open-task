@@ -10,7 +10,9 @@
     "generate": "nuxt generate",
     "lint": "nuxt typecheck",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o storybook-static"
   },
   "dependencies": {
     "@pinia/nuxt": "^0.11.3",
@@ -23,12 +25,15 @@
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.23.0",
+    "@nuxtjs/storybook": "^9.0.1",
     "@nuxtjs/tailwindcss": "^6.11.0",
+    "@storybook-vue/nuxt": "9.0.1",
     "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vue/test-utils": "^2.4.6",
     "happy-dom": "^20.0.10",
     "nuxt": "^3.21.6",
+    "storybook": "~9.0.5",
     "typescript": "^5.0.0",
     "vite": "^8.0.13",
     "vitest": "^3.2.4",

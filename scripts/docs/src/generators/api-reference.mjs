@@ -48,7 +48,7 @@ export async function generateApiReference(config, paths) {
   const controllers = await walkControllers(paths.backendSrc);
   const sections = [
     '# Référence API REST\n',
-    '> Extrait des contrôleurs NestJS. Swagger live : `/api` en local.\n',
+    "> Extrait des contrôleurs NestJS. Swagger interactif : `/swagger/` sur GitHub Pages.\n",
   ];
 
   for (const file of controllers.sort()) {

@@ -3,7 +3,8 @@ import { withMermaid } from 'vitepress-mermaid-viewer';
 import generatedSidebar from './sidebar.generated.json';
 
 const repo = process.env.GITHUB_REPOSITORY ?? 'esteban-m/open-task';
-const base = process.env.DOCS_BASE ?? `/${repo.split('/')[1]}/`;
+const repoName = repo.split('/')[1];
+const base = process.env.DOCS_BASE ?? `/${repoName}/docs/`;
 
 export default withMermaid(
   defineConfig({
@@ -30,6 +31,7 @@ export default withMermaid(
       logo: '/hero.svg',
       siteTitle: 'Open-Task',
       nav: [
+        { text: 'Portail', link: '../' },
         { text: 'Guide', link: '/guide/getting-started' },
         { text: 'Architecture', link: '/generated/architecture' },
         { text: 'Backend', link: '/generated/backend/authentication' },

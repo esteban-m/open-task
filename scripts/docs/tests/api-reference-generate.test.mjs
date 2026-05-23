@@ -68,6 +68,7 @@ export class DemoController {
     const out = path.join(vitestDir, 'generated', 'api-reference.md');
     const md = await readFile(out, 'utf8');
     expect(md).toContain('Référence API REST');
+    expect(md).toContain('Swagger interactif');
     expect(md).toContain('| POST |');
     expect(md).toContain('task:created');
   });
