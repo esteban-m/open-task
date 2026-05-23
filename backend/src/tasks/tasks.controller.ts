@@ -81,6 +81,7 @@ export class TasksController {
   }
 
   @Patch('tasks/:id/toggle')
+  @ApiParam({ name: 'id', type: String, format: 'uuid', description: 'ID de la tâche' })
   @ApiOperation({ summary: 'Basculer l\'état terminé/actif d\'une tâche' })
   async toggleComplete(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const task = await this.tasksService.toggleComplete(id, userId);

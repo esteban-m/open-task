@@ -1,6 +1,8 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import type { INestApplication } from '@nestjs/common';
 
+import { normalizeOpenApiDocument } from './openapi-helpers';
+
 export function buildOpenApiDocument(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Open-Task API')
@@ -8,8 +10,8 @@ export function buildOpenApiDocument(app: INestApplication) {
     .setVersion('1.0')
     .addBearerAuth()
     .addServer('http://localhost:4000', 'Développement local')
-    .addServer('/open-task/swagger', 'GitHub Pages (chemin relatif)')
     .build();
 
-  return SwaggerModule.createDocument(app, config);
+  const document = SwaggerModule.createDocument(app, config);
+  return normalizeOpenApiDocument(document);
 }
