@@ -1,11 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
+import { importLine, parts } from '../../.storybook/vue-usage';
 import AppLogo from './AppLogo.vue';
 
 const meta = {
   title: 'UI/AppLogo',
   component: AppLogo,
-  parameters: { layout: 'centered' },
+  parameters: {
+    layout: 'centered',
+    docs: {
+      vueUsage: ({ size = 'sm' }) =>
+        parts(
+          '<AppLogo :size="size" />',
+          `${importLine('AppLogo', '~/components/ui/AppLogo.vue')}
+
+const size = ${JSON.stringify(size)} as const`,
+        ),
+    },
+  },
   argTypes: {
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
