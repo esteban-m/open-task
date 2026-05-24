@@ -122,9 +122,6 @@ jobs:
   frontend:
     name: Frontend · lint & tests
     runs-on: ubuntu-latest
-    env:
-      NUXT_STORYBOOK: '0'
-
     steps:
       - uses: actions/checkout@v6
 
@@ -234,8 +231,6 @@ jobs:
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
       CI: true
-      NUXT_STORYBOOK: '0'
-
     steps:
       - uses: actions/checkout@v6
 

@@ -80,7 +80,7 @@ export function writeUsageHtmlPage(outDir, repoRoot) {
 </head>
 <body>
   <div class="wrap">
-    <p class="top"><a href="./">← Portail</a> · <a href="./docs/">Documentation</a> · <a href="./storybook/">Storybook</a></p>
+    <p class="top"><a href="./">← Portail</a> · <a href="./docs/">Documentation</a> · <a href="./storybook/">Composants UI</a></p>
     ${bodyHtml}
   </div>
 </body>

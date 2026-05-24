@@ -1,10 +1,10 @@
 import { marked } from 'marked'
 import DOMPurify from 'isomorphic-dompurify'
 
-marked.setOptions({
+const MARKDOWN_OPTIONS = {
   gfm: true,
   breaks: true,
-})
+} as const
 
 const SANITIZE_OPTIONS = {
   ADD_TAGS: ['input'],
@@ -13,7 +13,7 @@ const SANITIZE_OPTIONS = {
 
 export function renderMarkdown(source: string | null | undefined): string {
   if (!source?.trim()) return ''
-  const raw = marked.parse(source, { async: false }) as string
+  const raw = marked.parse(source, { async: false, ...MARKDOWN_OPTIONS }) as string
   return DOMPurify.sanitize(raw, SANITIZE_OPTIONS)
 }
 

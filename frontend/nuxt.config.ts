@@ -1,11 +1,7 @@
 import { defineNuxtConfig } from 'nuxt/config'
 
-/** GitHub Pages subpath when building static Storybook (see docs.yml STORYBOOK_BASE). */
-const storybookBase = process.env.STORYBOOK_BASE?.replace(/\/?$/, '/') ?? ''
-
 export default defineNuxtConfig({
   app: {
-    baseURL: storybookBase || '/',
     head: {
       title: 'Open-Task',
       meta: [{ charset: 'utf-8', name: 'viewport', content: 'width=device-width, initial-scale=1' }],
@@ -35,7 +31,6 @@ export default defineNuxtConfig({
     '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
-    ...(process.env.NUXT_STORYBOOK !== '0' ? ['@nuxtjs/storybook'] as const : []),
   ],
 
   // components/ui/AppLogo.vue → <AppLogo /> (sans préfixe Ui)
@@ -49,12 +44,4 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2026-05-15',
-
-  ...(process.env.NUXT_STORYBOOK !== '0'
-    ? {
-        storybook: {
-          enabled: true,
-        },
-      }
-    : {}),
 })

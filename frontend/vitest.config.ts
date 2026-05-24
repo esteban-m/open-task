@@ -26,7 +26,7 @@ export default defineVitestConfig({
         'middleware/**/*.ts',
         'plugins/**/*.ts',
       ],
-      exclude: ['**/*.d.ts', 'tests/**', '.nuxt/**', '.output/**'],
+      exclude: ['**/*.d.ts', '**/*.story.vue', 'tests/**', '.nuxt/**', '.output/**'],
       all: true,
       thresholds: {
         lines: 100,

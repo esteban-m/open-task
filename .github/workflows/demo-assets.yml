@@ -46,8 +46,6 @@ jobs:
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
       PLAYWRIGHT_DEMO: '1'
-      NUXT_STORYBOOK: '0'
-
     steps:
       - uses: actions/checkout@v6
         with:
