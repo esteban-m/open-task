@@ -1,3 +1,5 @@
+import { formatVueUsageSource } from './vue-source-format';
+
 /** Panneau Code dynamique — pas d’autodocs (pas de tag, pas de `autodocs` dans main). */
 export const codePanelParameters = {
   docs: {
@@ -7,6 +9,7 @@ export const codePanelParameters = {
       type: 'dynamic' as const,
       excludeDecorators: true,
       language: 'vue',
+      transform: formatVueUsageSource,
     },
   },
 };
