@@ -2,6 +2,7 @@ import { defineSetupVue3 } from '@histoire/plugin-vue';
 import { createPinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 
+import { useTheme } from './composables/useTheme';
 import { DEFAULT_THEME_ID } from './config/themes';
 
 import './assets/css/main.css';
@@ -17,8 +18,6 @@ export const setupVue3 = defineSetupVue3(({ app }) => {
     document.head.appendChild(link);
   }
 
-  document.documentElement.setAttribute('data-theme', DEFAULT_THEME_ID);
-
   const pinia = createPinia();
   const router = createRouter({
     history: createMemoryHistory(),
@@ -30,4 +29,9 @@ export const setupVue3 = defineSetupVue3(({ app }) => {
 
   app.use(pinia);
   app.use(router);
+
+  // Même comportement que plugins/theme.client.ts
+  const { initTheme } = useTheme();
+  initTheme();
+  document.documentElement.setAttribute('data-theme', DEFAULT_THEME_ID);
 });
