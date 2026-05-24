@@ -1,15 +1,15 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    './components/**/*.{js,vue,ts}',
+    './components/**/*.{vue,ts,js}',
+    './components/**/*.story.vue',
+    './histoire/**/*.{vue,ts,js}',
     './layouts/**/*.vue',
     './pages/**/*.vue',
     './plugins/**/*.{js,ts}',
-    './.storybook/**/*.{js,ts}',
     './composables/**/*.{js,ts}',
     './stores/**/*.{js,ts}',
     './app.vue',
-    './components/**/*.stories.@(js|ts)',
   ],
   theme: {
     extend: {
@@ -60,4 +60,4 @@ module.exports = {
     },
   },
   plugins: [],
-}
+};

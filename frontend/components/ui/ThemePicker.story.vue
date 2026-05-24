@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 import ThemePicker from './ThemePicker.vue';
 
 const state = reactive({
@@ -10,22 +12,22 @@ const state = reactive({
 
 <template>
   <Story title="UI/ThemePicker">
-    <Variant title="Expanded">
-      <div class="w-64 min-h-[320px] bg-surface text-text p-6 font-sans antialiased">
+    <Variant title="Expanded" :source="usage.themePicker(false)">
+      <StoryPreview frame="theme-picker">
         <ThemePicker :collapsed="false" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Collapsed">
-      <div class="w-64 min-h-[320px] bg-surface text-text p-6 font-sans antialiased">
+    <Variant title="Collapsed" :source="usage.themePicker(true)">
+      <StoryPreview frame="theme-picker">
         <ThemePicker :collapsed="true" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Interactive">
-      <div class="w-64 min-h-[320px] bg-surface text-text p-6 font-sans antialiased">
+    <Variant title="Interactive" :source="usage.themePicker(state.collapsed)">
+      <StoryPreview frame="theme-picker">
         <ThemePicker :collapsed="state.collapsed" />
-      </div>
+      </StoryPreview>
 
       <template #controls>
         <HstCheckbox v-model="state.collapsed" title="collapsed" />

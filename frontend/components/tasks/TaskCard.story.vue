@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { mockTask, mockTaskDone } from '../../histoire/fixtures';
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 import { useTasksStore } from '~/stores/tasks';
 
 import TaskCard from './TaskCard.vue';
@@ -13,22 +15,22 @@ function selectTask() {
 
 <template>
   <Story title="Tasks/TaskCard" :setup-app="seedStores">
-    <Variant title="Active">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Active" :source="usage.taskCard(mockTask)">
+      <StoryPreview>
         <TaskCard :task="mockTask" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Completed">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Completed" :source="usage.taskCard(mockTaskDone)">
+      <StoryPreview>
         <TaskCard :task="mockTaskDone" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Selected" :setup-app="selectTask">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Selected" :source="usage.taskCard(mockTask, true)" :setup-app="selectTask">
+      <StoryPreview>
         <TaskCard :task="mockTask" />
-      </div>
+      </StoryPreview>
     </Variant>
   </Story>
 </template>

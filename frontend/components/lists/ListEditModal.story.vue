@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { mockList } from '../../histoire/fixtures';
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 
 import ListEditModal from './ListEditModal.vue';
 
@@ -15,10 +17,10 @@ function onSaved() {
 
 <template>
   <Story title="Lists/ListEditModal" :setup-app="seedStores">
-    <Variant title="Default">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Default" :source="usage.listEditModal(mockList)">
+      <StoryPreview>
         <ListEditModal :list="mockList" @close="onClose" @saved="onSaved" />
-      </div>
+      </StoryPreview>
     </Variant>
   </Story>
 </template>

@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 
 import LeftSidebar from './LeftSidebar.vue';
 </script>
 
 <template>
-  <Story title="Layout/LeftSidebar" :setup-app="seedStores">
-    <Variant title="Default">
-      <div class="w-72 h-[560px] border border-border rounded-lg overflow-hidden">
+  <Story title="Layout/LeftSidebar" :setup-app="seedStores" :layout="{ type: 'single', iframe: false }">
+    <Variant title="Default" :source="usage.leftSidebar()">
+      <StoryPreview frame="sidebar">
         <LeftSidebar />
-      </div>
+      </StoryPreview>
     </Variant>
   </Story>
 </template>

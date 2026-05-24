@@ -41,7 +41,7 @@ Guide : [`USAGE.md`](../USAGE.md).
 ## Docs (`docs.yml`)
 
 1. **demo-gifs** — Playwright → `docs/public/demo/` (artefact).
-2. **generate-docs** — génération IA (Mistral), build VitePress (`/docs/`), export OpenAPI, build Histoire (`/storybook/`), assemblage portail (`docs-site/`).
+2. **generate-docs** — génération IA (Mistral), build VitePress (`/docs/`), export OpenAPI, build Histoire (`/histoire/`), assemblage portail (`docs-site/`).
 3. **deploy-pages** — déploiement (API Pages, **aucun push Git**).
 
 Structure GitHub Pages :
@@ -50,7 +50,7 @@ Structure GitHub Pages :
 |--------|---------|
 | `/` | Portail (accueil) |
 | `/docs/` | Documentation VitePress |
-| `/storybook/` | Composants UI (Histoire) |
+| `/histoire/` | Composants UI (Histoire) |
 | `/swagger/` | API OpenAPI interactive |
 | `/demo/` | GIF Playwright |
 

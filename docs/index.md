@@ -16,7 +16,7 @@ hero:
       link: /guide/getting-started
     - theme: alt
       text: Composants UI
-      link: ../storybook/
+      link: ../histoire/
     - theme: alt
       text: Swagger
       link: ../swagger/

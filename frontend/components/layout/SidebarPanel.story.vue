@@ -2,6 +2,8 @@
 import { reactive } from 'vue';
 
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 
 import SidebarPanel from './SidebarPanel.vue';
 
@@ -11,7 +13,7 @@ const state = reactive({
 });
 
 function onToggleCollapse() {
-  // basculer collapsed côté parent
+  state.collapsed = !state.collapsed;
 }
 
 function onCloseDrawer() {
@@ -24,9 +26,9 @@ function onLogout() {
 </script>
 
 <template>
-  <Story title="Layout/SidebarPanel" :setup-app="seedStores">
-    <Variant title="Expanded">
-      <div class="w-72 h-[520px] border border-border rounded-lg overflow-hidden flex flex-col">
+  <Story title="Layout/SidebarPanel" :setup-app="seedStores" :layout="{ type: 'single', iframe: false }">
+    <Variant title="Expanded" :source="usage.sidebarPanel(false, false)">
+      <StoryPreview frame="sidebar-panel">
         <SidebarPanel
           :collapsed="false"
           :mobile="false"
@@ -34,11 +36,11 @@ function onLogout() {
           @close-drawer="onCloseDrawer"
           @logout="onLogout"
         />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Collapsed">
-      <div class="w-16 h-[520px] border border-border rounded-lg overflow-hidden flex flex-col">
+    <Variant title="Collapsed" :source="usage.sidebarPanel(true, false)">
+      <StoryPreview frame="sidebar-collapsed">
         <SidebarPanel
           :collapsed="true"
           :mobile="false"
@@ -46,14 +48,11 @@ function onLogout() {
           @close-drawer="onCloseDrawer"
           @logout="onLogout"
         />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Interactive">
-      <div
-        class="border border-border rounded-lg overflow-hidden flex flex-col"
-        :class="state.collapsed ? 'w-16 h-[520px]' : 'w-72 h-[520px]'"
-      >
+    <Variant title="Interactive" :source="usage.sidebarPanel(state.collapsed, state.mobile)">
+      <StoryPreview :frame="state.collapsed ? 'sidebar-collapsed' : 'sidebar-panel'">
         <SidebarPanel
           :collapsed="state.collapsed"
           :mobile="state.mobile"
@@ -61,7 +60,7 @@ function onLogout() {
           @close-drawer="onCloseDrawer"
           @logout="onLogout"
         />
-      </div>
+      </StoryPreview>
 
       <template #controls>
         <HstCheckbox v-model="state.collapsed" title="collapsed" />

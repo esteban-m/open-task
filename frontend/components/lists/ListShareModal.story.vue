@@ -3,6 +3,8 @@ import { reactive } from 'vue';
 
 import { mockList } from '../../histoire/fixtures';
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 
 import ListShareModal from './ListShareModal.vue';
 
@@ -23,8 +25,8 @@ function onRefresh() {
 
 <template>
   <Story title="Lists/ListShareModal" :setup-app="seedStores">
-    <Variant title="Default">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Default" :source="usage.listShareModal(state)">
+      <StoryPreview>
         <ListShareModal
           :list-id="state.listId"
           :list-name="state.listName"
@@ -32,7 +34,7 @@ function onRefresh() {
           @close="onClose"
           @refresh="onRefresh"
         />
-      </div>
+      </StoryPreview>
 
       <template #controls>
         <HstText v-model="state.listName" title="listName" />

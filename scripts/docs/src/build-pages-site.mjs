@@ -80,7 +80,7 @@ export function writeUsageHtmlPage(outDir, repoRoot) {
 </head>
 <body>
   <div class="wrap">
-    <p class="top"><a href="./">← Portail</a> · <a href="./docs/">Documentation</a> · <a href="./storybook/">Composants UI</a></p>
+    <p class="top"><a href="./">← Portail</a> · <a href="./docs/">Documentation</a> · <a href="./histoire/">Composants UI</a></p>
     ${bodyHtml}
   </div>
 </body>
@@ -127,7 +127,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   const outDir = resolve(options.outDir ?? join(repoRoot, 'docs-site'));
   const pagesBase = options.pagesBase ?? pagesBaseFromRepo(repoRoot);
   const docsDist = resolve(options.docsDist ?? join(repoRoot, 'docs/.vitepress/dist'));
-  const storybookDist = resolve(options.storybookDist ?? join(repoRoot, 'frontend/storybook-static'));
+  const histoireDist = resolve(options.histoireDist ?? options.storybookDist ?? join(repoRoot, 'frontend/histoire-static'));
   const openapiJson = resolve(options.openapiJson ?? join(repoRoot, 'backend/openapi.json'));
   const hubDir = resolve(options.hubDir ?? join(repoRoot, 'docs/hub'));
   const hubHero = resolve(options.hubHero ?? join(repoRoot, 'docs/public/hero.svg'));
@@ -143,7 +143,7 @@ export function runBuildPagesSite(repoRoot, options = {}) {
   }
   writeUsageHtmlPage(outDir, repoRoot);
   copyDir(docsDist, join(outDir, 'docs'));
-  copyDir(storybookDist, join(outDir, 'storybook'));
+  copyDir(histoireDist, join(outDir, 'histoire'));
   writeSwaggerStatic(
     join(outDir, 'swagger'),
     openapiJson,
