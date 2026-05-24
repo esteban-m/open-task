@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
+
 import ConfirmModal from './ConfirmModal.vue';
 
 const state = reactive({
@@ -20,8 +23,8 @@ function onCancel() {
 
 <template>
   <Story title="Layout/ConfirmModal">
-    <Variant title="Default">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Default" :source="usage.confirmModal(state)">
+      <StoryPreview>
         <ConfirmModal
           :title="state.title"
           :message="state.message"
@@ -29,7 +32,7 @@ function onCancel() {
           @confirm="onConfirm"
           @cancel="onCancel"
         />
-      </div>
+      </StoryPreview>
 
       <template #controls>
         <HstText v-model="state.title" title="title" />

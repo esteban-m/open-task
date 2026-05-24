@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useToast } from '~/composables/useToast';
 
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 import ToastContainer from './ToastContainer.vue';
 
 function setupWithToasts() {
@@ -13,16 +15,16 @@ function setupWithToasts() {
 
 <template>
   <Story title="UI/ToastContainer">
-    <Variant title="With toasts" :setup-app="setupWithToasts">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="With toasts" :source="usage.toastContainer(true)" :setup-app="setupWithToasts">
+      <StoryPreview>
         <ToastContainer />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Empty">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Empty" :source="usage.toastContainer(false)">
+      <StoryPreview>
         <ToastContainer />
-      </div>
+      </StoryPreview>
     </Variant>
   </Story>
 </template>

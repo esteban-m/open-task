@@ -169,7 +169,7 @@ jobs:
       - name: Histoire (build statique)
         working-directory: frontend
         env:
-          HISTOIRE_BASE: /${{ github.event.repository.name }}/storybook/
+          HISTOIRE_BASE: /${{ github.event.repository.name }}/histoire/
         run: |
           npm ci
           npx nuxt prepare

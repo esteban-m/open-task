@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
+import StoryPreview from '../../histoire/StoryPreview.vue';
 import { MARKDOWN_SAMPLE } from '../../histoire/fixtures';
+import { usage } from '../../histoire/source';
 import MarkdownContent from './MarkdownContent.vue';
 
 const state = reactive({
@@ -13,34 +15,46 @@ const state = reactive({
 
 <template>
   <Story title="Common/MarkdownContent">
-    <Variant title="Default">
-      <div class="min-h-[320px] max-w-xl bg-surface text-text p-6 font-sans antialiased">
-        <MarkdownContent
-          :content="MARKDOWN_SAMPLE"
-          :compact="false"
-          :interactive-checklists="false"
-        />
-      </div>
+    <Variant
+      title="Default"
+      :source="usage.markdownContent({ compact: false, interactiveChecklists: false })"
+    >
+      <StoryPreview frame="centered">
+        <div class="max-w-xl w-full">
+          <MarkdownContent
+            :content="MARKDOWN_SAMPLE"
+            :compact="false"
+            :interactive-checklists="false"
+          />
+        </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Compact">
-      <div class="min-h-[320px] max-w-xl bg-surface text-text p-6 font-sans antialiased">
-        <MarkdownContent
-          :content="MARKDOWN_SAMPLE"
-          :compact="true"
-          :interactive-checklists="false"
-        />
-      </div>
+    <Variant title="Compact" :source="usage.markdownContent({ compact: true, interactiveChecklists: false })">
+      <StoryPreview frame="centered">
+        <div class="max-w-xl w-full">
+          <MarkdownContent
+            :content="MARKDOWN_SAMPLE"
+            :compact="true"
+            :interactive-checklists="false"
+          />
+        </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Interactive">
-      <div class="min-h-[320px] max-w-xl bg-surface text-text p-6 font-sans antialiased">
-        <MarkdownContent
-          :content="state.content"
-          :compact="state.compact"
-          :interactive-checklists="state.interactiveChecklists"
-        />
-      </div>
+    <Variant
+      title="Interactive"
+      :source="usage.markdownContent(state)"
+    >
+      <StoryPreview frame="centered">
+        <div class="max-w-xl w-full">
+          <MarkdownContent
+            :content="state.content"
+            :compact="state.compact"
+            :interactive-checklists="state.interactiveChecklists"
+          />
+        </div>
+      </StoryPreview>
 
       <template #controls>
         <HstTextarea v-model="state.content" title="content" />

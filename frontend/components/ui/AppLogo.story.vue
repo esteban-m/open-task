@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 import AppLogo from './AppLogo.vue';
 
 const state = reactive({
@@ -10,28 +12,28 @@ const state = reactive({
 
 <template>
   <Story title="UI/AppLogo">
-    <Variant title="Small">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Small" :source="usage.appLogo('sm')">
+      <StoryPreview>
         <AppLogo size="sm" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Medium">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Medium" :source="usage.appLogo('md')">
+      <StoryPreview>
         <AppLogo size="md" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Large">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Large" :source="usage.appLogo('lg')">
+      <StoryPreview>
         <AppLogo size="lg" />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Interactive">
-      <div class="min-h-[320px] bg-surface text-text p-6 font-sans antialiased flex items-center justify-center">
+    <Variant title="Interactive" :source="usage.appLogo(state.size)">
+      <StoryPreview>
         <AppLogo :size="state.size" />
-      </div>
+      </StoryPreview>
 
       <template #controls>
         <HstSelect

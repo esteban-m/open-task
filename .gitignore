@@ -65,6 +65,7 @@ docs/public/demo/INDEX.md
 # Documentation générée (CI → GitHub Pages)
 docs-site/
 backend/openapi.json
+frontend/histoire-static/
 frontend/storybook-static/
 docs/_book/
 docs/.vitepress/dist/

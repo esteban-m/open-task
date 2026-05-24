@@ -63,11 +63,11 @@ describe('build-pages-site', () => {
     expect(readFileSync(path.join(out, 'index.html'), 'utf8')).toContain('swagger-ui');
   });
 
-  it('runBuildPagesSite assemble hub, docs, storybook, swagger et démos', () => {
+  it('runBuildPagesSite assemble hub, docs, histoire, swagger et démos', () => {
     const repo = path.join(tmp, 'repo');
     const hub = path.join(repo, 'docs/hub');
     const docsDist = path.join(repo, 'docs-dist');
-    const storybook = path.join(repo, 'storybook-static');
+    const histoire = path.join(repo, 'histoire-static');
     const demo = path.join(repo, 'demo');
     const publicDir = path.join(repo, 'docs/public');
     const swaggerUi = path.join(repo, 'swagger-ui');
@@ -79,8 +79,8 @@ describe('build-pages-site', () => {
     writeFileSync(path.join(publicDir, 'hero.svg'), '<svg/>');
     mkdirSync(docsDist, { recursive: true });
     writeFileSync(path.join(docsDist, 'index.html'), '<html>docs</html>');
-    mkdirSync(storybook, { recursive: true });
-    writeFileSync(path.join(storybook, 'index.html'), '<html>sb</html>');
+    mkdirSync(histoire, { recursive: true });
+    writeFileSync(path.join(histoire, 'index.html'), '<html>hi</html>');
     mkdirSync(demo, { recursive: true });
     writeFileSync(path.join(demo, 'readme.txt'), 'demo');
     mkdirSync(swaggerUi, { recursive: true });
@@ -97,7 +97,7 @@ describe('build-pages-site', () => {
       pagesBase: '/open-task/',
       hubDir: hub,
       docsDist,
-      storybookDist: storybook,
+      histoireDist: histoire,
       openapiJson: openapi,
       demoDir: demo,
       swaggerUiRoot: swaggerUi,
@@ -106,7 +106,7 @@ describe('build-pages-site', () => {
     expect(readFileSync(path.join(out, 'index.html'), 'utf8')).toBe('<html>/open-task/docs/</html>');
     expect(readFileSync(path.join(out, 'hero.svg'), 'utf8')).toBe('<svg/>');
     expect(readFileSync(path.join(out, 'docs', 'index.html'), 'utf8')).toContain('docs');
-    expect(readFileSync(path.join(out, 'storybook', 'index.html'), 'utf8')).toContain('sb');
+    expect(readFileSync(path.join(out, 'histoire', 'index.html'), 'utf8')).toContain('hi');
     expect(readFileSync(path.join(out, 'swagger', 'openapi.json'), 'utf8')).toContain('paths');
     expect(readFileSync(path.join(out, 'demo', 'readme.txt'), 'utf8')).toBe('demo');
     expect(readFileSync(path.join(out, 'demo', 'index.html'), 'utf8')).toContain('/open-task/USAGE.html');
@@ -126,7 +126,7 @@ describe('build-pages-site', () => {
     const repo = path.join(tmp, 'repo-min');
     const hub = path.join(repo, 'docs/hub');
     const docsDist = path.join(repo, 'docs-dist');
-    const storybook = path.join(repo, 'storybook-static');
+    const histoire = path.join(repo, 'histoire-static');
     const swaggerUi = path.join(repo, 'swagger-ui');
     const out = path.join(repo, 'out');
 
@@ -134,8 +134,8 @@ describe('build-pages-site', () => {
     writeFileSync(path.join(hub, 'index.html'), '<html>__PAGES_BASE__</html>');
     mkdirSync(docsDist, { recursive: true });
     writeFileSync(path.join(docsDist, 'index.html'), 'docs');
-    mkdirSync(storybook, { recursive: true });
-    writeFileSync(path.join(storybook, 'index.html'), 'sb');
+    mkdirSync(histoire, { recursive: true });
+    writeFileSync(path.join(histoire, 'index.html'), 'hi');
     mkdirSync(swaggerUi, { recursive: true });
     writeFileSync(path.join(swaggerUi, 'swagger-ui.css'), '');
     writeFileSync(path.join(swaggerUi, 'swagger-ui-bundle.js'), '');
@@ -148,7 +148,7 @@ describe('build-pages-site', () => {
       pagesBase: '/x/',
       hubDir: hub,
       docsDist,
-      storybookDist: storybook,
+      histoireDist: histoire,
       openapiJson: openapi,
       demoDir: path.join(repo, 'missing-demo'),
       swaggerUiRoot: swaggerUi,
@@ -161,7 +161,7 @@ describe('build-pages-site', () => {
     const repo = path.join(tmp, 'repo-no-hero');
     const hub = path.join(repo, 'docs/hub');
     const docsDist = path.join(repo, 'docs/.vitepress/dist');
-    const storybook = path.join(repo, 'frontend/storybook-static');
+    const histoire = path.join(repo, 'frontend/histoire-static');
     const swaggerUi = path.join(repo, 'backend/node_modules/swagger-ui-dist');
     const out = path.join(repo, 'out');
 
@@ -169,8 +169,8 @@ describe('build-pages-site', () => {
     writeFileSync(path.join(hub, 'index.html'), '__PAGES_BASE__');
     mkdirSync(docsDist, { recursive: true });
     writeFileSync(path.join(docsDist, 'index.html'), 'docs');
-    mkdirSync(storybook, { recursive: true });
-    writeFileSync(path.join(storybook, 'index.html'), 'sb');
+    mkdirSync(histoire, { recursive: true });
+    writeFileSync(path.join(histoire, 'index.html'), 'hi');
     mkdirSync(swaggerUi, { recursive: true });
     writeFileSync(path.join(swaggerUi, 'package.json'), '{}');
     writeFileSync(path.join(swaggerUi, 'swagger-ui.css'), '');
@@ -207,12 +207,12 @@ describe('build-pages-site', () => {
     const repoRoot = path.resolve(fileURLToPath(new URL('.', import.meta.url)), '../../..');
     const hub = path.join(tmp, 'site-cli');
     const docsDist = path.join(tmp, 'docs-cli');
-    const storybook = path.join(tmp, 'sb-cli');
+    const histoire = path.join(tmp, 'hi-cli');
     const swaggerUi = path.join(tmp, 'sw-cli');
     mkdirSync(hub, { recursive: true });
     writeFileSync(path.join(hub, 'index.html'), '__PAGES_BASE__');
     mkdirSync(docsDist, { recursive: true });
-    mkdirSync(storybook, { recursive: true });
+    mkdirSync(histoire, { recursive: true });
     mkdirSync(swaggerUi, { recursive: true });
     writeFileSync(path.join(swaggerUi, 'swagger-ui.css'), '');
     writeFileSync(path.join(swaggerUi, 'swagger-ui-bundle.js'), '');
@@ -228,7 +228,7 @@ describe('build-pages-site', () => {
       outDir: path.join(tmp, 'cli-out'),
       hubDir: hub,
       docsDist,
-      storybookDist: storybook,
+      histoireDist: histoire,
       openapiJson: openapiPath,
       swaggerUiRoot: swaggerUi,
     });

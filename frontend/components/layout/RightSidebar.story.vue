@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { mockTask } from '../../histoire/fixtures';
 import { seedStores } from '../../histoire/seed-stores';
+import StoryPreview from '../../histoire/StoryPreview.vue';
+import { usage } from '../../histoire/source';
 import { useTasksStore } from '~/stores/tasks';
 
 import RightSidebar from './RightSidebar.vue';
@@ -12,17 +14,17 @@ function selectTask() {
 </script>
 
 <template>
-  <Story title="Layout/RightSidebar" :setup-app="seedStores">
-    <Variant title="With selection" :setup-app="selectTask">
-      <div class="w-80 h-[560px] border border-border rounded-lg overflow-hidden">
+  <Story title="Layout/RightSidebar" :setup-app="seedStores" :layout="{ type: 'single', iframe: false }">
+    <Variant title="With selection" :source="usage.rightSidebar(true)" :setup-app="selectTask">
+      <StoryPreview frame="right-sidebar">
         <RightSidebar />
-      </div>
+      </StoryPreview>
     </Variant>
 
-    <Variant title="Empty">
-      <div class="w-80 h-[560px] border border-border rounded-lg overflow-hidden">
+    <Variant title="Empty" :source="usage.rightSidebar(false)">
+      <StoryPreview frame="right-sidebar">
         <RightSidebar />
-      </div>
+      </StoryPreview>
     </Variant>
   </Story>
 </template>

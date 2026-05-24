@@ -1,5 +1,7 @@
 import { fileURLToPath, URL } from 'node:url';
 
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 import { HstVue } from '@histoire/plugin-vue';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'histoire';
@@ -11,7 +13,7 @@ const nuxtAppMock = fileURLToPath(new URL('./histoire/mocks/nuxt-app.ts', import
 
 export default defineConfig({
   plugins: [HstVue()],
-  outDir: 'storybook-static',
+  outDir: 'histoire-static',
   routerMode: 'hash',
   setupFile: {
     browser: './histoire-setup.ts',
@@ -19,10 +21,19 @@ export default defineConfig({
   collectMaxThreads: 1,
   storyMatch: ['**/components/**/*.story.vue'],
   theme: {
-    title: 'Open-Task',
+    title: 'Open-Task — Composants',
     favicon: './public/hero.svg',
     defaultColorScheme: 'dark',
   },
+  responsivePresets: [
+    { label: 'Mobile', width: 375 },
+    { label: 'Tablet', width: 768 },
+    { label: 'Desktop', width: 1280 },
+  ],
+  backgroundPresets: [
+    { label: 'App surface', color: '#0f0f10' },
+    { label: 'Light', color: '#f4f4f5', contrastColor: '#18181b' },
+  ],
   viteNodeInlineDeps: [
     'marked',
     'isomorphic-dompurify',
@@ -35,6 +46,11 @@ export default defineConfig({
         '~': rootDir,
         '@': rootDir,
         '#app': nuxtAppMock,
+      },
+    },
+    css: {
+      postcss: {
+        plugins: [tailwindcss(), autoprefixer()],
       },
     },
     plugins: [
