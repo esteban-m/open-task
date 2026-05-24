@@ -172,6 +172,7 @@ jobs:
           HISTOIRE_BASE: /${{ github.event.repository.name }}/storybook/
         run: |
           npm ci
+          npx nuxt prepare
           npm run build-histoire
 
       - name: Assembler portail GitHub Pages
