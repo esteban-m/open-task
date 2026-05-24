@@ -7,9 +7,14 @@ import vue from '@vitejs/plugin-vue';
 import { defineConfig } from 'histoire';
 import AutoImport from 'unplugin-auto-import/vite';
 
+/**
+ * @histoire/plugin-nuxt est prévu pour ce cas (https://github.com/histoire-dev/histoire/tree/main/packages/histoire-plugin-nuxt)
+ * mais échoue encore sur Nuxt 3.21 en collecte (#build/nuxt.config.mjs). On réutilise la config Vite/Nuxt
+ * minimale ci-dessous jusqu'à compatibilité upstream ; les mocks dans histoire/mocks/ comblent les auto-imports.
+ */
 const histoireBase = process.env.HISTOIRE_BASE?.replace(/\/?$/, '/') ?? '/';
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
-const nuxtAppMock = fileURLToPath(new URL('./histoire/mocks/nuxt-app.ts', import.meta.url));
+const nuxtMocks = fileURLToPath(new URL('./histoire/mocks/nuxt-app.ts', import.meta.url));
 
 export default defineConfig({
   plugins: [HstVue()],
@@ -34,18 +39,14 @@ export default defineConfig({
     { label: 'App surface', color: '#0f0f10' },
     { label: 'Light', color: '#f4f4f5', contrastColor: '#18181b' },
   ],
-  viteNodeInlineDeps: [
-    'marked',
-    'isomorphic-dompurify',
-    'dompurify',
-  ],
+  viteNodeInlineDeps: ['marked', 'isomorphic-dompurify', 'dompurify'],
   vite: {
     base: histoireBase,
     resolve: {
       alias: {
         '~': rootDir,
         '@': rootDir,
-        '#app': nuxtAppMock,
+        '#app': nuxtMocks,
       },
     },
     css: {
@@ -61,7 +62,7 @@ export default defineConfig({
           'pinia',
           'vue-router',
           {
-            [nuxtAppMock]: ['useNuxtApp', 'useRuntimeConfig', '$fetch'],
+            [nuxtMocks]: ['useNuxtApp', 'useRuntimeConfig', '$fetch', 'useState'],
           },
         ],
         dirs: ['composables', 'stores'],
