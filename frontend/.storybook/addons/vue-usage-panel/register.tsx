@@ -8,13 +8,10 @@ import {
 } from 'storybook/manager-api';
 import { styled, useTheme, themes, ThemeProvider, convert } from 'storybook/theming';
 
-import { splitVueUsageSource } from '../../vue-source-format';
-
 const ADDON_ID = 'open-task/vue-usage';
 const PANEL_ID = `${ADDON_ID}/panel`;
 const PARAM_KEY = 'docs';
-/** Même événement que @storybook/addon-docs Code panel. */
-const SNIPPET_RENDERED = 'storybook/docs/snippet-rendered';
+const VUE_USAGE_SNIPPET = 'open-task/vue-usage/snippet';
 
 const PanelRoot = styled.div({
   height: '100%',
@@ -59,6 +56,8 @@ const EmptyHint = styled.p(({ theme }) => ({
   fontStyle: 'italic',
 }));
 
+type UsageParts = { template: string | null; script: string | null };
+
 function UsageCodeBlock({ code, dark }: { code: string; dark: boolean }) {
   const theme = useTheme();
   const overrideTheme = dark ? themes.dark : themes.light;
@@ -82,49 +81,53 @@ function VueUsagePanel({ active }: { active: boolean }) {
   const api = useStorybookApi();
   const channel = api.getChannel();
   const currentStory = api.getCurrentStoryData();
-  const lastEvent = channel?.last(SNIPPET_RENDERED)?.[0] as { source?: string } | undefined;
+  const lastEvent = channel?.last(VUE_USAGE_SNIPPET)?.[0] as
+    | { template?: string; script?: string }
+    | undefined;
 
-  const [source, setSource] = useState<string | undefined>(lastEvent?.source);
+  const [parts, setParts] = useState<UsageParts>({
+    template: lastEvent?.template ?? null,
+    script: lastEvent?.script ?? null,
+  });
   const isDark = useTheme().base !== 'light';
 
   useEffect(() => {
-    setSource(undefined);
+    setParts({ template: null, script: null });
   }, [currentStory?.id]);
 
   useChannel({
-    [SNIPPET_RENDERED]: (payload: { source?: string }) => {
-      setSource(payload.source);
+    [VUE_USAGE_SNIPPET]: (payload: { template?: string; script?: string }) => {
+      setParts({
+        template: payload.template ?? null,
+        script: payload.script ?? null,
+      });
     },
   });
 
-  const storyTitle = currentStory?.title ?? '';
-  const parts = useMemo(
-    () => (source ? splitVueUsageSource(source, storyTitle) : { template: null, script: null }),
-    [source, storyTitle],
-  );
+  const display = useMemo(() => parts, [parts]);
 
   return (
     <AddonPanel active={active}>
       <PanelRoot>
         <Section>
           <SectionTitle>Template</SectionTitle>
-          {parts.template ? (
+          {display.template ? (
             <CodeWrap>
-              <UsageCodeBlock code={parts.template} dark={isDark} />
+              <UsageCodeBlock code={display.template} dark={isDark} />
             </CodeWrap>
           ) : (
-            <EmptyHint>Aucun markup — sélectionnez une story avec args.</EmptyHint>
+            <EmptyHint>Chargement du template…</EmptyHint>
           )}
         </Section>
 
         <Section>
           <SectionTitle>Script</SectionTitle>
-          {parts.script ? (
+          {display.script ? (
             <CodeWrap>
-              <UsageCodeBlock code={parts.script} dark={isDark} />
+              <UsageCodeBlock code={display.script} dark={isDark} />
             </CodeWrap>
           ) : (
-            <EmptyHint>Aucun script requis pour cette story.</EmptyHint>
+            <EmptyHint>Chargement du script…</EmptyHint>
           )}
         </Section>
       </PanelRoot>

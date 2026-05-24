@@ -6,6 +6,7 @@ import '../assets/css/main.css';
 import { DEFAULT_THEME_ID } from '../config/themes';
 import { codePanelParameters } from './code-panel';
 import { themeDecorator } from './decorators';
+import { usageSnippetDecorator } from './usage-preview';
 
 const pinia = createPinia();
 
@@ -17,7 +18,7 @@ setup((app) => {
 });
 
 const preview: Preview = {
-  decorators: [themeDecorator],
+  decorators: [themeDecorator, usageSnippetDecorator],
   parameters: {
     ...codePanelParameters,
     layout: 'padded',
