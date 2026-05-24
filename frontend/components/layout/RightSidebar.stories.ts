@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { mockTask } from '../../.storybook/fixtures';
 import { rightSidebarFrameDecorator, withStores } from '../../.storybook/decorators';
+import { importLine, parts, scriptSeedStores, scriptSelectTask } from '../../.storybook/vue-usage';
 import { useTasksStore } from '../../stores/tasks';
 import RightSidebar from './RightSidebar.vue';
 
@@ -18,6 +19,31 @@ export const WithSelection: Story = {
   play: () => {
     useTasksStore().selectTask(mockTask.id);
   },
+  parameters: {
+    docs: {
+      vueUsage: parts(
+        '<RightSidebar />',
+        `${scriptSeedStores()}
+
+${scriptSelectTask(mockTask.id)}
+
+${importLine('RightSidebar', '~/components/layout/RightSidebar.vue')}`,
+      ),
+    },
+  },
 };
 
-export const Empty: Story = {};
+export const Empty: Story = {
+  parameters: {
+    docs: {
+      vueUsage: parts(
+        '<RightSidebar />',
+        `${scriptSeedStores()}
+
+${importLine('RightSidebar', '~/components/layout/RightSidebar.vue')}
+
+// Aucune tâche sélectionnée : panneau vide`,
+      ),
+    },
+  },
+};

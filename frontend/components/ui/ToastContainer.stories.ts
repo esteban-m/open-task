@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/vue3';
 
 import { useToast } from '../../composables/useToast';
+import { importLine, parts } from '../../.storybook/vue-usage';
 import ToastContainer from './ToastContainer.vue';
 
 const meta = {
@@ -19,6 +20,39 @@ export const WithToasts: Story = {
     toast.error('Impossible de supprimer la tâche');
     toast.info('Invitation envoyée');
   },
+  parameters: {
+    docs: {
+      vueUsage: parts(
+        '<ToastContainer />',
+        `${importLine('ToastContainer', '~/components/ui/ToastContainer.vue')}
+import { useToast } from '~/composables/useToast'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  const toast = useToast()
+  toast.success('Liste créée avec succès')
+  toast.error('Impossible de supprimer la tâche')
+  toast.info('Invitation envoyée')
+})`,
+      ),
+    },
+  },
 };
 
-export const Empty: Story = {};
+export const Empty: Story = {
+  parameters: {
+    docs: {
+      vueUsage: parts(
+        '<ToastContainer />',
+        `${importLine('ToastContainer', '~/components/ui/ToastContainer.vue')}
+import { useToast } from '~/composables/useToast'
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  const toast = useToast()
+  // Exemple : toast.success('Opération réussie')
+})`,
+      ),
+    },
+  },
+};
