@@ -1,9 +1,9 @@
-# Documentation + portail GitHub Pages (docs, Storybook, Swagger)
+# Documentation + portail GitHub Pages (docs, Histoire, Swagger)
 # - Démos : Playwright → GIF dans docs/public/demo/ (servis par Pages, pas de push main)
 # - Diagramme : GitDiagram (logique) + Mistral AI
 # - Modules : Docudoodle (équivalent TS) + Mistral AI
 # - BDD : ERD Prisma (Mermaid)
-# - Site : portail racine + VitePress (/docs) + Storybook + Swagger → Pages
+# - Site : portail racine + VitePress (/docs) + Histoire + Swagger → Pages
 #
 # Secret requis : MISTRAL_API_KEY (Settings → Secrets → Actions)
 # Ne jamais committer de clé API dans le dépôt.
@@ -62,8 +62,6 @@ jobs:
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
       PLAYWRIGHT_DEMO: '1'
-      NUXT_STORYBOOK: '0'
-
     steps:
       - uses: actions/checkout@v6
 
@@ -168,14 +166,13 @@ jobs:
           npx prisma generate
           npm run export:openapi
 
-      - name: Storybook (build statique)
+      - name: Histoire (build statique)
         working-directory: frontend
         env:
-          STORYBOOK_BASE: /${{ github.event.repository.name }}/storybook/
+          HISTOIRE_BASE: /${{ github.event.repository.name }}/storybook/
         run: |
           npm ci
-          NUXT_STORYBOOK=0 npx nuxi prepare
-          npm run build-storybook
+          npm run build-histoire
 
       - name: Assembler portail GitHub Pages
         env:

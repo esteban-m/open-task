@@ -15,7 +15,7 @@ hero:
       text: Démarrage rapide
       link: /guide/getting-started
     - theme: alt
-      text: Storybook
+      text: Composants UI
       link: ../storybook/
     - theme: alt
       text: Swagger

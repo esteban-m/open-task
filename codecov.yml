@@ -6,8 +6,8 @@
 # Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
 ignore:
   - "frontend/pages/**"
-  - "frontend/.storybook/**"
-  - "frontend/**/*.stories.ts"
+  - "frontend/histoire/**"
+  - "frontend/**/*.story.vue"
   - "backend/scripts/**"
   - "backend/src/**/*.module.ts"
   - "backend/src/**/dto/**"

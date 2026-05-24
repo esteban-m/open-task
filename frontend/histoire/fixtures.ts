@@ -28,7 +28,7 @@ export const mockList2: TaskList = {
 export const mockTask: Task = {
   id: 'task-demo-1',
   shortDescription: 'Finaliser la documentation API',
-  longDescription: '- [ ] Schémas OpenAPI\n- [x] Storybook complet\n\n**Priorité haute**',
+  longDescription: '- [ ] Schémas OpenAPI\n- [x] Catalogue Histoire complet\n\n**Priorité haute**',
   dueDate: '2026-06-15',
   completed: false,
   completedAt: null,
@@ -54,3 +54,10 @@ export const mockTaskKanban: Task = {
   listId: mockList2.id,
   list: { id: mockList2.id, name: mockList2.name, color: mockList2.color ?? null },
 };
+
+export const MARKDOWN_SAMPLE = `# Notes
+
+- [ ] Point ouvert
+- [x] Point fait
+
+**Gras** et _italique_ avec un [lien](https://example.com).`;
