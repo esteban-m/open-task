@@ -124,6 +124,33 @@ describe('codecov runtime branches', () => {
     expect(switchList).not.toHaveBeenCalled()
   })
 
+  it('useHomePage garde la tâche sélectionnée si elle reste dans tasks', async () => {
+    vi.spyOn(runtimeFlags, 'isRuntimeClient').mockReturnValue(true)
+    await mountSuspended(Harness)
+    await vi.waitFor(() => expect(get).toHaveBeenCalled())
+    const tasks = useTasksStore()
+    const lists = useListsStore()
+    tasks.tasks = [
+      {
+        id: 'in-list',
+        listId: 'l1',
+        shortDescription: 'Visible',
+        longDescription: null,
+        dueDate: '',
+        completed: false,
+        completedAt: null,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ]
+    tasks.selectTask('in-list')
+    lists.selectList('l1')
+    await nextTick()
+    lists.selectList('l2')
+    await nextTick()
+    expect(tasks.selectedTaskId).toBe('in-list')
+  })
+
   it('useHomePage conserve la sélection si la tâche est dans allTasks', async () => {
     vi.spyOn(runtimeFlags, 'isRuntimeClient').mockReturnValue(true)
     await mountSuspended(Harness)

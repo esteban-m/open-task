@@ -74,6 +74,19 @@ describe('summary-markdown', () => {
     expect(badgeColor(65, 65, 85)).toBe('yellow');
   });
 
+  it('buildCoverageFragments utilise 0 si covered/total absents', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cov-md-nulls-'));
+    const summary = path.join(dir, 'nulls.json');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { pct: 42 } } }));
+    const { linesPath } = buildCoverageFragments(summary, {
+      outDir: dir,
+      prefix: 'nulls',
+      warning: 50,
+      good: 80,
+    });
+    expect(readFileSync(linesPath, 'utf8')).toContain('0 / 0');
+  });
+
   it('buildCoverageFragments tolère des métriques partielles', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'cov-md-partial-'));
     const summary = path.join(dir, 'partial.json');

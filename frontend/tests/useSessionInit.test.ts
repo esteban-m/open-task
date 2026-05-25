@@ -53,6 +53,33 @@ describe('useSessionInit', () => {
     expect(nuxtFetchMock).not.toHaveBeenCalled()
   })
 
+  it('abandonne si Pinia disparaît pendant le refresh', async () => {
+    resetSessionInit()
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    nuxtFetchMock.mockImplementation(async () => {
+      vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+      return { accessToken: 'late' }
+    })
+    await ensureSession()
+    expect(useAuthStore(pinia).accessToken).toBeNull()
+  })
+
+  it('passe un Pinia explicite à getAuthStore', async () => {
+    resetSessionInit()
+    const pinia = createPinia()
+    nuxtFetchMock
+      .mockResolvedValueOnce({ accessToken: 'explicit' })
+      .mockResolvedValueOnce({
+        id: 'u2',
+        email: 'b@c.fr',
+        firstName: 'B',
+        lastName: 'C',
+      })
+    await ensureSession(pinia)
+    expect(useAuthStore(pinia).accessToken).toBe('explicit')
+  })
+
   it('efface le store si refresh échoue', async () => {
     resetSessionInit()
     const pinia = createPinia()

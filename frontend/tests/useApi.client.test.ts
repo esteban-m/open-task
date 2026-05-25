@@ -7,6 +7,24 @@ vi.mock('~/composables/useSessionInit', () => ({
 }))
 
 describe('createApiClient', () => {
+  it('réinitialise refreshPromise après chaque refresh', async () => {
+    const fetchAuth = vi
+      .fn()
+      .mockResolvedValueOnce({ accessToken: 'a' })
+      .mockResolvedValueOnce({ accessToken: 'b' })
+    const client = createApiClient({
+      apiBase: 'http://api.test',
+      getToken: () => 'tok',
+      setToken: vi.fn(),
+      clearToken: vi.fn(),
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
+    })
+
+    await expect(client.refreshAccessToken()).resolves.toBe('a')
+    await expect(client.refreshAccessToken()).resolves.toBe('b')
+    expect(fetchAuth).toHaveBeenCalledTimes(2)
+  })
+
   it('déduplique refreshAccessToken', async () => {
     const fetchAuth = vi.fn(
       () =>

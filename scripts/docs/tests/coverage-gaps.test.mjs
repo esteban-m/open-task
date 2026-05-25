@@ -398,6 +398,87 @@ export class ItemsController {
     }
   });
 
+  it('architecture utilise le texte brut si extractMermaidBlock échoue', async () => {
+    vi.resetModules();
+    const chatCompletion = vi
+      .fn()
+      .mockResolvedValueOnce('<explanation>OK</explanation>')
+      .mockResolvedValueOnce('flowchart LR\n  A --> B');
+    vi.doMock('../src/services/mistral.mjs', () => ({
+      chatCompletion,
+      extractMermaidBlock: () => null,
+      extractXmlTag: (t, tag) => t.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`))?.[1]?.trim() ?? t,
+      resolveMistralCredentials: () => ({ apiKey: 'k', model: 'mistral-small-latest' }),
+      resolveMistralRequestOptions: () => ({ retry: { maxAttempts: 1 }, requestDelayMs: 0 }),
+    }));
+    const { generateArchitecture } = await import('../src/generators/architecture.mjs');
+    const config = await (await import('../src/core/config.mjs')).loadConfig();
+    const paths = (await import('../src/core/paths.mjs')).createPaths(repoRoot, config);
+    const outDir = await mkdtemp(path.join(os.tmpdir(), 'arch-raw-mermaid-'));
+    paths.generatedDir = outDir;
+    paths.generatedFile = (name) => path.join(outDir, name);
+    try {
+      await generateArchitecture(config, paths, { MISTRAL_API_KEY: 'test-key' });
+      const md = await readFile(paths.generatedFile('architecture.md'), 'utf8');
+      expect(md).toContain('flowchart LR');
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+      vi.doUnmock('../src/services/mistral.mjs');
+      vi.resetModules();
+    }
+  });
+
+  it('links — label seul via labelToHref et section voir aussi vide', () => {
+    const valid = new Set(['/guide/start']);
+    const maps = buildDocTitleMaps({
+      navigation: { generatedPages: [], staticPages: [] },
+      chapters: [],
+      defaultSeeAlso: [{ label: 'Start', href: '/guide/start' }],
+      linkLabelAliases: [{ label: 'Start', href: '/guide/start', title: 'Démarrage' }],
+    });
+    const out = repairVoirAussiSection(
+      `## Voir aussi
+Start
+`,
+      valid,
+      {},
+      maps,
+    );
+    expect(out).toContain('[Démarrage](/guide/start)');
+
+    const onlyDefault = repairVoirAussiSection('## Voir aussi\n\n', valid, {}, maps);
+    expect(onlyDefault).toContain('[Start](/guide/start)');
+  });
+
+  it('github — token Authorization et filtre maxFiles en walk', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'gh-max-'));
+    for (let i = 0; i < 5; i += 1) {
+      await writeFile(path.join(dir, `file${i}.txt`), `${i}\n`, 'utf8');
+    }
+    const tree = await buildLocalFileTree(dir, 2);
+    expect(tree.split('\n').filter(Boolean).length).toBeLessThanOrEqual(2);
+
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ default_branch: 'main', description: '' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tree: [
+            { type: 'blob', path: 'node_modules/pkg/index.js' },
+            { type: 'blob', path: 'src/a.ts' },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({ ok: false, status: 404 });
+    const data = await fetchGithubTree({ owner: 'o', repo: 'r', token: 'ghp_test' });
+    expect(data.fileTree).not.toContain('node_modules/pkg/index.js');
+    expect(globalThis.fetch.mock.calls[0][1].headers.Authorization).toContain('ghp_test');
+  });
+
   it('generateChapters applique le cooldown à partir du 2e chapitre', async () => {
     vi.resetModules();
     const chatCompletion = vi.fn().mockResolvedValue('# Chapitre\n');

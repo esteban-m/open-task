@@ -60,8 +60,28 @@ describe('merge-summaries', () => {
       }),
     );
     const merged = mergeSummaries([a, b]);
-    expect(merged['file/shared.ts'].lines.covered).toBe(5);
-    expect(merged['file/shared.ts'].lines.total).toBe(10);
+    expect(merged['file/shared.ts'].lines.covered).toBe(3);
+    expect(merged['file/shared.ts'].lines.total).toBe(5);
+    expect(merged['file/shared.ts'].lines.pct).toBe(60);
+  });
+
+  it('unionne unit + e2e sans double-compter les lignes', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cov-unit-e2e-'));
+    const unit = path.join(dir, 'unit.json');
+    const e2e = path.join(dir, 'e2e.json');
+    const entry = { lines: { total: 10, covered: 10, skipped: 0, pct: 100 } };
+    writeFileSync(unit, JSON.stringify({ 'backend/src/auth.service.ts': entry, total: entry }));
+    writeFileSync(
+      e2e,
+      JSON.stringify({
+        'backend/src/auth.service.ts': { lines: { total: 10, covered: 4, skipped: 0, pct: 40 } },
+        total: { lines: { total: 10, covered: 4, skipped: 0, pct: 40 } },
+      }),
+    );
+    const merged = mergeSummaries([unit, e2e]);
+    expect(merged['backend/src/auth.service.ts'].lines.pct).toBe(100);
+    expect(merged.total.lines.total).toBe(10);
+    expect(merged.total.lines.covered).toBe(10);
   });
 
   it('parseMergeArgs exige des entrées', () => {
