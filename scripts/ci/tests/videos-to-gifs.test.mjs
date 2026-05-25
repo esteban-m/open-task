@@ -91,6 +91,33 @@ describe('videos-to-gifs helpers', () => {
     expect(() => resolveSafeDir(outside, 'x', fakeRoot)).toThrow(/hors du dépôt/);
   });
 
+  it('scanResultRoot ignore les fichiers et chemins hors racine', () => {
+    const base = workDir('.vitest-scan-skip');
+    rmSync(base, { recursive: true, force: true });
+    mkdirSync(base, { recursive: true });
+    writeFileSync(path.join(base, 'not-a-dir.txt'), 'mock');
+    expect(scanResultRoot(base, 'desktop')).toEqual([]);
+
+    const nested = path.join(base, 'demo-01-inscription-demo-desktop');
+    mkdirSync(nested, { recursive: true });
+    writeFileSync(path.join(nested, 'video.webm'), 'mock');
+    const found = scanResultRoot(base, 'desktop');
+    expect(found.some((v) => v.slug === '01-inscription')).toBe(true);
+  });
+
+  it('buildManifest affiche — pour variantes manquantes', () => {
+    const md = buildManifest([{ slug: '01-inscription', variant: 'desktop' }]);
+    expect(md).toContain('| 01-inscription | desktop/01-inscription.gif | — |');
+  });
+
+  it('toGif utilise le message de sortie par défaut', () => {
+    const video = workDir('.vitest-video2.webm');
+    const out = workDir('.vitest-out2.gif');
+    writeFileSync(video, 'mock');
+    vi.mocked(spawnSync).mockReturnValue({ status: 2, stderr: '' });
+    expect(() => toGif(video, out, 100, 8)).toThrow(/ffmpeg exit 2/);
+  });
+
   it('scanResultRoot gère répertoire absent et imbrication', () => {
     expect(scanResultRoot('/chemin/inexistant', 'desktop')).toEqual([]);
 
@@ -167,6 +194,19 @@ describe('videos-to-gifs helpers', () => {
     expect(log).toHaveBeenCalledWith(expect.stringMatching(/\[gif\] 1 GIF/));
 
     log.mockRestore();
+  });
+
+  it('runVideosToGifs génère un GIF mobile', () => {
+    const root = repoRoot();
+    const results = workDir('.vitest-playwright-results');
+    const out = workDir('.vitest-demo-out');
+    const mobile = path.join(results, 'demo-mobile', 'demo-01-inscription-demo-mobile');
+    mkdirSync(mobile, { recursive: true });
+    writeFileSync(path.join(mobile, 'video.webm'), 'mock');
+    vi.mocked(spawnSync).mockReturnValue({ status: 0 });
+    e2eMocks.expectedOverride = { desktop: [], mobile: ['01-inscription'] };
+    const written = runVideosToGifs(['node', 'cli', results, out], root);
+    expect(written.some((w) => w.variant === 'mobile')).toBe(true);
   });
 
   it('runVideosToGifs convertit puis valide les GIF attendus', () => {

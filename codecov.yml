@@ -22,17 +22,17 @@ coverage:
   status:
     project:
       backend:
-        target: 75%
+        target: 90%
         threshold: 2%
         flags:
           - backend
       frontend:
-        target: 75%
+        target: 90%
         threshold: 2%
         flags:
           - frontend
       scripts:
-        target: 75%
+        target: 90%
         threshold: 2%
         flags:
           - scripts

@@ -111,4 +111,29 @@ describe('wiki-pages', () => {
     expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Scripts CI');
     expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Indisponible');
   });
+
+  it('runWikiPages utilise runUrl par défaut', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-default-url-'));
+    const summary = path.join(dir, 'summary.json');
+    const lines = path.join(dir, 'lines.md');
+    const badge = path.join(dir, 'badge.md');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { total: 1, covered: 1, pct: 100 } } }));
+    writeFileSync(lines, 'lines');
+    writeFileSync(badge, 'badge');
+    const outDir = path.join(dir, 'wiki-out');
+    runWikiPages([
+      'node',
+      'cli',
+      '--out-dir',
+      outDir,
+      '--sha',
+      'sha1',
+      '--repo-root',
+      dir,
+      '--package',
+      `Couverture-des-tests:Vue:${summary}:${lines}:${badge}`,
+    ]);
+    const index = readFileSync(path.join(outDir, 'Couverture-des-tests.md'), 'utf8');
+    expect(index).toContain('github.com/esteban-m/open-task/actions');
+  });
 });

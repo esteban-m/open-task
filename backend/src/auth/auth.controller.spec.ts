@@ -106,3 +106,20 @@ describe('AuthController', () => {
     expect(mockAuthService.getMe).toHaveBeenCalledWith('u1');
   });
 });
+
+describe('AUTH_THROTTLE_LIMIT', () => {
+  const originalDemo = process.env.PLAYWRIGHT_DEMO;
+
+  afterEach(() => {
+    if (originalDemo === undefined) delete process.env.PLAYWRIGHT_DEMO;
+    else process.env.PLAYWRIGHT_DEMO = originalDemo;
+    jest.resetModules();
+  });
+
+  it('relaxe la limite en mode démo Playwright', async () => {
+    process.env.PLAYWRIGHT_DEMO = '1';
+    jest.resetModules();
+    const { AUTH_THROTTLE_LIMIT } = await import('./auth.controller');
+    expect(AUTH_THROTTLE_LIMIT).toBe(500);
+  });
+});

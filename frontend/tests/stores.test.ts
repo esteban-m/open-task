@@ -13,6 +13,7 @@ describe('Pinia stores', () => {
   describe('useAuthStore', () => {
     it('tracks token and user', () => {
       const store = useAuthStore()
+      expect(store.fullName).toBe('')
       store.setToken('tok')
       store.setUser({
         id: 'u1',
@@ -45,6 +46,7 @@ describe('Pinia stores', () => {
 
       store.removeList('l1')
       expect(store.lists).toHaveLength(0)
+      store.selectList(null)
       expect(store.selectedListId).toBeNull()
     })
   })
@@ -70,9 +72,12 @@ describe('Pinia stores', () => {
       store.setTasks([task])
       expect(store.tasks).toHaveLength(1)
 
+      store.selectTask('t1')
       store.removeTask('t1')
       expect(store.tasks).toHaveLength(0)
       expect(store.allTasks).toHaveLength(0)
+      expect(store.selectedTaskId).toBeNull()
+      expect(store.selectedTask).toBeNull()
     })
 
     it('addTask pushes to active list tasks', () => {

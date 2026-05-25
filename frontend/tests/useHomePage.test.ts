@@ -57,6 +57,24 @@ describe('useHomePage', () => {
     await vi.waitFor(() => expect(loadAllTasksForCalendar).toHaveBeenCalled())
   })
 
+  it('charge le calendrier pour la vue kanban', async () => {
+    localStorage.setItem('mainContentView', 'kanban')
+    await mountSuspended(Harness)
+    await vi.waitFor(() => expect(loadAllTasksForCalendar).toHaveBeenCalled())
+  })
+
+  it('ignore un changement de liste identique', async () => {
+    await mountSuspended(Harness)
+    await vi.waitFor(() => expect(get).toHaveBeenCalled())
+    const lists = useListsStore()
+    lists.selectList('l1')
+    await nextTick()
+    const calls = switchList.mock.calls.length
+    lists.selectList('l1')
+    await nextTick()
+    expect(switchList.mock.calls.length).toBe(calls)
+  })
+
   it('réagit au changement de liste sélectionnée', async () => {
     await mountSuspended(Harness)
     await vi.waitFor(() => expect(get).toHaveBeenCalled())

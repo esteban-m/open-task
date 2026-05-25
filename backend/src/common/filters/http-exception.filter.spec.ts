@@ -42,4 +42,18 @@ describe('HttpExceptionFilter', () => {
       }),
     );
   });
+
+  it('gère une exception sans getStatus et un corps objet sans message', () => {
+    const { host, status, json } = mockHost();
+    const exception = {
+      getResponse: () => ({ error: 'x' }),
+    } as unknown as HttpException;
+
+    filter.catch(exception, host);
+
+    expect(status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Erreur interne' }),
+    );
+  });
 });

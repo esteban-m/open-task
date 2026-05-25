@@ -14,9 +14,12 @@ import { Logger, UnauthorizedException } from '@nestjs/common';
 import { ListAccessService } from '../common/list-access/list-access.service';
 import { PrismaService } from '../prisma/prisma.service';
 
+export const TASKS_GATEWAY_CORS_ORIGIN =
+  process.env.FRONTEND_URL || 'http://localhost:3000';
+
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: TASKS_GATEWAY_CORS_ORIGIN,
     credentials: true,
   },
   namespace: '/',

@@ -36,6 +36,13 @@ describe('cli main', () => {
     const meta = 'file:///repo/scripts/docs/cli.mjs';
     expect(shouldRunCli(['node', '/repo/scripts/docs/cli.mjs'], meta)).toBe(true);
     expect(shouldRunCli(['node', '/repo/node_modules/vitest/vitest.mjs'], meta)).toBe(false);
+    expect(shouldRunCli(['node'], meta)).toBe(false);
+  });
+
+  it('main utilise generate par défaut', async () => {
+    const { runPipeline } = await import('../src/pipeline.mjs');
+    await main(['node', 'cli.mjs']);
+    expect(runPipeline).toHaveBeenCalled();
   });
 
   it('bootstrapCli noop hors entrypoint', () => {

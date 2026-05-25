@@ -42,4 +42,22 @@ describe('useAuth', () => {
     auth.clear()
     expect(useAuthStore().isAuthenticated).toBe(false)
   })
+
+  it('fonctionne sans Pinia (no-op)', () => {
+    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    const auth = useAuth()
+
+    expect(auth.getToken()).toBeNull()
+    expect(auth.getUser()).toBeNull()
+    expect(auth.isAuthenticated).toBe(false)
+    auth.setToken('x')
+    auth.setUser({
+      id: 'u1',
+      email: 'a@b.fr',
+      firstName: 'A',
+      lastName: 'B',
+    })
+    auth.clear()
+    expect(auth.getToken()).toBeNull()
+  })
 })

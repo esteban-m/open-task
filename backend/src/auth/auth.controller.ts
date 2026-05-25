@@ -19,7 +19,7 @@ import { REFRESH_COOKIE_OPTIONS, REFRESH_COOKIE_CLEAR_OPTIONS } from './auth-coo
 import { Throttle } from '@nestjs/throttler';
 
 /** Suite Playwright démo : nombreuses inscriptions d’affilée (CI GIF). */
-const AUTH_THROTTLE_LIMIT =
+export const AUTH_THROTTLE_LIMIT =
   process.env.PLAYWRIGHT_DEMO === '1' ? 500 : 10;
 
 @ApiTags('auth')

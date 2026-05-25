@@ -36,8 +36,19 @@ describe('cli', () => {
   it('shouldRunCli détecte le entrypoint', () => {
     const meta = new URL('../cli.mjs', import.meta.url).href;
     expect(shouldRunCli(['node', '/abs/cli.mjs'], meta)).toBe(false);
+    expect(shouldRunCli(['node'], meta)).toBe(false);
     const cliPath = fileURLToPath(new URL('../cli.mjs', import.meta.url));
     expect(shouldRunCli(['node', cliPath], meta)).toBe(true);
+  });
+
+  it('main sans commande affiche usage', async () => {
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined);
+    const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    await main(['node', 'cli.mjs']);
+    expect(exit).toHaveBeenCalledWith(1);
+    expect(err).toHaveBeenCalledWith(expect.stringContaining('(vide)'));
+    exit.mockRestore();
+    err.mockRestore();
   });
 
   it('main délègue merge-coverage', async () => {
@@ -92,11 +103,12 @@ describe('cli', () => {
     const cliPath = fileURLToPath(new URL('../cli.mjs', import.meta.url));
     const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined);
     const err = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const boom = new Error('boom');
     vi.mocked(runMergeCoverage).mockImplementation(() => {
-      throw new Error('boom');
+      throw boom;
     });
     await runCliEntry(['node', cliPath, 'merge-coverage'], meta);
-    expect(err).toHaveBeenCalled();
+    expect(err).toHaveBeenCalledWith(boom.stack);
     expect(exit).toHaveBeenCalledWith(1);
     exit.mockRestore();
     err.mockRestore();

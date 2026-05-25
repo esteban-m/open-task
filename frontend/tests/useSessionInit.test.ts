@@ -8,11 +8,14 @@ describe('useSessionInit', () => {
   beforeEach(() => {
     resetSessionInit()
     setActivePinia(createPinia())
+    useAuthStore().clear()
     vi.stubGlobal('$fetch', vi.fn())
+    vi.mocked($fetch).mockReset()
   })
 
   afterEach(() => {
     resetSessionInit()
+    vi.mocked($fetch).mockReset()
   })
 
   it('restores session from refresh + me endpoints', async () => {
@@ -35,4 +38,26 @@ describe('useSessionInit', () => {
   it('exposes resetSessionInit to drop in-flight init', () => {
     expect(() => resetSessionInit()).not.toThrow()
   })
+
+  it('no-op sans Pinia ou token déjà présent', async () => {
+    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    await ensureSession()
+
+    setActivePinia(createPinia())
+    useAuthStore().setToken('existing')
+    await ensureSession()
+    expect($fetch).not.toHaveBeenCalled()
+  })
+
+  it('efface le store si refresh échoue', async () => {
+    resetSessionInit()
+    const pinia = createPinia()
+    setActivePinia(pinia)
+    const store = useAuthStore(pinia)
+    expect(store.accessToken).toBeNull()
+    vi.mocked($fetch).mockRejectedValue(new Error('refresh failed'))
+    await ensureSession(pinia)
+    expect(store.accessToken).toBeNull()
+  })
+
 })
