@@ -19,6 +19,49 @@ describe('merge-lcov', () => {
     expect(inputs).toEqual(['a.info', 'b.info']);
   });
 
+  it('parseMergeLcovArgs exige des entrées', () => {
+    expect(() => parseMergeLcovArgs(['node', 'cli'])).toThrow(/Usage/);
+  });
+
+  it('unionne BRDA et fusionne deux enregistrements SF', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-brda-'));
+    const a = path.join(dir, 'a.info');
+    const b = path.join(dir, 'b.info');
+    writeFileSync(
+      a,
+      `SF:src/x.ts
+DA:1,1
+BRDA:1,0,0,0
+BRDA:2,0,0,1
+LF:1
+LH:1
+BRF:2
+BRH:1
+end_of_record
+`,
+    );
+    writeFileSync(
+      b,
+      `SF:src/x.ts
+DA:1,0
+DA:2,1
+BRDA:1,0,0,1
+BRDA:2,0,0,0
+LF:2
+LH:1
+BRF:2
+BRH:1
+end_of_record
+`,
+    );
+
+    const merged = mergeLcov([a, b]);
+    expect(merged).toContain('DA:1,1');
+    expect(merged).toContain('DA:2,1');
+    expect(merged).toContain('BRDA:1,0,0,1');
+    expect(merged).toContain('BRH:2');
+  });
+
   it('unionne les hits de ligne (unit + e2e)', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'lcov-'));
     const unit = path.join(dir, 'unit.info');
@@ -50,6 +93,25 @@ end_of_record
     expect(merged).toContain('DA:2,1');
     expect(merged).toContain('DA:3,1');
     expect(merged).toContain('LH:3');
+  });
+
+  it('conserve les métadonnées FN/FNDA du LCOV', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-meta-'));
+    const a = path.join(dir, 'a.info');
+    writeFileSync(
+      a,
+      `SF:src/meta.ts
+FN:1,myFn
+FNDA:1,myFn
+DA:1,1
+LF:1
+LH:1
+end_of_record
+`,
+    );
+    const merged = mergeLcov([a]);
+    expect(merged).toContain('FN:1,myFn');
+    expect(merged).toContain('FNDA:1,myFn');
   });
 
   it('runMergeLcov écrit le fichier de sortie', () => {

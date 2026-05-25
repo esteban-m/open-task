@@ -1,3 +1,6 @@
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -54,6 +57,23 @@ describe('cli', () => {
   it('main délègue merge-coverage', async () => {
     await main(['node', 'cli.mjs', 'merge-coverage', '-o', 'out.json', 'a.json']);
     expect(runMergeCoverage).toHaveBeenCalledWith(['node', 'cli.mjs', '-o', 'out.json', 'a.json']);
+  });
+
+  it('main délègue merge-lcov', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cli-merge-lcov-'));
+    const a = path.join(dir, 'a.info');
+    const out = path.join(dir, 'merged.info');
+    writeFileSync(
+      a,
+      `SF:f.ts
+DA:1,1
+LF:1
+LH:1
+end_of_record
+`,
+    );
+    await main(['node', 'cli.mjs', 'merge-lcov', '-o', out, a]);
+    expect(readFileSync(out, 'utf8')).toContain('SF:f.ts');
   });
 
   it('main délègue assert-e2e, coverage-markdown, wiki-pages, gifs, fix-lcov-paths', async () => {
