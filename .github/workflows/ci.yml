@@ -376,7 +376,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: backend/coverage/lcov.merged.info
+          files: backend/coverage/lcov.info
           flags: backend
           name: backend
           disable_search: true
@@ -398,7 +398,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: scripts/docs/coverage/lcov.merged.info
+          files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
           flags: scripts
           name: scripts
           directory: .
