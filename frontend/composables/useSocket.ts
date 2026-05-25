@@ -26,8 +26,6 @@ export function buildUseSocket(isServer: boolean) {
   const noop = () => {}
 
   async function connect(): Promise<void> {
-    if (isServer) return
-
     const token = useAccessToken().getToken()
     if (!token) return
 

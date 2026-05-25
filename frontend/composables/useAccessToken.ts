@@ -1,6 +1,8 @@
+import { useAppPinia } from '~/utils/pinia-app'
+
 /** Access token en mémoire (Pinia) — non persisté en localStorage pour limiter le risque XSS. */
 export function useAccessToken() {
-  const pinia = useNuxtApp().$pinia
+  const pinia = useAppPinia()
   const authStore = pinia ? useAuthStore(pinia) : null
 
   function getToken(): string | null {

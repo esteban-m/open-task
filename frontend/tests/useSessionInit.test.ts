@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
+import * as runtimeFlags from '~/utils/runtime-flags'
+
 import { ensureSession, resetSessionInit } from '~/composables/useSessionInit'
 import { useAuthStore } from '~/stores/auth'
 
@@ -41,6 +43,13 @@ describe('useSessionInit', () => {
 
   it('exposes resetSessionInit to drop in-flight init', () => {
     expect(() => resetSessionInit()).not.toThrow()
+  })
+
+  it('no-op côté serveur (pas client)', async () => {
+    const clientSpy = vi.spyOn(runtimeFlags, 'isRuntimeClient').mockReturnValue(false)
+    await ensureSession()
+    expect(nuxtFetchMock).not.toHaveBeenCalled()
+    clientSpy.mockRestore()
   })
 
   it('no-op sans Pinia ou token déjà présent', async () => {

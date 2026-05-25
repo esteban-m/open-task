@@ -1,7 +1,9 @@
 import type { User } from '~/stores/auth'
 
+import { useAppPinia } from '~/utils/pinia-app'
+
 export function useAuth() {
-  const pinia = useNuxtApp().$pinia
+  const pinia = useAppPinia()
   const authStore = pinia ? useAuthStore(pinia) : null
 
   return {

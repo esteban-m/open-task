@@ -65,6 +65,29 @@ describe('merge-summaries', () => {
     expect(merged['file/shared.ts'].lines.pct).toBe(60);
   });
 
+  it('unionMetric borne covered au total', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cov-cap-'));
+    const a = path.join(dir, 'a.json');
+    const b = path.join(dir, 'b.json');
+    writeFileSync(
+      a,
+      JSON.stringify({
+        'file/x.ts': { lines: { total: 5, covered: 12, skipped: 0, pct: 240 } },
+        total: { lines: { total: 5, covered: 12, skipped: 0, pct: 240 } },
+      }),
+    );
+    writeFileSync(
+      b,
+      JSON.stringify({
+        'file/x.ts': { lines: { total: 8, covered: 3, skipped: 0, pct: 37.5 } },
+        total: { lines: { total: 8, covered: 3, skipped: 0, pct: 37.5 } },
+      }),
+    );
+    const merged = mergeSummaries([a, b]);
+    expect(merged['file/x.ts'].lines.total).toBe(8);
+    expect(merged['file/x.ts'].lines.covered).toBe(8);
+  });
+
   it('unionne unit + e2e sans double-compter les lignes', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'cov-unit-e2e-'));
     const unit = path.join(dir, 'unit.json');

@@ -161,7 +161,7 @@ export async function validateMistralApiKey(
   const key = apiKey?.trim();
   if (!key) throw new Error('MISTRAL_API_KEY manquant');
 
-  const models = [model, ...fallbackModels.filter((m) => m && m !== model)];
+  const models = [model, ...fallbackModels.filter((m) => m && m !== model)].filter(Boolean);
   let lastError;
 
   for (const tryModel of models) {
