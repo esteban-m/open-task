@@ -24,6 +24,17 @@ describe('useAuth', () => {
     setActivePinia(createPinia())
   })
 
+  it('getToken et getUser quand le store est vide', async () => {
+    const wrapper = await mountSuspended(AuthHarness)
+    const { auth } = wrapper.vm
+    const store = useAuthStore()
+    store.$patch({ accessToken: undefined, user: undefined })
+
+    expect(auth.getToken()).toBeNull()
+    expect(auth.getUser()).toBeNull()
+    expect(auth.isAuthenticated).toBe(false)
+  })
+
   it('delegates to auth store', async () => {
     const wrapper = await mountSuspended(AuthHarness)
     const { auth } = wrapper.vm

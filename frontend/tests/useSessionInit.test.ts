@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 
 import * as runtimeFlags from '~/utils/runtime-flags'
+import * as piniaApp from '~/utils/pinia-app'
 
 import { ensureSession, resetSessionInit } from '~/composables/useSessionInit'
 import { useAuthStore } from '~/stores/auth'
@@ -22,6 +23,7 @@ describe('useSessionInit', () => {
   afterEach(() => {
     resetSessionInit()
     nuxtFetchMock.mockReset()
+    vi.restoreAllMocks()
   })
 
   it('restores session from refresh + me endpoints', async () => {
@@ -67,7 +69,7 @@ describe('useSessionInit', () => {
     const pinia = createPinia()
     setActivePinia(pinia)
     nuxtFetchMock.mockImplementation(async () => {
-      vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+      vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
       return { accessToken: 'late' }
     })
     await ensureSession()

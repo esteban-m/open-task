@@ -13,6 +13,8 @@ describe('resolveAppPinia', () => {
   it('retombe sur la Pinia active si Nuxt sans $pinia', () => {
     const active = createPinia()
     expect(resolveAppPinia(undefined, active)).toBe(active)
+    expect(resolveAppPinia(undefined, null)).toBeNull()
+    expect(resolveAppPinia(undefined, undefined)).toBeNull()
   })
 
   it('retourne null si Nuxt expose $pinia null', () => {

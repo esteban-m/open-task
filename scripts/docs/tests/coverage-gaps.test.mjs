@@ -87,6 +87,7 @@ describe('coverage gaps — docs scripts', () => {
     expect(stripOpenTaskPrefix('/open-task/generated/architecture')).toBe(
       '/generated/architecture',
     );
+    expect(stripOpenTaskPrefix('/open-task//guide/start')).toBe('/guide/start');
   });
 
   it('normalizeMarkdownLink utilise normalizeRelativeHref si extract est null', () => {
