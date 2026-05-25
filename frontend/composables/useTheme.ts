@@ -5,6 +5,7 @@ import {
   THEME_STORAGE_KEY,
   type AppTheme,
 } from '~/config/themes'
+import { isRuntimeClient } from '~/utils/runtime-flags'
 
 function resolveThemeId(id: string | null | undefined): string {
   if (!id) return DEFAULT_THEME_ID
@@ -23,14 +24,14 @@ export function useTheme() {
   function applyTheme(id: string) {
     const next = resolveThemeId(id)
     themeId.value = next
-    if (import.meta.client) {
+    if (isRuntimeClient()) {
       document.documentElement.setAttribute('data-theme', next)
       localStorage.setItem(THEME_STORAGE_KEY, next)
     }
   }
 
   function initTheme() {
-    if (!import.meta.client) return
+    if (!isRuntimeClient()) return
     const saved = localStorage.getItem(THEME_STORAGE_KEY)
     applyTheme(resolveThemeId(saved))
   }

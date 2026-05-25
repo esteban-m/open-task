@@ -60,6 +60,20 @@ describe('wiki-pages', () => {
     expect(detailTable(summary, dir)).toContain('Aucun fichier');
   });
 
+  it('detailTable tolère des métriques partielles', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-partial-'));
+    const summary = path.join(dir, 's.json');
+    writeFileSync(
+      summary,
+      JSON.stringify({
+        '/repo/a.ts': { lines: { total: 5, covered: 2 } },
+      }),
+    );
+    const table = detailTable(summary, '/repo');
+    expect(table).toContain('2/5');
+    expect(table).toContain('a.ts');
+  });
+
   it('detailTable ignore les entrées sans métrique lines', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'wiki-nolines-'));
     const summary = path.join(dir, 's.json');

@@ -1,5 +1,7 @@
 import type { Pinia } from 'pinia'
 
+import { isRuntimeClient } from '~/utils/runtime-flags'
+
 let sessionInitPromise: Promise<void> | null = null
 
 function getAuthStore(pinia?: Pinia) {
@@ -10,7 +12,7 @@ function getAuthStore(pinia?: Pinia) {
 
 /** Restaure la session via le refresh token httpOnly (access token en mémoire Pinia). */
 export function ensureSession(pinia?: Pinia): Promise<void> {
-  if (!import.meta.client) return Promise.resolve()
+  if (!isRuntimeClient()) return Promise.resolve()
 
   const authStore = getAuthStore(pinia)
   if (!authStore) return Promise.resolve()

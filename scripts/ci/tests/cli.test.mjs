@@ -91,6 +91,14 @@ describe('cli', () => {
     err.mockRestore();
   });
 
+  it('runCliEntry exécute main quand entrypoint correspond', async () => {
+    const meta = new URL('../cli.mjs', import.meta.url).href;
+    const cliPath = fileURLToPath(new URL('../cli.mjs', import.meta.url));
+    vi.mocked(runMergeCoverage).mockResolvedValue(undefined);
+    await runCliEntry(['node', cliPath, 'merge-coverage'], meta);
+    expect(runMergeCoverage).toHaveBeenCalled();
+  });
+
   it('runCliEntry ignore un entrypoint différent', async () => {
     vi.clearAllMocks();
     const meta = new URL('../cli.mjs', import.meta.url).href;
@@ -112,5 +120,20 @@ describe('cli', () => {
     expect(exit).toHaveBeenCalledWith(1);
     exit.mockRestore();
     err.mockRestore();
+  });
+
+  it('runCliEntry log une erreur sans stack', async () => {
+    const meta = new URL('../cli.mjs', import.meta.url).href;
+    const cliPath = fileURLToPath(new URL('../cli.mjs', import.meta.url));
+    const exit = vi.spyOn(process, 'exit').mockImplementation(() => undefined);
+    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    vi.mocked(runMergeCoverage).mockImplementation(() => {
+      throw { message: 'no stack' };
+    });
+    await runCliEntry(['node', cliPath, 'merge-coverage'], meta);
+    expect(errSpy).toHaveBeenCalledWith({ message: 'no stack' });
+    expect(exit).toHaveBeenCalledWith(1);
+    exit.mockRestore();
+    errSpy.mockRestore();
   });
 });

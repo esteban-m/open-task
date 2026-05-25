@@ -1,4 +1,4 @@
-import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -60,6 +60,12 @@ describe('videos-to-gifs helpers', () => {
     }
   });
 
+  it('buildManifest affiche un tiret si une variante manque', () => {
+    const md = buildManifest([{ slug: '01-inscription', variant: 'desktop' }]);
+    expect(md).toContain('—');
+    expect(md).toContain('desktop/01-inscription.gif');
+  });
+
   it('buildManifest liste desktop et mobile', () => {
     const md = buildManifest([
       { slug: '01-inscription', variant: 'desktop' },
@@ -103,6 +109,21 @@ describe('videos-to-gifs helpers', () => {
     writeFileSync(path.join(nested, 'video.webm'), 'mock');
     const found = scanResultRoot(base, 'desktop');
     expect(found.some((v) => v.slug === '01-inscription')).toBe(true);
+  });
+
+  it('scanResultRoot ignore les vidéos hors du répertoire scanné', () => {
+    const base = workDir('.vitest-scan-outside');
+    rmSync(base, { recursive: true, force: true });
+    const outside = workDir('.vitest-outside-repo');
+    rmSync(outside, { recursive: true, force: true });
+    mkdirSync(base, { recursive: true });
+    mkdirSync(outside, { recursive: true });
+    writeFileSync(path.join(outside, 'video.webm'), 'mock');
+    const nested = path.join(base, 'demo-01-inscription-demo-desktop');
+    mkdirSync(nested, { recursive: true });
+    symlinkSync(path.join(outside, 'video.webm'), path.join(nested, 'video.webm'));
+    const found = scanResultRoot(base, 'desktop');
+    expect(found).toEqual([]);
   });
 
   it('buildManifest affiche — pour variantes manquantes', () => {

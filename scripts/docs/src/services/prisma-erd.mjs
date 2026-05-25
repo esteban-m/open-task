@@ -92,7 +92,7 @@ function sanitizeId(name) {
   return name.replace(/[^a-zA-Z0-9_]/g, '_');
 }
 
-function mapPrismaType(t) {
+export function mapPrismaType(t) {
   const map = {
     String: 'string',
     Int: 'int',

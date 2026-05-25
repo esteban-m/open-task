@@ -239,6 +239,28 @@ describe('useApi', () => {
     expect(postCall?.[1]?.body).toBeUndefined()
   })
 
+  it('PUT et PATCH sans corps', async () => {
+    useAuthStore().setToken('tok')
+    vi.mocked(fetch).mockResolvedValue({
+      ok: true,
+      status: 200,
+      text: async () => '{}',
+    } as Response)
+
+    const Harness = defineComponent({
+      async setup() {
+        const api = useApi()
+        await api.put('/tasks/1')
+        await api.patch('/tasks/1')
+      },
+      template: '<div />',
+    })
+    await mountSuspended(Harness)
+    expect(vi.mocked(fetch).mock.calls.some((c) => c[1]?.method === 'PUT' && c[1]?.body === undefined)).toBe(
+      true,
+    )
+  })
+
   it('ignore les erreurs de logout après refresh échoué', async () => {
     useAuthStore().setToken('old')
     vi.mocked(fetch).mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)

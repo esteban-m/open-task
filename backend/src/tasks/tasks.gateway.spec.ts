@@ -34,6 +34,13 @@ describe('TASKS_GATEWAY_CORS_ORIGIN', () => {
     const { TASKS_GATEWAY_CORS_ORIGIN } = await import('./tasks.gateway');
     expect(TASKS_GATEWAY_CORS_ORIGIN).toBe('https://app.example.test');
   });
+
+  it('utilise localhost par défaut sans FRONTEND_URL', async () => {
+    delete process.env.FRONTEND_URL;
+    jest.resetModules();
+    const { TASKS_GATEWAY_CORS_ORIGIN } = await import('./tasks.gateway');
+    expect(TASKS_GATEWAY_CORS_ORIGIN).toBe('http://localhost:3000');
+  });
 });
 
 describe('TasksGateway', () => {
