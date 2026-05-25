@@ -6,15 +6,25 @@ function parseRecords(content) {
 
   for (const line of content.split(/\r?\n/)) {
     if (line === 'end_of_record') {
-      if (cur) records.push(cur);
+      if (cur) {
+        for (let i = 1; i <= cur.lf; i += 1) {
+          if (!cur.da.has(i)) cur.da.set(i, 0);
+        }
+        records.push(cur);
+      }
       cur = null;
       continue;
     }
     if (line.startsWith('SF:')) {
-      cur = { sf: line.slice(3), meta: [], da: new Map(), brda: new Map() };
+      cur = { sf: line.slice(3), meta: [], da: new Map(), brda: new Map(), lf: 0 };
       continue;
     }
     if (!cur) continue;
+
+    if (line.startsWith('LF:')) {
+      cur.lf = Number(line.slice(3)) || 0;
+      continue;
+    }
 
     if (line.startsWith('DA:')) {
       const [ln, hit] = line.slice(3).split(',');

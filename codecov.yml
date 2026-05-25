@@ -14,14 +14,14 @@ parsers:
 
 # Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
 ignore:
-  - "frontend/pages/**"
-  - "frontend/histoire/**"
-  - "frontend/**/*.story.vue"
-  - "frontend/nuxt.config.ts"
-  - "frontend/vitest.config.ts"
-  - "frontend/histoire.config.ts"
-  - "frontend/histoire-setup.ts"
-  - "scripts/**/vitest.config.mjs"
+  - "**/pages/**"
+  - "**/histoire/**"
+  - "**/*.story.vue"
+  - "**/nuxt.config.ts"
+  - "**/vitest.config.ts"
+  - "**/vitest.config.mjs"
+  - "**/histoire.config.ts"
+  - "**/histoire-setup.ts"
   - "backend/scripts/**"
   - "backend/src/**/*.module.ts"
   - "backend/src/**/dto/**"

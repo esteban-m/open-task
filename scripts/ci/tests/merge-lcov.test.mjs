@@ -132,6 +132,25 @@ end_of_record
     expect(merged).toContain('BRH:2');
   });
 
+  it('comble les lignes LF sans entrée DA', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-lf-'));
+    const a = path.join(dir, 'a.info');
+    writeFileSync(
+      a,
+      `SF:src/sparse.ts
+DA:2,1
+LF:3
+LH:1
+end_of_record
+`,
+    );
+    const merged = mergeLcov([a]);
+    expect(merged).toContain('DA:1,0');
+    expect(merged).toContain('DA:2,1');
+    expect(merged).toContain('DA:3,0');
+    expect(merged).toContain('LH:1');
+  });
+
   it('unionne les hits de ligne (unit + e2e)', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'lcov-'));
     const unit = path.join(dir, 'unit.info');
