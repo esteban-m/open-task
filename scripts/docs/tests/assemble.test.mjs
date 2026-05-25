@@ -12,7 +12,9 @@ vi.mock('../src/core/paths.mjs', () => ({
   createPaths: vi.fn(() => localPaths),
 }));
 
-const { assembleDocs, runAssemble } = await import('../src/generators/assemble.mjs');
+const { assembleDocs, postProcessGeneratedDir, runAssemble } = await import(
+  '../src/generators/assemble.mjs',
+);
 const { loadConfig } = await import('../src/core/config.mjs');
 
 describe('assembleDocs', () => {
@@ -22,6 +24,24 @@ describe('assembleDocs', () => {
 
   afterEach(async () => {
     await rm(vitestDir, { recursive: true, force: true });
+  });
+
+  it('postProcessGeneratedDir exécute fixLinks puis injectDiagrams', async () => {
+    const tmp = path.join(vitestDir, 'post-process');
+    const generatedDir = path.join(tmp, 'docs/generated');
+    await mkdir(generatedDir, { recursive: true });
+    await writeFile(path.join(generatedDir, 'page.md'), '[L](/guide/x)\n', 'utf8');
+    const config = await loadConfig();
+    const diagrams = await import('../src/services/diagrams.mjs');
+    const injectSpy = vi.spyOn(diagrams, 'injectDiagramsIntoDir').mockResolvedValue(undefined);
+    await postProcessGeneratedDir(generatedDir, config);
+    expect(injectSpy).toHaveBeenCalledWith(
+      generatedDir,
+      config.diagrams,
+      readFile,
+      writeFile,
+    );
+    injectSpy.mockRestore();
   });
 
   it('fixes links and writes sidebar manifest', async () => {

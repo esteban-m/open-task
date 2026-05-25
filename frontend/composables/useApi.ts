@@ -41,10 +41,10 @@ export function createApiClient(deps: {
         }
         await pushRoute('/login')
         return null
-      } finally {
-        refreshPromise = null
       }
-    })()
+    })().finally(() => {
+      refreshPromise = null
+    })
 
     return refreshPromise
   }
