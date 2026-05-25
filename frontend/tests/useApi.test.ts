@@ -10,6 +10,11 @@ vi.mock('~/composables/useSessionInit', () => ({
   ensureSession: vi.fn().mockResolvedValue(undefined),
 }))
 
+const { fetchMock, nuxtFetchMock } = vi.hoisted(() => ({
+  fetchMock: vi.fn(),
+  nuxtFetchMock: vi.fn(),
+}))
+
 const ApiHarness = defineComponent({
   name: 'ApiHarness',
   props: { path: { type: String, required: true } },
@@ -24,20 +29,22 @@ const ApiHarness = defineComponent({
 describe('useApi', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    vi.stubGlobal('fetch', vi.fn())
-    vi.stubGlobal('$fetch', vi.fn())
-    vi.mocked($fetch).mockReset()
+    vi.stubGlobal('fetch', fetchMock)
+    vi.stubGlobal('$fetch', nuxtFetchMock)
+    fetchMock.mockReset()
+    nuxtFetchMock.mockReset()
   })
 
   afterEach(() => {
-    vi.mocked($fetch).mockReset()
+    nuxtFetchMock.mockReset()
+    fetchMock.mockReset()
   })
 
   it('GET returns JSON on success', async () => {
     const auth = useAuthStore()
     auth.setToken('tok')
 
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => JSON.stringify([{ id: 'l1' }]),
@@ -53,7 +60,7 @@ describe('useApi', () => {
 
   it('throws shaped error on non-OK response', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: false,
       status: 403,
       json: async () => ({ message: 'Accès interdit' }),
@@ -72,9 +79,8 @@ describe('useApi', () => {
 
   it('refreshes token on 401 and retries request', async () => {
     let fetchCalls = 0
-    // @ts-expect-error TS2321 — mock $fetch + types de routes Nuxt
-    vi.mocked($fetch).mockResolvedValue({ accessToken: 'new-tok' })
-    vi.mocked(fetch).mockImplementation(async () => {
+    nuxtFetchMock.mockResolvedValue({ accessToken: 'new-tok' })
+    fetchMock.mockImplementation(async () => {
       fetchCalls += 1
       if (fetchCalls === 1) {
         return { ok: false, status: 401, json: async () => ({}) } as Response
@@ -97,13 +103,13 @@ describe('useApi', () => {
 
     const wrapper = await mountSuspended(RefreshHarness)
     expect(wrapper.vm.data).toEqual({ ok: true })
-    expect($fetch).toHaveBeenCalled()
+    expect(nuxtFetchMock).toHaveBeenCalled()
     expect(fetchCalls).toBe(2)
   })
 
   it('POST sends JSON body', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => JSON.stringify({ id: 't1' }),
@@ -127,7 +133,7 @@ describe('useApi', () => {
 
   it('PUT PATCH DELETE et erreurs tableau sont gérés', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => JSON.stringify({ ok: true }),
@@ -146,7 +152,7 @@ describe('useApi', () => {
     await mountSuspended(MethodsHarness)
     expect(fetch).toHaveBeenCalledWith(expect.stringContaining('/tasks/1'), expect.objectContaining({ method: 'PUT' }))
 
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: false,
       status: 400,
       json: async () => ({ message: ['a', 'b'] }),
@@ -164,7 +170,7 @@ describe('useApi', () => {
 
   it('utilise le message par défaut si le corps d’erreur est invalide', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: false,
       status: 400,
       json: async () => ({ message: 123 }),
@@ -183,8 +189,8 @@ describe('useApi', () => {
 
   it('refresh échoué rejette avec 401', async () => {
     useAuthStore().setToken('old')
-    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)
-    vi.mocked($fetch).mockRejectedValue(new Error('refresh failed'))
+    fetchMock.mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)
+    nuxtFetchMock.mockRejectedValue(new Error('refresh failed'))
 
     const RefreshFailHarness = defineComponent({
       async setup() {
@@ -199,7 +205,7 @@ describe('useApi', () => {
   })
 
   it('login et register sans jeton', async () => {
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => JSON.stringify({ accessToken: 'a' }),
@@ -215,13 +221,13 @@ describe('useApi', () => {
 
     const wrapper = await mountSuspended(LoginHarness)
     expect(wrapper.vm.data).toEqual({ accessToken: 'a' })
-    const [, options] = vi.mocked(fetch).mock.calls[0]!
+    const [, options] = fetchMock.mock.calls[0]!
     expect(options?.headers).not.toHaveProperty('Authorization')
   })
 
   it('POST sans corps', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => JSON.stringify({ ok: true }),
@@ -236,13 +242,13 @@ describe('useApi', () => {
     })
 
     await mountSuspended(PostEmptyHarness)
-    const postCall = vi.mocked(fetch).mock.calls.find((c) => c[1]?.method === 'POST')
+    const postCall = fetchMock.mock.calls.find((c) => c[1]?.method === 'POST')
     expect(postCall?.[1]?.body).toBeUndefined()
   })
 
   it('PUT et PATCH sans corps', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => '{}',
@@ -257,15 +263,15 @@ describe('useApi', () => {
       template: '<div />',
     })
     await mountSuspended(Harness)
-    expect(vi.mocked(fetch).mock.calls.some((c) => c[1]?.method === 'PUT' && c[1]?.body === undefined)).toBe(
+    expect(fetchMock.mock.calls.some((c) => c[1]?.method === 'PUT' && c[1]?.body === undefined)).toBe(
       true,
     )
   })
 
   it('ignore les erreurs de logout après refresh échoué', async () => {
     useAuthStore().setToken('old')
-    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)
-    vi.mocked($fetch)
+    fetchMock.mockResolvedValue({ ok: false, status: 401, json: async () => ({}) } as Response)
+    nuxtFetchMock
       .mockRejectedValueOnce(new Error('refresh failed'))
       .mockRejectedValueOnce(new Error('logout failed'))
 
@@ -282,7 +288,7 @@ describe('useApi', () => {
 
   it('returns empty object for empty 200 body', async () => {
     useAuthStore().setToken('tok')
-    vi.mocked(fetch).mockResolvedValue({
+    fetchMock.mockResolvedValue({
       ok: true,
       status: 200,
       text: async () => '',

@@ -4,22 +4,26 @@ import { createPinia, setActivePinia } from 'pinia'
 import { ensureSession, resetSessionInit } from '~/composables/useSessionInit'
 import { useAuthStore } from '~/stores/auth'
 
+const { nuxtFetchMock } = vi.hoisted(() => ({
+  nuxtFetchMock: vi.fn(),
+}))
+
 describe('useSessionInit', () => {
   beforeEach(() => {
     resetSessionInit()
     setActivePinia(createPinia())
     useAuthStore().clear()
-    vi.stubGlobal('$fetch', vi.fn())
-    vi.mocked($fetch).mockReset()
+    vi.stubGlobal('$fetch', nuxtFetchMock)
+    nuxtFetchMock.mockReset()
   })
 
   afterEach(() => {
     resetSessionInit()
-    vi.mocked($fetch).mockReset()
+    nuxtFetchMock.mockReset()
   })
 
   it('restores session from refresh + me endpoints', async () => {
-    vi.mocked($fetch)
+    nuxtFetchMock
       .mockResolvedValueOnce({ accessToken: 'new-tok' })
       .mockResolvedValueOnce({
         id: 'u1',
@@ -46,7 +50,7 @@ describe('useSessionInit', () => {
     setActivePinia(createPinia())
     useAuthStore().setToken('existing')
     await ensureSession()
-    expect($fetch).not.toHaveBeenCalled()
+    expect(nuxtFetchMock).not.toHaveBeenCalled()
   })
 
   it('efface le store si refresh échoue', async () => {
@@ -55,9 +59,8 @@ describe('useSessionInit', () => {
     setActivePinia(pinia)
     const store = useAuthStore(pinia)
     expect(store.accessToken).toBeNull()
-    vi.mocked($fetch).mockRejectedValue(new Error('refresh failed'))
+    nuxtFetchMock.mockRejectedValue(new Error('refresh failed'))
     await ensureSession(pinia)
     expect(store.accessToken).toBeNull()
   })
-
 })

@@ -133,10 +133,11 @@ describe('codecov runtime branches', () => {
       {
         id: 'cal-only',
         listId: 'l1',
-        title: 'Cal',
-        status: 'todo',
-        priority: 'medium',
-        dueDate: null,
+        shortDescription: 'Cal',
+        longDescription: null,
+        dueDate: '',
+        completed: false,
+        completedAt: null,
         createdAt: '',
         updatedAt: '',
       },
@@ -184,13 +185,14 @@ describe('codecov runtime branches', () => {
     socketHandlers['task:created']?.({
       id: 't1',
       listId: 'unknown',
-      title: 'Orphan',
-      status: 'todo',
-      priority: 'medium',
-      dueDate: null,
+      shortDescription: 'Orphan',
+      longDescription: null,
+      dueDate: '',
+      completed: false,
+      completedAt: null,
       createdAt: '',
       updatedAt: '',
     })
-    expect(tasks.tasks[0]?.title).toBe('Orphan')
+    expect(tasks.tasks[0]?.shortDescription).toBe('Orphan')
   })
 })
