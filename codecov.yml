@@ -5,8 +5,12 @@
 
 # Les branches partielles LCOV (Vitest/v8) ne doivent pas bloquer le 100 % lignes.
 parsers:
+  javascript:
+    enable_partials: false
   lcov:
     partials_as_hits: true
+  v1:
+    include_full_missed_files: false
 
 # Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
 ignore:
