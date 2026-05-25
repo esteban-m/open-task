@@ -81,7 +81,7 @@ jobs:
         run: bash scripts/ci/run-playwright-stack.sh --skip-docker --all-projects --gifs
 
       - name: Artefact GIF
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: demo-gifs
           retention-days: 14

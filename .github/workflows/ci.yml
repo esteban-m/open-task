@@ -109,7 +109,7 @@ jobs:
             backend/coverage-e2e/coverage-summary.json
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-backend
           retention-days: 1
@@ -147,7 +147,7 @@ jobs:
         run: npm run test:coverage -- --silent
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-frontend
           retention-days: 1
@@ -194,7 +194,7 @@ jobs:
           cp scripts/docs/coverage/coverage-summary.merged.json scripts/docs/coverage/coverage-summary.json
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-scripts
           retention-days: 1
@@ -262,7 +262,7 @@ jobs:
 
       - name: Artefact GIF (push main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: demo-gifs
           retention-days: 14
@@ -270,7 +270,7 @@ jobs:
 
       - name: Artefacts Playwright (échec)
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           retention-days: 7
@@ -280,7 +280,7 @@ jobs:
 
       - name: Vidéos démo brutes (échec, push main)
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-demo-videos
           retention-days: 7
