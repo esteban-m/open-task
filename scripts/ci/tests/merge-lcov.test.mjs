@@ -3,7 +3,13 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { mergeLcov, parseMergeLcovArgs, runMergeLcov } from '../src/reports/merge-lcov.mjs';
+import {
+  mergeLcov,
+  parseMergeLcovArgs,
+  parseRecords,
+  runMergeLcov,
+  serializeRecord,
+} from '../src/reports/merge-lcov.mjs';
 
 describe('merge-lcov', () => {
   it('parseMergeLcovArgs lit -o et les entrées', () => {
@@ -17,6 +23,26 @@ describe('merge-lcov', () => {
     ]);
     expect(output).toBe('out.info');
     expect(inputs).toEqual(['a.info', 'b.info']);
+  });
+
+  it('parseRecords lit LF invalide et serializeRecord gère DA undefined', () => {
+    const records = parseRecords(`SF:src/lf.ts
+LF:bad
+DA:2,1
+end_of_record
+`);
+    expect(records[0].lf).toBe(0);
+
+    const da = new Map([[1, undefined], [2, 1]]);
+    const out = serializeRecord({
+      sf: 'src/undef.ts',
+      meta: [],
+      da,
+      brda: new Map(),
+      lf: 2,
+    });
+    expect(out).toContain('DA:1,0');
+    expect(out).toContain('DA:2,1');
   });
 
   it('parseRecords marque une branche non couverte', () => {

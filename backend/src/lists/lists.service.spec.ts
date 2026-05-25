@@ -138,6 +138,21 @@ describe('ListsService', () => {
         ConflictException,
       );
     });
+
+    it('met à jour la couleur sans renommer', async () => {
+      mockListAccessService.requireAccess.mockResolvedValue({ list: { id: 'list-1' }, role: 'admin' });
+      mockPrismaService.taskList.findUnique.mockResolvedValue({ id: 'list-1', userId: 'user-1' });
+      mockPrismaService.taskList.update.mockResolvedValue({ id: 'list-1', color: '#ff0000' });
+
+      const result = await service.update('list-1', { color: '#ff0000' }, 'user-1');
+
+      expect(mockPrismaService.taskList.update).toHaveBeenCalledWith({
+        where: { id: 'list-1' },
+        data: { color: '#ff0000' },
+        include: { _count: { select: { tasks: true } } },
+      });
+      expect(result.color).toBe('#ff0000');
+    });
   });
 
   describe('acceptShare', () => {
