@@ -1,5 +1,7 @@
 # Workflows GitHub Actions
 
+**Runtime Node.js :** version **24** (fichier [`.nvmrc`](../../.nvmrc) — `setup-node` avec `node-version-file`, pas de variable Actions « fake »).
+
 | Workflow | Déclencheur | Rôle |
 |----------|-------------|------|
 | [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Playwright, Codecov, wiki ; sur **push `main`** : GIF + Pages |

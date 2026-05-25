@@ -3,6 +3,9 @@
   "private": true,
   "description": "Site documentation VitePress pour GitHub Pages",
   "type": "module",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
   "scripts": {
     "prebuild": "node ../scripts/docs/cli.mjs assemble",
     "predev": "node ../scripts/docs/cli.mjs assemble",
