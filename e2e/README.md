@@ -5,16 +5,21 @@ Tests navigateur contre le **vrai** backend (`nest build` + `node dist/main`) et
 Configuration : [`config/open-task.e2e.json`](../config/open-task.e2e.json) — chargée par [`scripts/ci/src/core/e2e-config.mjs`](../scripts/ci/src/core/e2e-config.mjs) (`playwright.config.ts`, `helpers/`).
 
 ```bash
-# Smoke CI (rapide)
+# Smoke (local / rapide)
 npm run test:e2e:playwright
 
 # Démos + GIF dans docs/public/demo/ (nécessite ffmpeg)
 npm run test:e2e:demo
+
+# Comme la CI (smoke + démo, sans GIF)
+bash scripts/ci/run-playwright-stack.sh --skip-docker --all-projects
 ```
 
 | Mode | Commande | Sortie |
 |------|----------|--------|
 | Smoke | `npm run test:e2e:playwright` | tests `tests/smoke/` |
-| Démo | `PLAYWRIGHT_DEMO=1` ou `npm run test:e2e:demo` | `docs/public/demo/{desktop,mobile}/*.gif` |
+| CI (PR / develop) | `--all-projects` (smoke puis démo, même stack) | smoke + démo, pas de GIF |
+| CI (main) | `--all-projects --gifs` | + `docs/public/demo/*.gif` |
+| Démo locale | `npm run test:e2e:demo` | démo + GIF |
 
 Variables utiles (surcharge la config) : `PLAYWRIGHT_BASE_URL`, `DATABASE_URL`, `BACKEND_PORT`, `FRONTEND_PORT`, `DEMO_STEP_PAUSE_MS`, `DEMO_GIF_FPS`.

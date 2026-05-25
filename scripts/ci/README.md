@@ -9,7 +9,7 @@ Configuration E2E : [`config/open-task.e2e.json`](../config/open-task.e2e.json) 
 ```
 scripts/ci/
   cli.mjs                 # Point d’entrée
-  run-playwright-stack.sh # Stack Postgres + Nest + Nuxt + Playwright
+  run-playwright-stack.sh # Stack Postgres + Nest + Nuxt + Playwright (--all-projects, --gifs)
   src/
     core/load-e2e.mjs     # lit config/open-task.e2e.json
     core/e2e-config.mjs # réexport public

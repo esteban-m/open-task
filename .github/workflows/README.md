@@ -2,70 +2,79 @@
 
 | Workflow | Déclencheur | Rôle |
 |----------|-------------|------|
-| [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Codecov, wiki (main) |
-| [**Docs**](docs.yml) | Push `main`, `workflow_dispatch` | Playwright → GIF → portail Pages (docs + Histoire + Swagger) |
-| [**Demo assets**](demo-assets.yml) | PR, `workflow_dispatch` | Valide les démos Playwright + artefact (pas de push `main`) |
+| [**CI**](ci.yml) | PR + push `main` / `develop`, `workflow_dispatch` | Lint, tests, coverage, Playwright, Codecov, wiki ; sur **push `main`** : GIF + Pages |
+| [**Docs**](docs.yml) | `workflow_dispatch` uniquement | Regénération manuelle du site (option sans Playwright / sans IA) |
 | [**CodeQL**](codeql.yml) | PR + push (chemins code) | Analyse sécurité statique |
 
-**Push `main`** : **CI**, **CodeQL** (si chemins code), **Docs** (GIF + site). Plus de second push bot pour les GIF — fini les `paths-ignore` et la ruleset CodeQL sur `assets/demo`.
+## CI — cadre des jobs
 
-## CI (`ci.yml`)
+Une seule stack Postgres + Nest + Nuxt + Playwright par run. Les GIF ne sont produits que sur **push `main`**.
 
+```mermaid
+flowchart TB
+  subgraph p1 [Phase 1 — parallèle]
+    B[backend]
+    F[frontend]
+    S[scripts]
+    E[e2e-playwright]
+  end
+  subgraph p2 [Phase 2]
+    R[report]
+  end
+  subgraph p3 [Phase 3 — push main uniquement]
+    D1[docs-build]
+    D2[docs-deploy]
+  end
+  B --> R
+  F --> R
+  S --> R
+  E --> D1
+  D1 --> D2
 ```
-backend ────────┐
-frontend ───────┼──► report (Codecov + wiki sur main)
-scripts ────────┘
-e2e-playwright ───► Playwright (backend build + preview Nuxt + navigateur)
-```
 
-1. **backend** — Service Postgres (port 5432), Prisma migrate, tests unitaires puis **e2e avec `DATABASE_URL`** (sinon les tests e2e passent mais la couverture e2e reste à 0 %). Vérification via `scripts/ci/cli.mjs assert-e2e`.
-2. **frontend** — `nuxt prepare`, lint, Vitest coverage.
-3. **scripts** — Vitest `scripts/docs` + `scripts/ci` (pipeline doc + outils CI).
-4. **e2e-playwright** — Postgres, `nest build` + serveur backend, `nuxt build` + preview, scénario UI (inscription → liste → tâche → logout/login). Script : `scripts/ci/run-playwright-stack.sh`.
-5. **report** — Télécharge les artefacts, fusionne les `coverage-summary.json`, publie Codecov et (sur `main` uniquement) le wiki.
+### Phase 1 (parallèle)
 
-Backend e2e (Jest) : `test/app-*.e2e-spec.ts` — auth (refresh, logout, `/me`), API (update, partage, révocation), flux existants. Garde-fou : `scripts/ci/cli.mjs assert-e2e` (≥ 55 % lignes e2e).
+| Job | Contenu |
+|-----|---------|
+| **backend** | Postgres, Prisma, lint, tests unitaires + e2e Jest (coverage) |
+| **frontend** | `nuxt prepare`, lint, Vitest coverage |
+| **scripts** | Vitest `scripts/docs` + `scripts/ci` |
+| **e2e-playwright** | `run-playwright-stack.sh --skip-docker --all-projects` (smoke puis démo, une stack) ; sur **main** : `--gifs` |
 
-Local : `npm run test:e2e:playwright` (smoke) · `npm run test:e2e:demo` (GIF, ffmpeg requis).
+### Phase 2
 
-## Demo assets (`demo-assets.yml`)
+**report** — fusion coverage, Codecov (3 flags), wiki (push `main`).
 
-1. Même stack que Playwright (Postgres + backend + Nuxt preview).
-2. Tests `e2e/tests/demo/*.demo.ts` en **desktop** et **mobile**.
-3. **PR uniquement** : validation + artefact `demo-gifs` (pas de commit sur `main`).
+### Phase 3 (push `main` seulement)
 
-Les GIF publiés en production passent par **Docs** → GitHub Pages (`https://<user>.github.io/open-task/demo/…`).
+**docs-build** — télécharge `demo-gifs`, génération IA (Mistral), VitePress, OpenAPI, Histoire, assemblage `docs-site/`.
 
-Guide : [`USAGE.md`](../USAGE.md).
+**docs-deploy** — GitHub Pages (aucun push Git sur le dépôt).
+
+### Playwright (détail)
+
+| Contexte | Projets | GIF |
+|----------|---------|-----|
+| PR, push `develop` | smoke + démo (desktop + mobile) | non |
+| Push `main` | idem | oui → artefact pour **docs-build** |
+| Local `npm run test:e2e:playwright` | smoke | non |
+| Local `npm run test:e2e:demo` | démo | oui (ffmpeg) |
+
+Script : [`scripts/ci/run-playwright-stack.sh`](../../scripts/ci/run-playwright-stack.sh) (`--all-projects`, `--gifs`).
 
 ## Docs (`docs.yml`)
 
-1. **demo-gifs** — Playwright → `docs/public/demo/` (artefact).
-2. **generate-docs** — génération IA (Mistral), build VitePress (`/docs/`), export OpenAPI, build Histoire (`/histoire/`), assemblage portail (`docs-site/`).
-3. **deploy-pages** — déploiement (API Pages, **aucun push Git**).
+Réservé au **lancement manuel** (Actions → Docs → Run workflow).
 
-Structure GitHub Pages :
+- `skip_playwright: true` — réutilise les GIF déjà dans `docs/public/demo/` (pas de stack).
+- `skip_ai: true` — pas d’appels Mistral.
 
-| Chemin | Contenu |
-|--------|---------|
-| `/` | Portail (accueil) |
-| `/docs/` | Documentation VitePress |
-| `/histoire/` | Composants UI (Histoire) |
-| `/swagger/` | API OpenAPI interactive |
-| `/demo/` | GIF Playwright |
+Le chemin normal après merge : tout passe par **CI** sur `main`.
 
-Secret `MISTRAL_API_KEY` requis sauf `workflow_dispatch` avec `skip_ai: true`.
+## CodeQL
 
-## CodeQL (`codeql.yml`)
-
-Toujours sur les PR (ruleset dépôt), même si seuls des fichiers markdown changent.
+Toujours sur les PR (ruleset), même si seuls des fichiers markdown changent.
 
 ## Branche `main`
 
-Ruleset **Protect main — PR obligatoire + CodeQL** (voir [.github/rulesets/protect-main.json](../rulesets/protect-main.json)) :
-
-- PR obligatoire avant merge (pas de push direct sur `main`)
-- **Merge classique par défaut** (`gh pr merge --merge`) — pas de squash sauf demande explicite
-- Pas de force-push (`non_fast_forward`)
-- CodeQL requis
-- **Aucun bypass** (les GIF / Pages ne passent plus par un commit bot sur `main`)
+Ruleset **Protect main — PR obligatoire + CodeQL** — voir [protect-main.json](../rulesets/protect-main.json).

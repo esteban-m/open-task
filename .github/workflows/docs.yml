@@ -1,22 +1,20 @@
-# Documentation + portail GitHub Pages (docs, Histoire, Swagger)
-# - Démos : Playwright → GIF dans docs/public/demo/ (servis par Pages, pas de push main)
-# - Diagramme : GitDiagram (logique) + Mistral AI
-# - Modules : Docudoodle (équivalent TS) + Mistral AI
-# - BDD : ERD Prisma (Mermaid)
-# - Site : portail racine + VitePress (/docs) + Histoire + Swagger → Pages
+# Regénération manuelle du site (Pages) — push main passe par CI (docs-build / docs-deploy).
 #
-# Secret requis : MISTRAL_API_KEY (Settings → Secrets → Actions)
-# Ne jamais committer de clé API dans le dépôt.
+# Secret requis : MISTRAL_API_KEY
+# Option workflow_dispatch : skip_ai pour ignorer Mistral (diagramme + modules)
 
 name: Docs
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
     inputs:
       skip_ai:
         description: 'Ignorer la génération IA (diagramme + modules)'
+        required: false
+        default: false
+        type: boolean
+      skip_playwright:
+        description: 'Réutiliser les GIF déjà présents dans docs/public/demo (pas de stack Playwright)'
         required: false
         default: false
         type: boolean
@@ -27,7 +25,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: docs-${{ github.event_name }}-${{ github.ref }}
+  group: docs-manual-${{ github.run_id }}
   cancel-in-progress: false
 
 env:
@@ -35,8 +33,9 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  demo-gifs:
-    name: Playwright → GIF (Pages)
+  e2e-gifs:
+    name: Playwright → GIF (manuel)
+    if: ${{ github.event.inputs.skip_playwright != true }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -62,6 +61,7 @@ jobs:
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
       PLAYWRIGHT_DEMO: '1'
+
     steps:
       - uses: actions/checkout@v6
 
@@ -77,11 +77,10 @@ jobs:
       - name: ffmpeg (WebM → GIF)
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      - name: Playwright + conversion GIF
-        run: bash scripts/ci/run-playwright-stack.sh --skip-docker
+      - name: Stack + Playwright + GIF
+        run: bash scripts/ci/run-playwright-stack.sh --skip-docker --all-projects --gifs
 
-      - name: Artefact GIF (debug)
-        if: always()
+      - name: Artefact GIF
         uses: actions/upload-artifact@v6
         with:
           name: demo-gifs
@@ -90,33 +89,33 @@ jobs:
 
   generate-docs:
     name: Build
-    needs: demo-gifs
+    needs: [e2e-gifs]
+    if: always() && (needs.e2e-gifs.result == 'success' || needs.e2e-gifs.result == 'skipped')
     runs-on: ubuntu-latest
     outputs:
       has_site: ${{ steps.check-site.outputs.has_site }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-      - name: GIF démo (Pages)
+      - name: GIF démo (artefact Playwright)
+        if: ${{ github.event.inputs.skip_playwright != true }}
         uses: actions/download-artifact@v6
         with:
           name: demo-gifs
           path: docs/public/demo
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: ${{ env.NODE_VERSION }}
           cache: npm
           cache-dependency-path: scripts/docs/package-lock.json
 
-      - name: Installer les scripts docs
+      - name: Dépendances scripts docs
         working-directory: scripts/docs
         run: npm ci
 
       - name: Vérifier secret Mistral
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
+        if: ${{ github.event.inputs.skip_ai != true }}
         run: |
           if [ -z "${{ secrets.MISTRAL_API_KEY }}" ]; then
             echo "::error::Ajoutez le secret MISTRAL_API_KEY dans Settings → Secrets → Actions."
@@ -124,7 +123,7 @@ jobs:
           fi
 
       - name: Valider clé Mistral
-        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.skip_ai != true }}
+        if: ${{ github.event.inputs.skip_ai != true }}
         env:
           MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
           MISTRAL_MODEL: ${{ vars.MISTRAL_MODEL || 'mistral-small-latest' }}
@@ -142,7 +141,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_ACTIONS: 'true'
-          SKIP_AI: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.skip_ai == true && 'true' || '' }}
+          SKIP_AI: ${{ github.event.inputs.skip_ai == true && 'true' || '' }}
           DOCUDOODLE_MAX_FILES: ${{ vars.DOCUDOODLE_MAX_FILES || '12' }}
         working-directory: scripts/docs
         run: npm run generate

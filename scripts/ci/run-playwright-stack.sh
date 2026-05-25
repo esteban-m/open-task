@@ -7,18 +7,34 @@ COMPOSE_FILE="${ROOT}/docker-compose.test.yml"
 COMPOSE_PROJECT="${COMPOSE_PROJECT:-opentask-e2e}"
 SKIP_DOCKER=false
 KEEP_STACK=false
+ALL_PROJECTS=false
+RECORD_GIFS=false
 
 for arg in "$@"; do
   case "$arg" in
     --skip-docker) SKIP_DOCKER=true ;;
     --keep-stack) KEEP_STACK=true ;;
+    --all-projects) ALL_PROJECTS=true ;;
+    --gifs) RECORD_GIFS=true ;;
     -h|--help)
-      echo "Usage: $0 [--skip-docker] [--keep-stack]"
+      echo "Usage: $0 [--skip-docker] [--keep-stack] [--all-projects] [--gifs]"
+      echo "  --all-projects  smoke + démo (CI / validation complète)"
+      echo "  --gifs          WebM → docs/public/demo (après démo, ffmpeg requis)"
       exit 0
       ;;
     *) echo "Option inconnue: $arg" >&2; exit 1 ;;
   esac
 done
+
+# Rétrocompat : npm run test:e2e:demo (PLAYWRIGHT_DEMO=1 sans --all-projects)
+if [[ "${PLAYWRIGHT_DEMO:-}" == "1" && "$ALL_PROJECTS" == false ]]; then
+  RECORD_GIFS=true
+fi
+
+# Backend lit PLAYWRIGHT_DEMO au boot (auth throttle 500/min vs 10) — avant nest start
+if [[ "$ALL_PROJECTS" == true || "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
+  export PLAYWRIGHT_DEMO=1
+fi
 
 # Variables stack depuis config/open-task.e2e.json (surcharge env possible)
 if [[ "$SKIP_DOCKER" == false ]]; then
@@ -81,14 +97,22 @@ npx wait-on -t "${WAIT_ON_TIMEOUT_MS:-120000}" \
 log "Playwright"
 npx playwright install chromium
 
-if [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
+if [[ "$ALL_PROJECTS" == true ]]; then
+  log "Playwright — smoke"
+  npm test -- --project=smoke-desktop
+  log "Playwright — démo (desktop + mobile)"
+  npm test -- --project=demo-desktop --project=demo-mobile
+elif [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   export PLAYWRIGHT_DEMO=1
   npm test -- --project=demo-desktop --project=demo-mobile
+else
+  npm test -- --project=smoke-desktop
+fi
+
+if [[ "$RECORD_GIFS" == true ]]; then
   log "Conversion vidéos → GIF (docs/public/demo)"
   cd "${ROOT}"
   node scripts/ci/cli.mjs gifs
-else
-  npm test -- --project=smoke-desktop
 fi
 
 log "Terminé."

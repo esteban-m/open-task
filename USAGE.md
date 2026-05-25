@@ -4,7 +4,7 @@ Captures animées générées par Playwright en CI, hébergées sur **GitHub Pag
 
 **Base URL :** `https://esteban-m.github.io/open-task/demo/`
 
-> Sur une **PR**, le workflow **Demo assets** valide les scénarios et publie l’artefact `demo-gifs`. Sur **`main`**, le workflow **Docs** régénère les GIF et les déploie avec le site. En local : `npm run test:e2e:demo` (ffmpeg requis) → `docs/public/demo/`.
+> Sur une **PR**, la CI exécute smoke + démo Playwright (sans GIF). Sur **push `main`**, la même passe enregistre les GIF et le site Pages est construit dans la CI. En local : `npm run test:e2e:demo` (ffmpeg requis) → `docs/public/demo/`.
 
 ---
 
