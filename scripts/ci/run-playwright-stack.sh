@@ -92,18 +92,20 @@ npx wait-on -t "${WAIT_ON_TIMEOUT_MS:-120000}" \
 log "Playwright"
 npx playwright install chromium
 
-PW_ARGS=()
 if [[ "$ALL_PROJECTS" == true ]]; then
+  # Smoke puis démos : une seule stack, mais pas de parallèle cross-projets
+  # (sinon register concurrents sur le même Postgres → timeouts en CI).
+  log "Playwright — smoke"
+  npm test -- --project=smoke-desktop
+  log "Playwright — démo (desktop + mobile)"
   export PLAYWRIGHT_DEMO=1
-  PW_ARGS=(--project=smoke-desktop --project=demo-desktop --project=demo-mobile)
+  npm test -- --project=demo-desktop --project=demo-mobile
 elif [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   export PLAYWRIGHT_DEMO=1
-  PW_ARGS=(--project=demo-desktop --project=demo-mobile)
+  npm test -- --project=demo-desktop --project=demo-mobile
 else
-  PW_ARGS=(--project=smoke-desktop)
+  npm test -- --project=smoke-desktop
 fi
-
-npm test -- "${PW_ARGS[@]}"
 
 if [[ "$RECORD_GIFS" == true ]]; then
   log "Conversion vidéos → GIF (docs/public/demo)"

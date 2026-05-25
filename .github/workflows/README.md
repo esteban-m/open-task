@@ -39,7 +39,7 @@ flowchart TB
 | **backend** | Postgres, Prisma, lint, tests unitaires + e2e Jest (coverage) |
 | **frontend** | `nuxt prepare`, lint, Vitest coverage |
 | **scripts** | Vitest `scripts/docs` + `scripts/ci` |
-| **e2e-playwright** | `run-playwright-stack.sh --skip-docker --all-projects` ; sur **main** : `--gifs` + artefact `demo-gifs` |
+| **e2e-playwright** | `run-playwright-stack.sh --skip-docker --all-projects` (smoke puis démo, une stack) ; sur **main** : `--gifs` |
 
 ### Phase 2
 

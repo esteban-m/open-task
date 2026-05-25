@@ -18,7 +18,7 @@ bash scripts/ci/run-playwright-stack.sh --skip-docker --all-projects
 | Mode | Commande | Sortie |
 |------|----------|--------|
 | Smoke | `npm run test:e2e:playwright` | tests `tests/smoke/` |
-| CI (PR / develop) | `--all-projects` dans `run-playwright-stack.sh` | smoke + démo, pas de GIF |
+| CI (PR / develop) | `--all-projects` (smoke puis démo, même stack) | smoke + démo, pas de GIF |
 | CI (main) | `--all-projects --gifs` | + `docs/public/demo/*.gif` |
 | Démo locale | `npm run test:e2e:demo` | démo + GIF |
 
