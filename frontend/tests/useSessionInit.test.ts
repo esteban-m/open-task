@@ -58,22 +58,26 @@ describe('useSessionInit', () => {
     vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
     await ensureSession()
 
+    vi.restoreAllMocks()
     setActivePinia(createPinia())
     useAuthStore().setToken('existing')
     await ensureSession()
     expect(nuxtFetchMock).not.toHaveBeenCalled()
   })
 
-  it('abandonne si Pinia disparaît pendant le refresh', async () => {
+  it('interrompt si Pinia disparaît avant la fin du refresh', async () => {
     resetSessionInit()
     const pinia = createPinia()
     setActivePinia(pinia)
-    nuxtFetchMock.mockImplementation(async () => {
-      vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
-      return { accessToken: 'late' }
+    let calls = 0
+    vi.spyOn(piniaApp, 'useAppPinia').mockImplementation(() => {
+      calls += 1
+      return calls === 1 ? pinia : null
     })
+    nuxtFetchMock.mockResolvedValueOnce({ accessToken: 'late' })
     await ensureSession()
     expect(useAuthStore(pinia).accessToken).toBeNull()
+    expect(nuxtFetchMock).not.toHaveBeenCalled()
   })
 
   it('passe un Pinia explicite à getAuthStore', async () => {

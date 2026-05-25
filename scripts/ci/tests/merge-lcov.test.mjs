@@ -23,6 +23,39 @@ describe('merge-lcov', () => {
     expect(() => parseMergeLcovArgs(['node', 'cli'])).toThrow(/Usage/);
   });
 
+  it('unionne BRDA en conservant une branche déjà couverte', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-brda-prev-'));
+    const a = path.join(dir, 'a.info');
+    const b = path.join(dir, 'b.info');
+    writeFileSync(
+      a,
+      `SF:src/y.ts
+DA:1,1
+BRDA:1,0,0,1
+LF:1
+LH:1
+BRF:1
+BRH:1
+end_of_record
+`,
+    );
+    writeFileSync(
+      b,
+      `SF:src/y.ts
+DA:1,1
+BRDA:1,0,0,0
+LF:1
+LH:1
+BRF:1
+BRH:0
+end_of_record
+`,
+    );
+    const merged = mergeLcov([a, b]);
+    expect(merged).toContain('BRDA:1,0,0,1');
+    expect(merged).toContain('BRH:1');
+  });
+
   it('unionne BRDA et fusionne deux enregistrements SF', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'lcov-brda-'));
     const a = path.join(dir, 'a.info');
