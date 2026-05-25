@@ -63,4 +63,21 @@ describe('enrichTasksWithLists', () => {
 
     expect(enriched.list).toBe(existing)
   })
+
+  it('laisse la tâche inchangée si la liste est inconnue', () => {
+    const [enriched] = enrichTasksWithLists([
+      {
+        id: 't1',
+        shortDescription: 'A',
+        listId: 'missing',
+        completed: false,
+        dueDate: '',
+        longDescription: null,
+        completedAt: null,
+        createdAt: '',
+        updatedAt: '',
+      },
+    ])
+    expect(enriched.list).toBeUndefined()
+  })
 })

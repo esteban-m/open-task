@@ -147,7 +147,7 @@ export function isMistralCapacityError(status, bodyText) {
   }
 }
 
-function isCapacityExceededError(err) {
+export function isCapacityExceededError(err) {
   const msg = String(err?.message ?? err);
   return isMistralCapacityError(429, msg) || /service_tier_capacity_exceeded/.test(msg);
 }

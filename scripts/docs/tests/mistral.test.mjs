@@ -4,6 +4,7 @@ import {
   chatCompletion,
   extractMermaidBlock,
   extractXmlTag,
+  isCapacityExceededError,
   isMistralCapacityError,
   resolveMistralCredentials,
   resolveMistralRequestOptions,
@@ -93,6 +94,13 @@ describe('mistral helpers', () => {
   it('resolveMistralRequestOptions retombe sur 1500 ms si requestDelayMs absent', () => {
     const opts = resolveMistralRequestOptions({}, { mistral: { retry: { maxAttempts: 5 } } });
     expect(opts.requestDelayMs).toBe(1500);
+  });
+});
+
+describe('extractXmlTag', () => {
+  it('retourne le texte brut sans balise XML', async () => {
+    const { extractXmlTag } = await import('../src/services/mistral.mjs');
+    expect(extractXmlTag('  contenu brut  ', 'doc')).toBe('contenu brut');
   });
 });
 
@@ -334,6 +342,13 @@ describe('chatCompletion', () => {
         messages: [{ role: 'user', content: 'x' }],
       }),
     ).rejects.toThrow('Mistral: réponse vide');
+  });
+});
+
+describe('isCapacityExceededError', () => {
+  it('accepte une erreur sans message (corps brut)', () => {
+    expect(isCapacityExceededError('service_tier_capacity_exceeded')).toBe(true);
+    expect(isCapacityExceededError({})).toBe(false);
   });
 });
 

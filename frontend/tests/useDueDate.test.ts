@@ -12,6 +12,7 @@ import {
 
 describe('useDueDate helpers', () => {
   it('dueDateKey normalizes ISO and plain dates', () => {
+    expect(dueDateKey('')).toBe('')
     expect(dueDateKey('2026-05-22T10:00:00.000Z')).toBe('2026-05-22')
     expect(dueDateKey('2026-05-22')).toBe('2026-05-22')
   })

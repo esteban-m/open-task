@@ -21,4 +21,32 @@ describe('normalizeOpenApiDocument', () => {
     });
     expect(doc.servers).toEqual([{ url: 'http://localhost:4000' }]);
   });
+
+  it('accepte paths vides et serveurs sans url', () => {
+    const doc = normalizeOpenApiDocument({
+      paths: {},
+      servers: [{ url: '/open-task/swagger' }, { url: 'http://localhost:4000' }],
+    });
+    expect(doc.servers).toEqual([{ url: 'http://localhost:4000' }]);
+  });
+
+  it('ignore les pathItem invalides et les opérations sans paramètres', () => {
+    const doc = normalizeOpenApiDocument({
+      paths: {
+        '/skip': null as unknown as Record<string, unknown>,
+        '/ok': {
+          get: { parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } }] },
+          post: {},
+        },
+      },
+    });
+
+    expect(doc.paths).toEqual({
+      '/skip': null,
+      '/ok': {
+        get: { parameters: [{ name: 'id', in: 'path', schema: { type: 'string' } }] },
+        post: {},
+      },
+    });
+  });
 });

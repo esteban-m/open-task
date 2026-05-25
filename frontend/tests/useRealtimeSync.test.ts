@@ -174,6 +174,13 @@ describe('useRealtimeSync', () => {
     expect(lists.lists.find((l) => l.id === 'l1')?.name).toBe('Renommée')
   })
 
+  it('enrichTask laisse la tâche si la liste est absente du store', () => {
+    const { bind } = useRealtimeSync()
+    bind()
+    handlers.get('task:created')?.(mockTask('t9', 'unknown-list', 'Orpheline'))
+    expect(useTasksStore().allTasks[0]?.list).toBeUndefined()
+  })
+
   it('syncListRooms appelle joinLists', () => {
     const lists = useListsStore()
     lists.lists = [mockList('l1', 'A'), mockList('l2', 'B')]

@@ -1,6 +1,8 @@
 import type { Task } from '~/stores/tasks'
 import type { TaskList } from '~/stores/lists'
 
+import { isRuntimeServer } from '~/utils/runtime-flags'
+
 let bound = false
 const unsubs: Array<() => void> = []
 
@@ -19,7 +21,7 @@ export function useRealtimeSync() {
   }
 
   function bind() {
-    if (bound || import.meta.server) return
+    if (bound || isRuntimeServer()) return
     bound = true
 
     unsubs.push(

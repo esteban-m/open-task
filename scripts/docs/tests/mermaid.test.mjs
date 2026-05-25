@@ -22,6 +22,11 @@ describe('mermaid', () => {
     expect(sanitizeMermaid(input)).toContain('A["Already quoted"]');
   });
 
+  it('preserve single-quoted bracket labels', () => {
+    const input = "flowchart TB\n  A['Quoted'] --> B";
+    expect(sanitizeMermaid(input)).toContain("A['Quoted']");
+  });
+
   it('collapses excessive blank lines', () => {
     const input = 'flowchart LR\n  A --> B\n\n\n\n';
     expect(sanitizeMermaid(input).split('\n\n').length).toBeLessThan(input.split('\n\n').length);

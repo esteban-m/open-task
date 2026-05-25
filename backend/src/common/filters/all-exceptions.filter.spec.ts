@@ -66,4 +66,12 @@ describe('AllExceptionsFilter', () => {
     filter.catch(new Error('db down'), host);
     expect(json).toHaveBeenCalledWith(expect.objectContaining({ message: 'db down' }));
   });
+
+  it('utilise le message par défaut pour HttpException objet sans message', () => {
+    const { host, json } = mockHost();
+    filter.catch(new HttpException({ statusCode: 400 }, HttpStatus.BAD_REQUEST), host);
+    expect(json).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Erreur interne du serveur', statusCode: 400 }),
+    );
+  });
 });

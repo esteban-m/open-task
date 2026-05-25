@@ -28,6 +28,11 @@ describe('sanitize', () => {
     expect(() => parseGithubRepository('bad!/repo')).toThrow(/owner/)
   })
 
+  it('assertGithubBranch utilise main par défaut', () => {
+    expect(assertGithubBranch()).toBe('main')
+    expect(assertGithubBranch(undefined)).toBe('main')
+  })
+
   it('assertGithubBranch rejects unsafe branch names', () => {
     expect(assertGithubBranch('main')).toBe('main')
     expect(() => assertGithubBranch('branch with spaces')).toThrow(/branch/)

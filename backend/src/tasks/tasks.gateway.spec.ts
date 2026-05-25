@@ -19,6 +19,30 @@ function createMockSocket(overrides: Partial<Socket> = {}): Socket {
   } as unknown as Socket;
 }
 
+describe('TASKS_GATEWAY_CORS_ORIGIN', () => {
+  const originalUrl = process.env.FRONTEND_URL;
+
+  afterEach(() => {
+    if (originalUrl === undefined) delete process.env.FRONTEND_URL;
+    else process.env.FRONTEND_URL = originalUrl;
+    jest.resetModules();
+  });
+
+  it('utilise FRONTEND_URL pour la config CORS', async () => {
+    process.env.FRONTEND_URL = 'https://app.example.test';
+    jest.resetModules();
+    const { TASKS_GATEWAY_CORS_ORIGIN } = await import('./tasks.gateway');
+    expect(TASKS_GATEWAY_CORS_ORIGIN).toBe('https://app.example.test');
+  });
+
+  it('utilise localhost par défaut sans FRONTEND_URL', async () => {
+    delete process.env.FRONTEND_URL;
+    jest.resetModules();
+    const { TASKS_GATEWAY_CORS_ORIGIN } = await import('./tasks.gateway');
+    expect(TASKS_GATEWAY_CORS_ORIGIN).toBe('http://localhost:3000');
+  });
+});
+
 describe('TasksGateway', () => {
   let gateway: TasksGateway;
   let emitMock: jest.Mock;

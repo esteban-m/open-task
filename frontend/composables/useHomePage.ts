@@ -1,5 +1,7 @@
 import type { TaskList } from '~/stores/lists'
 
+import { isRuntimeClient } from '~/utils/runtime-flags'
+
 /** Logique de la page d’accueil (listes, socket, vues calendrier/kanban). */
 export function useHomePage() {
   const api = useApi()
@@ -15,7 +17,7 @@ export function useHomePage() {
       listsStore.setLists(lists)
       syncListRooms()
 
-      if (typeof window !== 'undefined') {
+      if (isRuntimeClient()) {
         const savedId = localStorage.getItem('selectedListId')
         const listId = savedId && lists.some((l) => l.id === savedId) ? savedId : lists[0]?.id
         if (listId) {
@@ -29,7 +31,7 @@ export function useHomePage() {
     await socket.connect()
     syncListRooms()
 
-    const savedView = typeof window !== 'undefined' ? localStorage.getItem('mainContentView') : null
+    const savedView = isRuntimeClient() ? localStorage.getItem('mainContentView') : null
     if (savedView === 'calendar' || savedView === 'kanban') {
       await loadAllTasksForCalendar()
     }

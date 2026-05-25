@@ -14,4 +14,11 @@ describe('useTheme', () => {
     applyTheme('does-not-exist')
     expect(themeId.value).toBe('violet')
   })
+
+  it('initTheme restaure le thème sauvegardé', () => {
+    localStorage.setItem('open-task-theme', 'abyss')
+    const { initTheme, themeId } = useTheme()
+    initTheme()
+    expect(themeId.value).toBe('abyss')
+  })
 })

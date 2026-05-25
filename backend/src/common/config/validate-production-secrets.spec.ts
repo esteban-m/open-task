@@ -28,6 +28,14 @@ describe('validateProductionSecrets', () => {
     expect(() => validateProductionSecrets()).toThrow(/JWT_SECRET/);
   });
 
+  it('traite les secrets absents comme vides en production', () => {
+    process.env.NODE_ENV = 'production';
+    delete process.env.SKIP_PRODUCTION_SECRET_CHECK;
+    delete process.env.JWT_SECRET;
+    delete process.env.JWT_REFRESH_SECRET;
+    expect(() => validateProductionSecrets()).toThrow(/JWT_SECRET/);
+  });
+
   it('accepts strong secrets in production', () => {
     process.env.NODE_ENV = 'production';
     const strong = 'a'.repeat(40);

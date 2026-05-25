@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { prismaSchemaToMermaid } from '../src/services/prisma-erd.mjs'
+import { mapPrismaType, prismaSchemaToMermaid } from '../src/services/prisma-erd.mjs'
 
 describe('prismaSchemaToMermaid', () => {
   it('builds erDiagram from schema models', () => {
@@ -22,5 +22,9 @@ model TaskList {
     expect(mermaid).toContain('erDiagram');
     expect(mermaid).toContain('User');
     expect(mermaid).toContain('TaskList');
+  });
+
+  it('mappe les types Prisma inconnus vers string', () => {
+    expect(mapPrismaType('CustomScalar')).toBe('string');
   });
 });

@@ -1,27 +1,29 @@
-import { defineComponent } from 'vue'
-import { describe, expect, it } from 'vitest'
-import { mountSuspended } from '@nuxt/test-utils/runtime'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
 
 import { useAccessToken } from '~/composables/useAccessToken'
-
-const AccessTokenHarness = defineComponent({
-  name: 'AccessTokenHarness',
-  setup() {
-    const token = useAccessToken()
-    return { token }
-  },
-  template: '<div />',
-})
+import { useAuthStore } from '~/stores/auth'
 
 describe('useAccessToken', () => {
-  it('reads and writes token via auth store', async () => {
-    const wrapper = await mountSuspended(AccessTokenHarness)
-    const { getToken, setToken, clearToken } = wrapper.vm.token
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
 
+  it('lit et écrit le jeton via Pinia', () => {
+    const { getToken, setToken, clearToken } = useAccessToken()
     expect(getToken()).toBeNull()
-    setToken('access-123')
-    expect(getToken()).toBe('access-123')
+    setToken('tok')
+    expect(getToken()).toBe('tok')
+    expect(useAuthStore().accessToken).toBe('tok')
+    clearToken()
+    expect(getToken()).toBeNull()
+  })
 
+  it('no-op sans Pinia', () => {
+    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    const { getToken, setToken, clearToken } = useAccessToken()
+    expect(getToken()).toBeNull()
+    setToken('x')
     clearToken()
     expect(getToken()).toBeNull()
   })

@@ -135,6 +135,13 @@ export function buildUseSocket(isServer: boolean) {
   return { connect, disconnect, joinList, leaveList, joinLists, on, isConnected }
 }
 
+import { isRuntimeServer } from '~/utils/runtime-flags'
+
+/** Factory testable (SSR vs client). */
+export function useSocketFactory(isServer = isRuntimeServer()) {
+  return buildUseSocket(isServer)
+}
+
 export function useSocket() {
-  return buildUseSocket(import.meta.server === true)
+  return useSocketFactory()
 }

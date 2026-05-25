@@ -65,4 +65,40 @@ describe('useListPermission', () => {
     expect(requireEdit('l1', 'supprimer')).toBe(false)
     expect(requireEdit('l1')).toBe(false)
   })
+
+  it('normalise les rôles legacy et autorise requireEdit pour owner', () => {
+    const lists = useListsStore()
+    lists.setLists([
+      {
+        id: 'l-user',
+        name: 'Legacy user',
+        userId: 'u1',
+        myRole: 'user',
+        createdAt: '',
+        updatedAt: '',
+      },
+      {
+        id: 'l-visitor',
+        name: 'Visitor',
+        userId: 'u1',
+        myRole: 'visitor',
+        createdAt: '',
+        updatedAt: '',
+      },
+      {
+        id: 'l-owner',
+        name: 'Owner',
+        userId: 'u1',
+        myRole: 'owner',
+        createdAt: '',
+        updatedAt: '',
+      },
+    ])
+
+    const { roleForList, requireEdit } = useListPermission()
+    expect(roleForList('l-user')).toBe('editor')
+    expect(roleForList('l-visitor')).toBe('viewer')
+    expect(roleForList('unknown')).toBe('owner')
+    expect(requireEdit('l-owner', 'éditer')).toBe(true)
+  })
 })

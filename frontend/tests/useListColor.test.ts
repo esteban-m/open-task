@@ -22,9 +22,22 @@ describe('useListColor', () => {
       },
     ])
 
-    const { colorForListId, DEFAULT } = useListColor()
+    const { colorForListId, colorForTask, DEFAULT } = useListColor()
     expect(colorForListId('l1')).toBe('#ff0000')
     expect(colorForListId('missing')).toBe(DEFAULT)
+    expect(
+      colorForTask({
+        id: 't2',
+        listId: 'l1',
+        shortDescription: 'x',
+        longDescription: null,
+        dueDate: '',
+        completed: false,
+        completedAt: null,
+        createdAt: '',
+        updatedAt: '',
+      }),
+    ).toBe('#ff0000')
   })
 
   it('colorForList and colorForTask resolve colors', () => {

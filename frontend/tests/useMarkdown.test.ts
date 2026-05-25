@@ -28,6 +28,8 @@ describe('useMarkdown', () => {
     expect(checkboxLineIndexFromHtml(md, inputs[1]!)).toBe(1)
     expect(checkboxLineIndexFromHtml(md, inputs[0]!)).toBe(0)
     expect(checkboxLineIndexFromHtml(md, document.createElement('input'))).toBe(-1)
+    document.body.innerHTML = '<input type="checkbox" />'
+    expect(checkboxLineIndexFromHtml(md, document.querySelector('input')!)).toBe(-1)
     document.body.innerHTML = ''
   })
 

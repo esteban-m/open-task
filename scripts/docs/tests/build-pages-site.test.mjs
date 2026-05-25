@@ -157,6 +157,31 @@ describe('build-pages-site', () => {
     expect(existsSync(path.join(out, 'demo'))).toBe(false);
   });
 
+  it('runBuildPagesSite résout outDir par défaut sous le dépôt', () => {
+    const repo = path.join(tmp, 'repo-default-out');
+    const hub = path.join(repo, 'docs/hub');
+    const docsDist = path.join(repo, 'docs/.vitepress/dist');
+    const histoire = path.join(repo, 'frontend/histoire-static');
+    const swaggerUi = path.join(repo, 'backend/node_modules/swagger-ui-dist');
+    mkdirSync(hub, { recursive: true });
+    writeFileSync(path.join(hub, 'index.html'), '__PAGES_BASE__');
+    mkdirSync(docsDist, { recursive: true });
+    writeFileSync(path.join(docsDist, 'index.html'), 'docs');
+    mkdirSync(histoire, { recursive: true });
+    writeFileSync(path.join(histoire, 'index.html'), 'hi');
+    mkdirSync(swaggerUi, { recursive: true });
+    writeFileSync(path.join(swaggerUi, 'package.json'), '{}');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui.css'), '');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui-bundle.js'), '');
+    writeFileSync(path.join(swaggerUi, 'swagger-ui-standalone-preset.js'), '');
+    writeFileSync(path.join(repo, 'backend/package.json'), '{}');
+    writeFileSync(path.join(repo, 'backend/openapi.json'), '{}');
+
+    runBuildPagesSite(repo, { pagesBase: '/p/' });
+
+    expect(existsSync(path.join(repo, 'docs-site', 'index.html'))).toBe(true);
+  });
+
   it('runBuildPagesSite sans hero.svg', () => {
     const repo = path.join(tmp, 'repo-no-hero');
     const hub = path.join(repo, 'docs/hub');

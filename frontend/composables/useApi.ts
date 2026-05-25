@@ -1,10 +1,19 @@
 // composables/useApi.ts
 // Couche HTTP centralisée avec gestion du refresh token transparent
 
-export function useApi() {
-  const config = useRuntimeConfig()
-  const router = useRouter()
-  const { getToken, setToken, clearToken } = useAccessToken()
+/** Client HTTP injectable (tests + useApi). */
+export function createApiClient(deps: {
+  getToken: () => string | null
+  setToken: (token: string) => void
+  clearToken: () => void
+  apiBase: string
+  fetchFn?: typeof fetch
+  fetchAuth?: typeof $fetch
+  pushRoute?: (path: string) => void | Promise<void>
+}) {
+  const fetchFn = deps.fetchFn ?? fetch
+  const fetchAuth = deps.fetchAuth ?? $fetch
+  const pushRoute = deps.pushRoute ?? (() => undefined)
 
   let refreshPromise: Promise<string | null> | null = null
 
@@ -13,24 +22,24 @@ export function useApi() {
 
     refreshPromise = (async () => {
       try {
-        const response = await $fetch<{ accessToken: string }>(
-          `${config.public.apiBase}/auth/refresh`,
-          { method: 'POST', credentials: 'include' }
+        const response = await fetchAuth<{ accessToken: string }>(
+          `${deps.apiBase}/auth/refresh`,
+          { method: 'POST', credentials: 'include' },
         )
-        setToken(response.accessToken)
+        deps.setToken(response.accessToken)
         return response.accessToken
       } catch {
         resetSessionInit()
-        clearToken()
+        deps.clearToken()
         try {
-          await $fetch(`${config.public.apiBase}/auth/logout`, {
+          await fetchAuth(`${deps.apiBase}/auth/logout`, {
             method: 'POST',
             credentials: 'include',
           })
         } catch {
           /* ignore */
         }
-        router.push('/login')
+        await pushRoute('/login')
         return null
       } finally {
         refreshPromise = null
@@ -42,11 +51,11 @@ export function useApi() {
 
   async function request<T>(
     path: string,
-    options: RequestInit & { params?: Record<string, string> } = {}
+    options: RequestInit & { params?: Record<string, string> } = {},
   ): Promise<T> {
-    const url = `${config.public.apiBase}${path}`
+    const url = `${deps.apiBase}${path}`
     const isPublicAuth = path === '/auth/login' || path === '/auth/register'
-    const token = isPublicAuth ? null : getToken()
+    const token = isPublicAuth ? null : deps.getToken()
 
     const fetchOptions: RequestInit = {
       ...options,
@@ -58,9 +67,8 @@ export function useApi() {
       },
     }
 
-    let response = await fetch(url, fetchOptions)
+    let response = await fetchFn(url, fetchOptions)
 
-    // Tentative de refresh si 401 (pas sur login/register : 401 = identifiants invalides)
     if (response.status === 401 && token && !isPublicAuth) {
       const newToken = await refreshAccessToken()
       if (!newToken) {
@@ -69,7 +77,7 @@ export function useApi() {
           message: 'Session expirée. Veuillez vous reconnecter.',
         })
       }
-      response = await fetch(url, {
+      response = await fetchFn(url, {
         ...fetchOptions,
         headers: {
           ...fetchOptions.headers,
@@ -102,5 +110,22 @@ export function useApi() {
     patch: <T>(path: string, body?: unknown) =>
       request<T>(path, { method: 'PATCH', body: body ? JSON.stringify(body) : undefined }),
     del: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
+    refreshAccessToken,
   }
+}
+
+export function useApi() {
+  const config = useRuntimeConfig()
+  const router = useRouter()
+  const { getToken, setToken, clearToken } = useAccessToken()
+
+  return createApiClient({
+    getToken,
+    setToken,
+    clearToken,
+    apiBase: config.public.apiBase,
+    pushRoute: (path) => {
+      void router.push(path)
+    },
+  })
 }

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { buildUseSocket } from '~/composables/useSocket'
+import { buildUseSocket, useSocketFactory } from '~/composables/useSocket'
 
 const mockEmit = vi.fn()
 const mockOn = vi.fn()
@@ -157,6 +157,14 @@ describe('useSocket', () => {
     joinLists(['a', 'b'])
     expect(mockEmit).toHaveBeenCalledWith('join:list', 'a')
     expect(mockEmit).toHaveBeenCalledWith('join:list', 'b')
+  })
+})
+
+describe('useSocketFactory', () => {
+  it('utilise buildUseSocket(true) côté SSR', async () => {
+    const api = useSocketFactory(true)
+    await api.connect()
+    expect(api.isConnected()).toBe(false)
   })
 })
 
