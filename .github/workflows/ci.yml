@@ -341,18 +341,6 @@ jobs:
           node scripts/ci/cli.mjs fix-lcov-paths scripts/docs/coverage/lcov.info scripts/docs
           node scripts/ci/cli.mjs fix-lcov-paths scripts/ci/coverage/lcov.info scripts/ci
 
-      - name: Fusionner LCOV (union, préserve toutes les lignes)
-        run: |
-          set -euo pipefail
-          node scripts/ci/cli.mjs merge-lcov \
-            -o backend/coverage/lcov.merged.info \
-            backend/coverage/lcov.info \
-            backend/coverage-e2e/lcov.info
-          node scripts/ci/cli.mjs merge-lcov \
-            -o scripts/docs/coverage/lcov.merged.info \
-            scripts/docs/coverage/lcov.info \
-            scripts/ci/coverage/lcov.info
-
       - name: Fusionner résumé monorepo
         run: |
           node scripts/ci/cli.mjs merge-coverage \
