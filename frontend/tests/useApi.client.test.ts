@@ -19,7 +19,7 @@ describe('createApiClient', () => {
       getToken: () => 'tok',
       setToken: vi.fn(),
       clearToken: vi.fn(),
-      fetchAuth,
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
     })
 
     const p1 = client.refreshAccessToken()
@@ -35,7 +35,7 @@ describe('createApiClient', () => {
       getToken: () => 'tok',
       setToken: vi.fn(),
       clearToken: vi.fn(),
-      fetchAuth,
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
     })
 
     await expect(client.refreshAccessToken()).resolves.toBeNull()
@@ -52,7 +52,7 @@ describe('createApiClient', () => {
       getToken: () => 'tok',
       setToken: vi.fn(),
       clearToken: vi.fn(),
-      fetchAuth,
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
       pushRoute,
     })
 
@@ -71,7 +71,7 @@ describe('createApiClient', () => {
       getToken: () => 'tok',
       setToken: vi.fn(),
       clearToken: vi.fn(),
-      fetchAuth,
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
       pushRoute,
     })
 

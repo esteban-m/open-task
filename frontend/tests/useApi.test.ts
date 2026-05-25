@@ -72,6 +72,7 @@ describe('useApi', () => {
 
   it('refreshes token on 401 and retries request', async () => {
     let fetchCalls = 0
+    // @ts-expect-error TS2321 — mock $fetch + types de routes Nuxt
     vi.mocked($fetch).mockResolvedValue({ accessToken: 'new-tok' })
     vi.mocked(fetch).mockImplementation(async () => {
       fetchCalls += 1

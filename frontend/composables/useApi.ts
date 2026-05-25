@@ -124,6 +124,8 @@ export function useApi() {
     setToken,
     clearToken,
     apiBase: config.public.apiBase,
-    pushRoute: (path) => router.push(path),
+    pushRoute: (path) => {
+      void router.push(path)
+    },
   })
 }

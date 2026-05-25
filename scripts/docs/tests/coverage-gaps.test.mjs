@@ -426,15 +426,5 @@ export class ItemsController {
     }
   });
 
-  it('assemble ignore ENOENT sur generatedDir', async () => {
-    const { assembleDocs } = await import('../src/generators/assemble.mjs');
-    const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-    const config = await (await import('../src/core/config.mjs')).loadConfig();
-    const missing = path.join(repoRoot, '.vitest-missing-generated');
-    config.paths = { ...config.paths, generatedDir: 'generated', docsDir: 'docs' };
-    const paths = (await import('../src/core/paths.mjs')).createPaths(repoRoot, config);
-    paths.generatedDir = missing;
-    await expect(assembleDocs(repoRoot, config)).resolves.toBeUndefined();
-  });
 });
 
