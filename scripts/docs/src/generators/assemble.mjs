@@ -10,6 +10,16 @@ import { injectDiagramsIntoDir } from '../services/diagrams.mjs';
 
 const MERMAID_TARGETS = ['generated/architecture.md', 'generated/database.md'];
 
+/** Post-traitement des pages générées (liens + diagrammes). */
+export async function postProcessGeneratedDir(generatedDir, config) {
+  try {
+    await fixLinksInDir(generatedDir, config);
+    await injectDiagramsIntoDir(generatedDir, config.diagrams, readFile, writeFile);
+  } catch (err) {
+    if (err.code !== 'ENOENT') throw err;
+  }
+}
+
 export async function assembleDocs(repoRoot, config) {
   const paths = createPaths(repoRoot, config);
   const { docsDir, generatedDir } = paths;
@@ -21,12 +31,7 @@ export async function assembleDocs(repoRoot, config) {
     }
   }
 
-  try {
-    await fixLinksInDir(generatedDir, config);
-    await injectDiagramsIntoDir(generatedDir, config.diagrams, readFile, writeFile);
-  } catch (err) {
-    if (err.code !== 'ENOENT') throw err;
-  }
+  await postProcessGeneratedDir(generatedDir, config);
 
   const sidebar = await buildSidebar(config, paths);
   await writeFile(paths.sidebarFile, `${JSON.stringify(sidebar, null, 2)}\n`, 'utf8');
