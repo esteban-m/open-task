@@ -71,10 +71,10 @@ Voir le **[guide complet](USAGE.md)** (inscription, listes, tâches, vues, conne
 <p align="center">
   <img src="https://esteban-m.github.io/open-task/demo/desktop/02-liste-tache.gif" alt="Création liste et tâche — desktop" width="720" />
   <br />
-  <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour via workflow <strong>Docs</strong> sur <code>main</code></sub>
+  <sub>Exemple : <code>02-liste-tache</code> (desktop) — mis à jour via CI sur <code>main</code> (Playwright + Pages)</sub>
 </p>
 
-> Les GIF sont validés sur chaque PR (artefact **demo-gifs**), puis déployés sur Pages après merge. En local : `npm run test:e2e:demo` (ffmpeg).
+> Sur chaque PR, la CI exécute smoke + démo Playwright (sans GIF). Sur push <code>main</code>, les GIF sont générés et déployés sur Pages. En local : <code>npm run test:e2e:demo</code> (ffmpeg).
 
 ---
 
