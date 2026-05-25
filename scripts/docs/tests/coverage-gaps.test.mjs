@@ -109,6 +109,7 @@ describe('coverage gaps — docs scripts', () => {
   });
 
   it('extractInternalDocPath couvre //, open-task et chemins relatifs invalides', () => {
+    expect(extractInternalDocPath('generated/architecture')).toBe('/generated/architecture');
     expect(extractInternalDocPath(null)).toBeNull();
     expect(extractInternalDocPath('//evil.com/path')).toBeNull();
     expect(extractInternalDocPath('https://x.github.io/open-task/generated/architecture')).toBe(

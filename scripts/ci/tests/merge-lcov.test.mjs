@@ -19,8 +19,45 @@ describe('merge-lcov', () => {
     expect(inputs).toEqual(['a.info', 'b.info']);
   });
 
+  it('parseRecords marque une branche non couverte', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-parse-brda-'));
+    const a = path.join(dir, 'a.info');
+    writeFileSync(
+      a,
+      `SF:src/branch.ts
+DA:1,1
+BRDA:2,0,0,0
+BRDA:2,0,1,-
+LF:1
+LH:1
+BRF:2
+BRH:0
+end_of_record
+`,
+    );
+    expect(mergeLcov([a])).toContain('BRDA:2,0,0,0');
+  });
+
   it('parseMergeLcovArgs exige des entrées', () => {
     expect(() => parseMergeLcovArgs(['node', 'cli'])).toThrow(/Usage/);
+  });
+
+  it('unionne deux rapports sans branche couverte', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lcov-brda-miss-'));
+    const a = path.join(dir, 'a.info');
+    const b = path.join(dir, 'b.info');
+    const rec = `SF:src/z.ts
+DA:1,0
+BRDA:1,0,0,0
+LF:1
+LH:0
+BRF:1
+BRH:0
+end_of_record
+`;
+    writeFileSync(a, rec);
+    writeFileSync(b, rec);
+    expect(mergeLcov([a, b])).toContain('BRDA:1,0,0,0');
   });
 
   it('unionne BRDA en conservant une branche déjà couverte', () => {
