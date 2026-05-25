@@ -59,6 +59,13 @@ describe('useRealtimeSync', () => {
     unbind()
   })
 
+  it('bind est idempotent', () => {
+    const { bind } = useRealtimeSync()
+    bind()
+    bind()
+    expect(handlers.size).toBeGreaterThan(0)
+  })
+
   it('bind applique task:created au store', () => {
     const lists = useListsStore()
     lists.lists = [mockList('l1', 'Liste', '#fff')]

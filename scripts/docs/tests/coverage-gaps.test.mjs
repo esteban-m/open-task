@@ -9,8 +9,11 @@ import {
   extractInternalDocPath,
   fixLinksInDir,
   normalizeMarkdownLink,
+  normalizeRelativeHref,
   repairVoirAussiSection,
+  stripOpenTaskPrefix,
 } from '../src/services/links.mjs';
+import * as linksModule from '../src/services/links.mjs';
 import { writeGeneratedDoc } from '../src/services/writer.mjs';
 import { buildLocalFileTree, fetchGithubTree, readReadme } from '../src/services/github.mjs';
 
@@ -22,6 +25,57 @@ describe('coverage gaps — docs scripts', () => {
   afterEach(() => {
     globalThis.fetch = originalFetch;
     vi.restoreAllMocks();
+  });
+
+  it('buildDocTitleMaps enregistre pages, chapitres et fixLinks sans linkRewrites', async () => {
+    const mapsEmpty = buildDocTitleMaps({
+      navigation: {},
+      chapters: [],
+      defaultSeeAlso: [],
+      linkLabelAliases: [],
+    });
+    expect(mapsEmpty.pathToTitle.size).toBe(0);
+
+    const maps = buildDocTitleMaps({
+      navigation: {
+        generatedPages: [{ link: '/generated/foo', title: 'Foo' }],
+        staticPages: [{ link: '/guide/bar', title: 'Bar' }],
+      },
+      chapters: [{ path: 'baz', title: 'Baz' }],
+      defaultSeeAlso: [],
+      linkLabelAliases: [],
+    });
+    expect(maps.pathToTitle.get('/generated/foo')).toBe('Foo');
+    expect(maps.pathToTitle.get('/guide/bar')).toBe('Bar');
+    expect(maps.pathToTitle.get('/generated/baz')).toBe('Baz');
+
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'docs-no-rewrites-'));
+    await writeFile(path.join(dir, 'page.md'), '# Test\n', 'utf8');
+    const config = {
+      navigation: {
+        generatedPages: [{ link: '/generated/architecture', file: 'architecture.md' }],
+        staticPages: [],
+        categories: [],
+        home: { link: '/', text: 'Home' },
+      },
+      chapters: [],
+    };
+    try {
+      await fixLinksInDir(dir, config);
+      expect(await readFile(path.join(dir, 'page.md'), 'utf8')).toContain('# Test');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('buildDocTitleMaps ignore chapters absents', () => {
+    const maps = buildDocTitleMaps({
+      navigation: { generatedPages: [], staticPages: [] },
+      chapters: undefined,
+      defaultSeeAlso: [],
+      linkLabelAliases: [],
+    });
+    expect(maps.pathToTitle.size).toBe(0);
   });
 
   it('buildDocTitleMaps enregistre title et alias sans écraser', () => {
@@ -38,13 +92,41 @@ describe('coverage gaps — docs scripts', () => {
     expect(maps.labelToHref.get('autre')).toBe('/guide/y');
   });
 
+  it('stripOpenTaskPrefix gère la racine et les sous-chemins', () => {
+    expect(stripOpenTaskPrefix('/open-task/')).toBe('/');
+    expect(stripOpenTaskPrefix('/open-task/generated/architecture')).toBe(
+      '/generated/architecture',
+    );
+    expect(stripOpenTaskPrefix('/open-task//guide/start')).toBe('/guide/start');
+  });
+
+  it('normalizeMarkdownLink utilise normalizeRelativeHref si extract est null', () => {
+    const spy = vi.spyOn(linksModule, 'extractInternalDocPath').mockReturnValue(null);
+    const valid = new Set(['/guide/start']);
+    expect(normalizeRelativeHref('guide/start')).toBe('/guide/start');
+    expect(normalizeMarkdownLink('Lbl', 'guide/start', valid, {})).toBe('[Lbl](/guide/start)');
+    spy.mockRestore();
+  });
+
   it('extractInternalDocPath couvre //, open-task et chemins relatifs invalides', () => {
+    expect(extractInternalDocPath('generated/architecture')).toBe('/generated/architecture');
     expect(extractInternalDocPath(null)).toBeNull();
     expect(extractInternalDocPath('//evil.com/path')).toBeNull();
     expect(extractInternalDocPath('https://x.github.io/open-task/generated/architecture')).toBe(
       '/generated/architecture',
     );
+    expect(
+      extractInternalDocPath('https://example.com/open-task/generated/architecture'),
+    ).toBe('/generated/architecture');
     expect(extractInternalDocPath('not-a-valid-url')).toBeNull();
+    expect(
+      normalizeMarkdownLink('Lbl', 'guide/getting-started', new Set(['/guide/getting-started']), {}),
+    ).toBe('[Lbl](/guide/getting-started)');
+  });
+
+  it('normalizeMarkdownLink retourne le label si la cible est invalide', () => {
+    const valid = new Set(['/guide/ok']);
+    expect(normalizeMarkdownLink('Lbl', '/guide/missing', valid, {})).toBe('Lbl');
   });
 
   it('normalizeMarkdownLink ignore les liens https externes', () => {
@@ -247,6 +329,17 @@ Getting Started
 });
 
 describe('coverage gaps — generators & services', () => {
+  it('api-reference enregistre une route GET async', async () => {
+    const { parseController } = await import('../src/generators/api-reference.mjs');
+    const parsed = parseController(
+      `@Controller('items')\nexport class ItemsController {\n  @Get()\n  async list() {}\n}\n`,
+      '/repo/backend/src/items.controller.ts',
+      '/repo',
+    );
+    expect(parsed.routes[0]?.path).toBe('/items');
+    expect(parsed.routes[0]?.method).toBe('GET');
+  });
+
   it('api-reference parse routes sans handler et chemin racine', async () => {
     const { parseController } = await import('../src/generators/api-reference.mjs');
     const empty = parseController(
@@ -396,6 +489,133 @@ export class ItemsController {
       vi.doUnmock('../src/services/mistral.mjs');
       vi.resetModules();
     }
+  });
+
+  it('architecture utilise le texte brut si extractMermaidBlock échoue', async () => {
+    vi.resetModules();
+    const chatCompletion = vi
+      .fn()
+      .mockResolvedValueOnce('<explanation>OK</explanation>')
+      .mockResolvedValueOnce('flowchart LR\n  A --> B');
+    vi.doMock('../src/services/mistral.mjs', () => ({
+      chatCompletion,
+      extractMermaidBlock: () => null,
+      extractXmlTag: (t, tag) => t.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`))?.[1]?.trim() ?? t,
+      resolveMistralCredentials: () => ({ apiKey: 'k', model: 'mistral-small-latest' }),
+      resolveMistralRequestOptions: () => ({ retry: { maxAttempts: 1 }, requestDelayMs: 0 }),
+    }));
+    const { generateArchitecture } = await import('../src/generators/architecture.mjs');
+    const config = await (await import('../src/core/config.mjs')).loadConfig();
+    const paths = (await import('../src/core/paths.mjs')).createPaths(repoRoot, config);
+    const outDir = await mkdtemp(path.join(os.tmpdir(), 'arch-raw-mermaid-'));
+    paths.generatedDir = outDir;
+    paths.generatedFile = (name) => path.join(outDir, name);
+    try {
+      await generateArchitecture(config, paths, { MISTRAL_API_KEY: 'test-key' });
+      const md = await readFile(paths.generatedFile('architecture.md'), 'utf8');
+      expect(md).toContain('flowchart LR');
+    } finally {
+      await rm(outDir, { recursive: true, force: true });
+      vi.doUnmock('../src/services/mistral.mjs');
+      vi.resetModules();
+    }
+  });
+
+  it('links — label seul, docMaps partiels et defaultSeeAlso', () => {
+    const valid = new Set(['/guide/start']);
+    const outLabel = repairVoirAussiSection(
+      `## Voir aussi
+Custom label
+`,
+      valid,
+      {},
+      {
+        labelToHref: new Map([['custom label', '/guide/start']]),
+        pathToTitle: new Map(),
+      },
+    );
+    expect(outLabel).toContain('[Custom label](/guide/start)');
+
+    const outDefault = repairVoirAussiSection('## Voir aussi\n\n', valid, {}, {});
+    expect(outDefault).toContain('## Voir aussi');
+  });
+
+  it('links — label seul via labelToHref et section voir aussi vide', () => {
+    const valid = new Set(['/guide/start']);
+    const maps = buildDocTitleMaps({
+      navigation: { generatedPages: [], staticPages: [] },
+      chapters: [],
+      defaultSeeAlso: [{ label: 'Start', href: '/guide/start' }],
+      linkLabelAliases: [{ label: 'Start', href: '/guide/start', title: 'Démarrage' }],
+    });
+    const out = repairVoirAussiSection(
+      `## Voir aussi
+Start
+`,
+      valid,
+      {},
+      maps,
+    );
+    expect(out).toContain('[Démarrage](/guide/start)');
+
+    const onlyDefault = repairVoirAussiSection('## Voir aussi\n\n', valid, {}, maps);
+    expect(onlyDefault).toContain('[Start](/guide/start)');
+  });
+
+  it('github — token Authorization et filtre maxFiles en walk', async () => {
+    const empty = await mkdtemp(path.join(os.tmpdir(), 'gh-zero-'));
+    await writeFile(path.join(empty, 'only.txt'), '1\n', 'utf8');
+    expect(await buildLocalFileTree(empty, 0)).toBe('');
+
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'gh-max-'));
+    for (let i = 0; i < 5; i += 1) {
+      await writeFile(path.join(dir, `file${i}.txt`), `${i}\n`, 'utf8');
+    }
+    await mkdir(path.join(dir, 'nested'), { recursive: true });
+    await writeFile(path.join(dir, 'nested', 'extra.txt'), 'more\n', 'utf8');
+    const tree = await buildLocalFileTree(dir, 5);
+    expect(tree).not.toContain('nested/extra.txt');
+    const tiny = await buildLocalFileTree(dir, 2);
+    expect(tiny.split('\n').filter(Boolean).length).toBeLessThanOrEqual(2);
+
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ description: '' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ tree: null }),
+      })
+      .mockResolvedValueOnce({ ok: false, status: 404 });
+    const noTree = await fetchGithubTree({ owner: 'o', repo: 'r' });
+    expect(noTree.fileTree).toBe('');
+
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ default_branch: 'main', description: '' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          tree: [
+            { type: 'blob', path: 'node_modules/pkg/index.js' },
+            { type: 'blob', path: 'src/a.ts' },
+          ],
+        }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          content: Buffer.from('# Remote readme').toString('base64'),
+        }),
+      });
+    const data = await fetchGithubTree({ owner: 'o', repo: 'r', token: 'ghp_test' });
+    expect(data.fileTree).not.toContain('node_modules/pkg/index.js');
+    expect(globalThis.fetch.mock.calls[0][1].headers.Authorization).toContain('ghp_test');
   });
 
   it('generateChapters applique le cooldown à partir du 2e chapitre', async () => {

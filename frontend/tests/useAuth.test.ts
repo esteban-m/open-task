@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 import { useAuthStore } from '~/stores/auth'
+import * as piniaApp from '~/utils/pinia-app'
 
 vi.mock('~/composables/useSessionInit', () => ({
   resetSessionInit: vi.fn(),
@@ -21,6 +22,17 @@ const AuthHarness = defineComponent({
 describe('useAuth', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+  })
+
+  it('getToken et getUser quand le store est vide', async () => {
+    const wrapper = await mountSuspended(AuthHarness)
+    const { auth } = wrapper.vm
+    const store = useAuthStore()
+    store.$patch({ accessToken: undefined, user: undefined })
+
+    expect(auth.getToken()).toBeNull()
+    expect(auth.getUser()).toBeNull()
+    expect(auth.isAuthenticated).toBe(false)
   })
 
   it('delegates to auth store', async () => {
@@ -44,7 +56,7 @@ describe('useAuth', () => {
   })
 
   it('fonctionne sans Pinia (no-op)', () => {
-    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
     const auth = useAuth()
 
     expect(auth.getToken()).toBeNull()

@@ -60,6 +60,20 @@ describe('wiki-pages', () => {
     expect(detailTable(summary, dir)).toContain('Aucun fichier');
   });
 
+  it('detailTable utilise 0 si covered/total absents', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-nulls-'));
+    const summary = path.join(dir, 's.json');
+    writeFileSync(
+      summary,
+      JSON.stringify({
+        '/repo/a.ts': { lines: { pct: 33 } },
+      }),
+    );
+    const table = detailTable(summary, '/repo');
+    expect(table).toContain('0/0');
+    expect(table).toContain('33%');
+  });
+
   it('detailTable tolère des métriques partielles', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'wiki-partial-'));
     const summary = path.join(dir, 's.json');
@@ -124,6 +138,32 @@ describe('wiki-pages', () => {
     expect(readFileSync(path.join(outDir, 'Couverture-des-tests.md'), 'utf8')).toContain('Vue d’ensemble');
     expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Scripts CI');
     expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Indisponible');
+  });
+
+  it('index wiki sans paquet Couverture-des-tests utilise le premier package', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-first-pkg-'));
+    const summary = path.join(dir, 'summary.json');
+    const lines = path.join(dir, 'lines.md');
+    const badge = path.join(dir, 'badge.md');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { total: 1, covered: 1, pct: 100 } } }));
+    writeFileSync(lines, 'lines');
+    writeFileSync(badge, 'badge');
+    const outDir = path.join(dir, 'wiki-out');
+    runWikiPages([
+      'node',
+      'cli',
+      '--out-dir',
+      outDir,
+      '--sha',
+      'sha2',
+      '--repo-root',
+      dir,
+      '--package',
+      `Couverture-CI:Scripts CI:${summary}:${lines}:${badge}`,
+    ]);
+    const index = readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8');
+    expect(index).toContain('Scripts CI');
+    expect(index).toContain('lines');
   });
 
   it('runWikiPages utilise runUrl par défaut', () => {

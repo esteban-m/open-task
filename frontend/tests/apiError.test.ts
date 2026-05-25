@@ -6,6 +6,7 @@ describe('apiError', () => {
   it('parseApiError maps status codes to user messages', () => {
     expect(parseApiError({ status: 403, message: 'Accès interdit' })).toContain('droits')
     expect(parseApiError({ status: 401, message: 'Token invalide' })).toBe('Token invalide')
+    expect(parseApiError({ status: 401, message: '' }, 'Session expirée')).toContain('Session expirée')
     expect(parseApiError({ status: 401 }, 'Session expirée')).toContain('Session expirée')
     expect(parseApiError({ status: 404 })).toContain('introuvable')
     expect(parseApiError({ status: 409 })).toContain('existe déjà')

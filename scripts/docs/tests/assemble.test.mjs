@@ -54,8 +54,12 @@ describe('assembleDocs', () => {
 
     const config = await loadConfig();
 
+    const diagrams = await import('../src/services/diagrams.mjs');
+    const injectSpy = vi.spyOn(diagrams, 'injectDiagramsIntoDir');
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     await assembleDocs(repoRoot, config);
+    expect(injectSpy).toHaveBeenCalled();
+    injectSpy.mockRestore();
     const md = await readFile(path.join(generatedDir, 'architecture.md'), 'utf8');
     expect(md).toContain('](/generated/architecture)');
     expect(md).toContain('A["API: REST"]');
@@ -63,6 +67,64 @@ describe('assembleDocs', () => {
     expect(sidebar).toContain('"text"');
     expect(log).toHaveBeenCalledWith(expect.stringContaining('[assemble] Mermaid corrigé'));
     log.mockRestore();
+  });
+
+  it('propage les erreurs autres que ENOENT', async () => {
+    vi.resetModules();
+    vi.doMock('../src/services/links.mjs', () => ({
+      fixLinksInDir: vi.fn(async () => {
+        const err = new Error('permission');
+        err.code = 'EACCES';
+        throw err;
+      }),
+    }));
+    vi.doMock('../src/services/diagrams.mjs', () => ({
+      injectDiagramsIntoDir: vi.fn(async () => {}),
+    }));
+    const { assembleDocs: assembleWithMock } = await import('../src/generators/assemble.mjs');
+    const tmp = path.join(vitestDir, 'eacces');
+    const generatedDir = path.join(tmp, 'docs/generated');
+    const docsDir = path.join(tmp, 'docs');
+    const docsGenerated = path.join(docsDir, 'generated');
+    await mkdir(generatedDir, { recursive: true });
+    await mkdir(docsGenerated, { recursive: true });
+    await mkdir(path.join(docsDir, '.vitepress'), { recursive: true });
+    await writeFile(path.join(docsGenerated, 'architecture.md'), '# Arch\n', 'utf8');
+    await writeFile(path.join(docsGenerated, 'database.md'), '# Base\n', 'utf8');
+    localPaths = {
+      generatedDir,
+      docsDir,
+      sidebarFile: path.join(docsDir, '.vitepress/sidebar.generated.json'),
+    };
+    const config = await loadConfig();
+    await expect(assembleWithMock(repoRoot, config)).rejects.toMatchObject({ code: 'EACCES' });
+    vi.doUnmock('../src/services/links.mjs');
+    vi.doUnmock('../src/services/diagrams.mjs');
+    vi.resetModules();
+  });
+
+  it('ignore ENOENT quand injectDiagrams échoue', async () => {
+    const tmp = path.join(vitestDir, 'inject-enoent');
+    const generatedDir = path.join(tmp, 'docs/generated');
+    const docsDir = path.join(tmp, 'docs');
+    const docsGenerated = path.join(docsDir, 'generated');
+    await mkdir(generatedDir, { recursive: true });
+    await mkdir(docsGenerated, { recursive: true });
+    await mkdir(path.join(docsDir, '.vitepress'), { recursive: true });
+    await writeFile(path.join(docsGenerated, 'architecture.md'), '# Arch\n', 'utf8');
+    await writeFile(path.join(docsGenerated, 'database.md'), '# Base\n', 'utf8');
+    localPaths = {
+      generatedDir,
+      docsDir,
+      sidebarFile: path.join(docsDir, '.vitepress/sidebar.generated.json'),
+    };
+    const diagrams = await import('../src/services/diagrams.mjs');
+    vi.spyOn(diagrams, 'injectDiagramsIntoDir').mockRejectedValueOnce(
+      Object.assign(new Error('missing diagrams'), { code: 'ENOENT' }),
+    );
+    const config = await loadConfig();
+    await expect(assembleDocs(repoRoot, config)).resolves.toBeUndefined();
+    vi.restoreAllMocks();
   });
 
   it('ignore ENOENT when generated dir is missing', async () => {

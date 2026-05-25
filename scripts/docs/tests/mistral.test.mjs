@@ -458,4 +458,8 @@ describe('validateMistralApiKey', () => {
   it('exige une clé', async () => {
     await expect(validateMistralApiKey('')).rejects.toThrow('MISTRAL_API_KEY manquant');
   });
+
+  it('échoue si aucun modèle valide après filtrage', async () => {
+    await expect(validateMistralApiKey('key-test', null)).rejects.toThrow(/validation échouée/i);
+  });
 });

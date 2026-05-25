@@ -7,6 +7,13 @@ const INTERNAL_PREFIXES = /^(?:\.\/)?(generated|guide|reference|operations)\//;
 const INTERNAL_PATH_RE =
   /(\/(?:generated|guide|reference|operations)(?:\/[a-zA-Z0-9._/-]*)?)/;
 
+/** Préfixe Pages GitHub `/open-task/` → chemin doc (racine → `/`). */
+export function stripOpenTaskPrefix(pathname) {
+  const stripped = pathname.slice('/open-task/'.length);
+  if (stripped === '') return '/';
+  return stripped.startsWith('/') ? stripped : `/${stripped}`;
+}
+
 export function normalizeLabel(label) {
   return String(label)
     .toLowerCase()
@@ -80,7 +87,7 @@ export function extractInternalDocPath(href) {
     const url = new URL(raw);
     let pathname = url.pathname.replace(/\/$/, '') || '/';
     if (pathname.startsWith('/open-task/')) {
-      pathname = pathname.slice('/open-task'.length) || '/';
+      pathname = stripOpenTaskPrefix(pathname);
     }
     const match = pathname.match(INTERNAL_PATH_RE);
     if (match) return match[1].replace(/\/$/, '');

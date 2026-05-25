@@ -3,6 +3,7 @@ import { defineVitestConfig } from '@nuxt/test-utils/config'
 export default defineVitestConfig({
   test: {
     environment: 'nuxt',
+    setupFiles: ['./tests/setup-vitest-client.ts'],
     include: ['tests/**/*.test.ts'],
     environmentOptions: {
       nuxt: {
@@ -22,6 +23,7 @@ export default defineVitestConfig({
         'config/**/*.ts',
         'stores/**/*.ts',
         'utils/**/*.ts',
+        'utils/pinia-app.ts',
         'middleware/**/*.ts',
         'middleware/**/*.ts',
         'plugins/**/*.ts',

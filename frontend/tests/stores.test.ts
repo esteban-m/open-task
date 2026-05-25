@@ -49,6 +49,21 @@ describe('Pinia stores', () => {
       store.selectList(null)
       expect(store.selectedListId).toBeNull()
     })
+
+    it('selectedList est null si la liste est absente', () => {
+      const store = useListsStore()
+      store.setLists([
+        {
+          id: 'l1',
+          name: 'Todo',
+          userId: 'u1',
+          createdAt: '',
+          updatedAt: '',
+        },
+      ])
+      store.selectList('missing')
+      expect(store.selectedList).toBeNull()
+    })
   })
 
   describe('useTasksStore', () => {

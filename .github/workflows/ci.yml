@@ -376,7 +376,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: backend/coverage/lcov.info,backend/coverage-e2e/lcov.info
+          files: backend/coverage/lcov.info
           flags: backend
           name: backend
           disable_search: true

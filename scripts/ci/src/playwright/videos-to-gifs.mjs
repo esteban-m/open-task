@@ -115,9 +115,9 @@ export function buildManifest(entries) {
     bySlug.get(slug)[variant] = true;
   }
   for (const slug of slugs) {
-    const flags = bySlug.get(slug) ?? {};
-    const desktop = flags.desktop ? `desktop/${slug}.gif` : '—';
-    const mobile = flags.mobile ? `mobile/${slug}.gif` : '—';
+    const flags = bySlug.get(slug);
+    const desktop = flags?.desktop ? `desktop/${slug}.gif` : '—';
+    const mobile = flags?.mobile ? `mobile/${slug}.gif` : '—';
     lines.push(`| ${slug} | ${desktop} | ${mobile} |`);
   }
   lines.push('');

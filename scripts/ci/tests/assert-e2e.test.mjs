@@ -16,6 +16,13 @@ describe('assert-e2e', () => {
     expect(assertE2eCoverage(file, 55).pct).toBe(60);
   });
 
+  it('utilise 0 si total ou pct absents du rapport', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'e2e-null-total-'));
+    const file = path.join(dir, 'partial.json');
+    writeFileSync(file, JSON.stringify({ total: { lines: { covered: 1 } } }));
+    expect(() => assertE2eCoverage(file, 55)).toThrow(/invalide/);
+  });
+
   it('rejette un rapport vide (0 lignes)', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'e2e-empty-'));
     const file = path.join(dir, 'empty.json');

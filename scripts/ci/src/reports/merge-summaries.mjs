@@ -26,6 +26,15 @@ function addMetric(a, b) {
   };
 }
 
+/** Union de couverture pour un même fichier (ex. unit + e2e) — évite de compter les lignes deux fois. */
+function unionMetric(a, b) {
+  const total = Math.max(a?.total ?? 0, b?.total ?? 0);
+  let covered = Math.max(a?.covered ?? 0, b?.covered ?? 0);
+  if (covered > total) covered = total;
+  const skipped = Math.max(a?.skipped ?? 0, b?.skipped ?? 0);
+  return { total, covered, skipped };
+}
+
 function withPct(metric) {
   if (!metric || metric.total === 0) return { ...metric, pct: 0 };
   return {
@@ -46,7 +55,7 @@ export function mergeSummaries(files) {
         continue;
       }
       for (const metric of METRICS) {
-        merged[key][metric] = withPct(addMetric(merged[key][metric], entry[metric]));
+        merged[key][metric] = withPct(unionMetric(merged[key][metric], entry[metric]));
       }
     }
   }

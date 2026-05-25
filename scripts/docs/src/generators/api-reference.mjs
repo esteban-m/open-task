@@ -28,7 +28,7 @@ export function parseController(content, file, repoRoot) {
     const method = routeMatch[1].toUpperCase();
     const sub = routeMatch[2] ?? '';
     const fullPath = `/${[prefix, sub].filter(Boolean).join('/').replace(/\/+/g, '/')}`;
-    routes.push({ method, path: fullPath || '/', handler });
+    routes.push({ method, path: fullPath, handler });
   }
 
   return { file: path.relative(repoRoot, file), routes };

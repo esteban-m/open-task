@@ -1,11 +1,12 @@
 import type { Pinia } from 'pinia'
 
+import { useAppPinia } from '~/utils/pinia-app'
 import { isRuntimeClient } from '~/utils/runtime-flags'
 
 let sessionInitPromise: Promise<void> | null = null
 
 function getAuthStore(pinia?: Pinia) {
-  const activePinia = pinia ?? useNuxtApp().$pinia
+  const activePinia = pinia ?? useAppPinia()
   if (!activePinia) return null
   return useAuthStore(activePinia)
 }

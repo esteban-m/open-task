@@ -3,11 +3,25 @@
 # (`scripts/ci/cli.mjs fix-lcov-paths`) avant upload — pas de fixes globaux ici
 # (un préfixe `src/` partagé cassait la fusion backend vs scripts).
 
+# Les branches partielles LCOV (Vitest/v8) ne doivent pas bloquer le 100 % lignes.
+parsers:
+  javascript:
+    enable_partials: false
+  lcov:
+    partials_as_hits: true
+  v1:
+    include_full_missed_files: false
+
 # Fichiers hors périmètre des tests unitaires (logique couverte via composables / e2e)
 ignore:
-  - "frontend/pages/**"
-  - "frontend/histoire/**"
-  - "frontend/**/*.story.vue"
+  - "**/pages/**"
+  - "**/histoire/**"
+  - "**/*.story.vue"
+  - "**/nuxt.config.ts"
+  - "**/vitest.config.ts"
+  - "**/vitest.config.mjs"
+  - "**/histoire.config.ts"
+  - "**/histoire-setup.ts"
   - "backend/scripts/**"
   - "backend/src/**/*.module.ts"
   - "backend/src/**/dto/**"
@@ -22,18 +36,18 @@ coverage:
   status:
     project:
       backend:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0.25%
         flags:
           - backend
       frontend:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0.1%
         flags:
           - frontend
       scripts:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0.3%
         flags:
           - scripts
     patch:

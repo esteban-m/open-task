@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 import { runAssertE2e } from './src/reports/assert-e2e.mjs';
 import { runMergeCoverage } from './src/reports/merge-summaries.mjs';
+import { runMergeLcov } from './src/reports/merge-lcov.mjs';
 import { runCoverageMarkdown } from './src/reports/summary-markdown.mjs';
 import { runWikiPages } from './src/reports/wiki-pages.mjs';
 import { runFixLcovPaths } from './src/reports/fix-lcov-paths.mjs';
@@ -22,6 +23,9 @@ export async function main(argv = process.argv) {
   switch (command) {
     case 'merge-coverage':
       runMergeCoverage(args);
+      break;
+    case 'merge-lcov':
+      runMergeLcov(args);
       break;
     case 'assert-e2e':
       runAssertE2e(args);
@@ -44,7 +48,7 @@ export async function main(argv = process.argv) {
     default:
       console.error(
         `Commande inconnue: ${command ?? '(vide)'}\n`
-          + 'Usage: node cli.mjs <merge-coverage|assert-e2e|coverage-markdown|wiki-pages|gifs|stack-env|fix-lcov-paths> [args…]',
+          + 'Usage: node cli.mjs <merge-coverage|merge-lcov|assert-e2e|coverage-markdown|wiki-pages|gifs|stack-env|fix-lcov-paths> [args…]',
       );
       process.exit(1);
   }
