@@ -68,6 +68,16 @@ describe('coverage gaps — docs scripts', () => {
     }
   });
 
+  it('buildDocTitleMaps ignore chapters absents', () => {
+    const maps = buildDocTitleMaps({
+      navigation: { generatedPages: [], staticPages: [] },
+      chapters: undefined,
+      defaultSeeAlso: [],
+      linkLabelAliases: [],
+    });
+    expect(maps.pathToTitle.size).toBe(0);
+  });
+
   it('buildDocTitleMaps enregistre title et alias sans écraser', () => {
     const maps = buildDocTitleMaps({
       navigation: { generatedPages: [], staticPages: [] },
@@ -111,6 +121,11 @@ describe('coverage gaps — docs scripts', () => {
     expect(
       normalizeMarkdownLink('Lbl', 'guide/getting-started', new Set(['/guide/getting-started']), {}),
     ).toBe('[Lbl](/guide/getting-started)');
+  });
+
+  it('normalizeMarkdownLink retourne le label si la cible est invalide', () => {
+    const valid = new Set(['/guide/ok']);
+    expect(normalizeMarkdownLink('Lbl', '/guide/missing', valid, {})).toBe('Lbl');
   });
 
   it('normalizeMarkdownLink ignore les liens https externes', () => {

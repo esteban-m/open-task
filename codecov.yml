@@ -8,6 +8,11 @@ ignore:
   - "frontend/pages/**"
   - "frontend/histoire/**"
   - "frontend/**/*.story.vue"
+  - "frontend/nuxt.config.ts"
+  - "frontend/vitest.config.ts"
+  - "frontend/histoire.config.ts"
+  - "frontend/histoire-setup.ts"
+  - "scripts/**/vitest.config.mjs"
   - "backend/scripts/**"
   - "backend/src/**/*.module.ts"
   - "backend/src/**/dto/**"
@@ -22,18 +27,18 @@ coverage:
   status:
     project:
       backend:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0%
         flags:
           - backend
       frontend:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0%
         flags:
           - frontend
       scripts:
-        target: 90%
-        threshold: 2%
+        target: 100%
+        threshold: 0%
         flags:
           - scripts
     patch:

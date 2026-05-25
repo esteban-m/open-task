@@ -341,6 +341,18 @@ jobs:
           node scripts/ci/cli.mjs fix-lcov-paths scripts/docs/coverage/lcov.info scripts/docs
           node scripts/ci/cli.mjs fix-lcov-paths scripts/ci/coverage/lcov.info scripts/ci
 
+      - name: Fusionner LCOV (union unit + e2e / docs + ci)
+        run: |
+          set -euo pipefail
+          node scripts/ci/cli.mjs merge-lcov \
+            -o backend/coverage/lcov.merged.info \
+            backend/coverage/lcov.info \
+            backend/coverage-e2e/lcov.info
+          node scripts/ci/cli.mjs merge-lcov \
+            -o scripts/docs/coverage/lcov.merged.info \
+            scripts/docs/coverage/lcov.info \
+            scripts/ci/coverage/lcov.info
+
       - name: Fusionner résumé monorepo
         run: |
           node scripts/ci/cli.mjs merge-coverage \
@@ -376,7 +388,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: backend/coverage/lcov.info,backend/coverage-e2e/lcov.info
+          files: backend/coverage/lcov.merged.info
           flags: backend
           name: backend
           disable_search: true
@@ -398,7 +410,7 @@ jobs:
         uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
+          files: scripts/docs/coverage/lcov.merged.info
           flags: scripts
           name: scripts
           directory: .

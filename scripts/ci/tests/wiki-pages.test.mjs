@@ -140,6 +140,32 @@ describe('wiki-pages', () => {
     expect(readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8')).toContain('Indisponible');
   });
 
+  it('index wiki sans paquet Couverture-des-tests utilise le premier package', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'wiki-first-pkg-'));
+    const summary = path.join(dir, 'summary.json');
+    const lines = path.join(dir, 'lines.md');
+    const badge = path.join(dir, 'badge.md');
+    writeFileSync(summary, JSON.stringify({ total: { lines: { total: 1, covered: 1, pct: 100 } } }));
+    writeFileSync(lines, 'lines');
+    writeFileSync(badge, 'badge');
+    const outDir = path.join(dir, 'wiki-out');
+    runWikiPages([
+      'node',
+      'cli',
+      '--out-dir',
+      outDir,
+      '--sha',
+      'sha2',
+      '--repo-root',
+      dir,
+      '--package',
+      `Couverture-CI:Scripts CI:${summary}:${lines}:${badge}`,
+    ]);
+    const index = readFileSync(path.join(outDir, 'Couverture-CI.md'), 'utf8');
+    expect(index).toContain('Scripts CI');
+    expect(index).toContain('lines');
+  });
+
   it('runWikiPages utilise runUrl par défaut', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'wiki-default-url-'));
     const summary = path.join(dir, 'summary.json');

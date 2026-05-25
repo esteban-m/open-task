@@ -55,7 +55,7 @@ describe('useSessionInit', () => {
   })
 
   it('no-op sans Pinia ou token déjà présent', async () => {
-    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
     await ensureSession()
 
     setActivePinia(createPinia())

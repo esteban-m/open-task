@@ -111,6 +111,35 @@ describe('merge-summaries', () => {
     expect(() => parseMergeArgs(['node', 'cli'])).toThrow(/Usage/);
   });
 
+  it('agrège le total quand une métrique est absente sur un fichier', () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'cov-metric-'));
+    const a = path.join(dir, 'a.json');
+    const b = path.join(dir, 'b.json');
+    writeFileSync(
+      a,
+      JSON.stringify({
+        'file:a.ts': { lines: { total: 4, covered: 4, skipped: 0, pct: 100 } },
+        total: { lines: { total: 4, covered: 4, skipped: 0, pct: 100 } },
+      }),
+    );
+    writeFileSync(
+      b,
+      JSON.stringify({
+        'file:b.ts': {
+          lines: { total: 6, covered: 3, skipped: 0, pct: 50 },
+          statements: { total: 6, covered: 3, skipped: 0, pct: 50 },
+        },
+        total: {
+          lines: { total: 6, covered: 3, skipped: 0, pct: 50 },
+          statements: { total: 6, covered: 3, skipped: 0, pct: 50 },
+        },
+      }),
+    );
+    const merged = mergeSummaries([a, b]);
+    expect(merged.total.statements.covered).toBe(3);
+    expect(merged.total.statements.total).toBe(6);
+  });
+
   it('runMergeCoverage écrit le fichier de sortie', () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'cov-merge-'));
     const a = path.join(dir, 'a.json');
