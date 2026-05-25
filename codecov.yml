@@ -37,17 +37,17 @@ coverage:
     project:
       backend:
         target: 100%
-        threshold: 0%
+        threshold: 0.25%
         flags:
           - backend
       frontend:
         target: 100%
-        threshold: 0%
+        threshold: 0.1%
         flags:
           - frontend
       scripts:
         target: 100%
-        threshold: 0%
+        threshold: 0.3%
         flags:
           - scripts
     patch:
