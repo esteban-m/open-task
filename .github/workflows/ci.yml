@@ -230,6 +230,8 @@ jobs:
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
       CI: true
+      # Backend (auth throttle) + Playwright démo — doit être défini avant le démarrage de Nest
+      PLAYWRIGHT_DEMO: '1'
     steps:
       - uses: actions/checkout@v6
 

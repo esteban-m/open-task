@@ -31,6 +31,11 @@ if [[ "${PLAYWRIGHT_DEMO:-}" == "1" && "$ALL_PROJECTS" == false ]]; then
   RECORD_GIFS=true
 fi
 
+# Backend lit PLAYWRIGHT_DEMO au boot (auth throttle 500/min vs 10) — avant nest start
+if [[ "$ALL_PROJECTS" == true || "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
+  export PLAYWRIGHT_DEMO=1
+fi
+
 # Variables stack depuis config/open-task.e2e.json (surcharge env possible)
 if [[ "$SKIP_DOCKER" == false ]]; then
   unset DATABASE_URL
@@ -93,12 +98,9 @@ log "Playwright"
 npx playwright install chromium
 
 if [[ "$ALL_PROJECTS" == true ]]; then
-  # Smoke puis démos : une seule stack, mais pas de parallèle cross-projets
-  # (sinon register concurrents sur le même Postgres → timeouts en CI).
   log "Playwright — smoke"
   npm test -- --project=smoke-desktop
   log "Playwright — démo (desktop + mobile)"
-  export PLAYWRIGHT_DEMO=1
   npm test -- --project=demo-desktop --project=demo-mobile
 elif [[ "${PLAYWRIGHT_DEMO:-}" == "1" ]]; then
   export PLAYWRIGHT_DEMO=1

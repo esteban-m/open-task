@@ -60,6 +60,7 @@ jobs:
       JWT_REFRESH_SECRET: ci_docs_demo_refresh_secret_32chars
       FRONTEND_URL: http://127.0.0.1:3000
       NODE_ENV: development
+      PLAYWRIGHT_DEMO: '1'
 
     steps:
       - uses: actions/checkout@v6
