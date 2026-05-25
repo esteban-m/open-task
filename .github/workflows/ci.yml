@@ -297,19 +297,19 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Télécharger coverage backend
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-backend
           path: _cov/backend
 
       - name: Télécharger coverage frontend
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-frontend
           path: _cov/frontend
 
       - name: Télécharger coverage scripts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-scripts
           path: _cov/scripts
@@ -489,7 +489,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: GIF démo (artefact e2e-playwright)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: demo-gifs
           path: docs/public/demo

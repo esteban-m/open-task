@@ -99,7 +99,7 @@ jobs:
 
       - name: GIF démo (artefact Playwright)
         if: ${{ github.event.inputs.skip_playwright != true }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: demo-gifs
           path: docs/public/demo
