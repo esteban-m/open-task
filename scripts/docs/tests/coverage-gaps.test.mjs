@@ -9,8 +9,11 @@ import {
   extractInternalDocPath,
   fixLinksInDir,
   normalizeMarkdownLink,
+  normalizeRelativeHref,
   repairVoirAussiSection,
+  stripOpenTaskPrefix,
 } from '../src/services/links.mjs';
+import * as linksModule from '../src/services/links.mjs';
 import { writeGeneratedDoc } from '../src/services/writer.mjs';
 import { buildLocalFileTree, fetchGithubTree, readReadme } from '../src/services/github.mjs';
 
@@ -77,6 +80,21 @@ describe('coverage gaps — docs scripts', () => {
     });
     expect(maps.pathToTitle.get('/guide/x')).toBe('Titre alias');
     expect(maps.labelToHref.get('autre')).toBe('/guide/y');
+  });
+
+  it('stripOpenTaskPrefix gère la racine et les sous-chemins', () => {
+    expect(stripOpenTaskPrefix('/open-task/')).toBe('/');
+    expect(stripOpenTaskPrefix('/open-task/generated/architecture')).toBe(
+      '/generated/architecture',
+    );
+  });
+
+  it('normalizeMarkdownLink utilise normalizeRelativeHref si extract est null', () => {
+    const spy = vi.spyOn(linksModule, 'extractInternalDocPath').mockReturnValue(null);
+    const valid = new Set(['/guide/start']);
+    expect(normalizeRelativeHref('guide/start')).toBe('/guide/start');
+    expect(normalizeMarkdownLink('Lbl', 'guide/start', valid, {})).toBe('[Lbl](/guide/start)');
+    spy.mockRestore();
   });
 
   it('extractInternalDocPath couvre //, open-task et chemins relatifs invalides', () => {
@@ -528,6 +546,10 @@ Start
   });
 
   it('github — token Authorization et filtre maxFiles en walk', async () => {
+    const empty = await mkdtemp(path.join(os.tmpdir(), 'gh-zero-'));
+    await writeFile(path.join(empty, 'only.txt'), '1\n', 'utf8');
+    expect(await buildLocalFileTree(empty, 0)).toBe('');
+
     const dir = await mkdtemp(path.join(os.tmpdir(), 'gh-max-'));
     for (let i = 0; i < 5; i += 1) {
       await writeFile(path.join(dir, `file${i}.txt`), `${i}\n`, 'utf8');

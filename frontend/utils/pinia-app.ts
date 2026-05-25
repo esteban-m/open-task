@@ -6,7 +6,8 @@ export function resolveAppPinia(
   nuxtPinia: Pinia | null | undefined,
   activePinia: Pinia | null | undefined,
 ): Pinia | null {
-  if (nuxtPinia) return nuxtPinia
+  if (nuxtPinia !== undefined && nuxtPinia !== null) return nuxtPinia
+  if (nuxtPinia === null) return null
   return activePinia ?? null
 }
 

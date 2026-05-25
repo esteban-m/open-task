@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { mountSuspended } from '@nuxt/test-utils/runtime'
 
 import { useAuthStore } from '~/stores/auth'
+import * as piniaApp from '~/utils/pinia-app'
 
 vi.mock('~/composables/useSessionInit', () => ({
   resetSessionInit: vi.fn(),
@@ -44,7 +45,7 @@ describe('useAuth', () => {
   })
 
   it('fonctionne sans Pinia (no-op)', () => {
-    vi.stubGlobal('useNuxtApp', () => ({ $pinia: null }))
+    vi.spyOn(piniaApp, 'useAppPinia').mockReturnValue(null)
     const auth = useAuth()
 
     expect(auth.getToken()).toBeNull()
