@@ -58,7 +58,12 @@ describe('assembleDocs', () => {
     const injectSpy = vi.spyOn(diagrams, 'injectDiagramsIntoDir');
     const log = vi.spyOn(console, 'log').mockImplementation(() => {});
     await assembleDocs(repoRoot, config);
-    expect(injectSpy).toHaveBeenCalled();
+    expect(injectSpy).toHaveBeenCalledWith(
+      generatedDir,
+      config.diagrams,
+      readFile,
+      writeFile,
+    );
     injectSpy.mockRestore();
     const md = await readFile(path.join(generatedDir, 'architecture.md'), 'utf8');
     expect(md).toContain('](/generated/architecture)');
@@ -100,7 +105,6 @@ describe('assembleDocs', () => {
     await expect(assembleWithMock(repoRoot, config)).rejects.toMatchObject({ code: 'EACCES' });
     vi.doUnmock('../src/services/links.mjs');
     vi.doUnmock('../src/services/diagrams.mjs');
-    vi.resetModules();
   });
 
   it('ignore ENOENT quand injectDiagrams échoue', async () => {

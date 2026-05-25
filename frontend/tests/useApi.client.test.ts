@@ -7,6 +7,21 @@ vi.mock('~/composables/useSessionInit', () => ({
 }))
 
 describe('createApiClient', () => {
+  it('exécute finally et permet un nouveau refresh après succès', async () => {
+    const fetchAuth = vi.fn().mockResolvedValue({ accessToken: 'ok' })
+    const client = createApiClient({
+      apiBase: 'http://api.test',
+      getToken: () => 'tok',
+      setToken: vi.fn(),
+      clearToken: vi.fn(),
+      fetchAuth: fetchAuth as unknown as typeof $fetch,
+    })
+
+    await expect(client.refreshAccessToken()).resolves.toBe('ok')
+    await expect(client.refreshAccessToken()).resolves.toBe('ok')
+    expect(fetchAuth).toHaveBeenCalledTimes(2)
+  })
+
   it('réinitialise refreshPromise après chaque refresh', async () => {
     const fetchAuth = vi
       .fn()

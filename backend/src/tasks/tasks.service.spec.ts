@@ -181,6 +181,31 @@ describe('TasksService', () => {
 
       expect(mockListAccessService.requireAccess).toHaveBeenCalledWith('list-2', 'user-1', 'editor');
     });
+
+    it('met à jour longDescription (y compris null)', async () => {
+      mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);
+      mockPrismaService.task.update.mockResolvedValue({ ...mockTask, longDescription: null });
+
+      await service.update('task-1', { longDescription: null }, 'user-1');
+
+      expect(mockPrismaService.task.update.mock.calls[0][0].data).toEqual({
+        longDescription: null,
+      });
+    });
+
+    it('met à jour dueDate', async () => {
+      mockListAccessService.requireTaskAccess.mockResolvedValue(mockTask);
+      mockPrismaService.task.update.mockResolvedValue({
+        ...mockTask,
+        dueDate: new Date('2025-06-01'),
+      });
+
+      await service.update('task-1', { dueDate: '2025-06-01' }, 'user-1');
+
+      expect(mockPrismaService.task.update.mock.calls[0][0].data).toEqual({
+        dueDate: new Date('2025-06-01'),
+      });
+    });
   });
 
   describe('remove', () => {

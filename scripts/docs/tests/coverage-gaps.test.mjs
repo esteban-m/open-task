@@ -103,9 +103,31 @@ describe('coverage gaps — docs scripts', () => {
   it('normalizeMarkdownLink utilise normalizeRelativeHref si extract est null', () => {
     const spy = vi.spyOn(linksModule, 'extractInternalDocPath').mockReturnValue(null);
     const valid = new Set(['/guide/start']);
-    expect(normalizeRelativeHref('guide/start')).toBe('/guide/start');
     expect(normalizeMarkdownLink('Lbl', 'guide/start', valid, {})).toBe('[Lbl](/guide/start)');
     spy.mockRestore();
+  });
+
+  it('normalizeMarkdownLink — extractInternalDocPath direct sur ligne cible', () => {
+    const valid = new Set(['/guide/start', '/generated/architecture']);
+    expect(normalizeMarkdownLink('Lbl', '/guide/start', valid, {})).toBe('[Lbl](/guide/start)');
+    expect(normalizeMarkdownLink('Lbl', 'guide/start', valid, {})).toBe('[Lbl](/guide/start)');
+    expect(
+      normalizeMarkdownLink(
+        'Arch',
+        'https://pages.github.io/open-task/generated/architecture',
+        valid,
+        {},
+      ),
+    ).toBe('[Arch](/generated/architecture)');
+    expect(normalizeMarkdownLink('Bad', '???', valid, {})).toBe('Bad');
+  });
+
+  it('normalizeMarkdownLink — extract direct et fallback relatif', () => {
+    const valid = new Set(['/guide/start', '/generated/architecture']);
+    expect(normalizeMarkdownLink('A', '/guide/start', valid, {})).toBe('[A](/guide/start)');
+    expect(normalizeMarkdownLink('B', 'generated/architecture', valid, {})).toBe(
+      '[B](/generated/architecture)',
+    );
   });
 
   it('extractInternalDocPath couvre //, open-task et chemins relatifs invalides', () => {
@@ -459,6 +481,23 @@ export class ItemsController {
     const remote = await fetchGithubTree({ owner: 'acme', repo: 'open-task', token: 'tok' });
     expect(remote.readme).toContain('Remote');
     expect(remote.description).toBe('Demo');
+
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ default_branch: 'main', description: '' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ tree: [] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({}),
+      });
+    const emptyReadme = await fetchGithubTree({ owner: 'acme', repo: 'open-task' });
+    expect(emptyReadme.readme).toBe('');
   });
 
   it('generateArchitecture en local sans GitHub Actions', async () => {
@@ -562,6 +601,15 @@ Start
     expect(onlyDefault).toContain('[Start](/guide/start)');
   });
 
+  it('github — ignore les extensions SKIP_EXT en walk local', async () => {
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'gh-skip-ext-'));
+    await writeFile(path.join(dir, 'keep.ts'), 'export const x = 1;\n', 'utf8');
+    await writeFile(path.join(dir, 'skip.png'), 'binary\n', 'utf8');
+    const tree = await buildLocalFileTree(dir, 10);
+    expect(tree).toContain('keep.ts');
+    expect(tree).not.toContain('skip.png');
+  });
+
   it('github — token Authorization et filtre maxFiles en walk', async () => {
     const empty = await mkdtemp(path.join(os.tmpdir(), 'gh-zero-'));
     await writeFile(path.join(empty, 'only.txt'), '1\n', 'utf8');
@@ -615,6 +663,7 @@ Start
       });
     const data = await fetchGithubTree({ owner: 'o', repo: 'r', token: 'ghp_test' });
     expect(data.fileTree).not.toContain('node_modules/pkg/index.js');
+    expect(data.readme).toContain('Remote readme');
     expect(globalThis.fetch.mock.calls[0][1].headers.Authorization).toContain('ghp_test');
   });
 

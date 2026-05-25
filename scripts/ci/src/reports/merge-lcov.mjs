@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 
-function parseRecords(content) {
+export function parseRecords(content) {
   const records = [];
   let cur = null;
 
@@ -56,7 +56,7 @@ function parseRecords(content) {
   return records;
 }
 
-function serializeRecord(rec) {
+export function serializeRecord(rec) {
   const lines = [...rec.da.keys()].sort((a, b) => a - b);
   let lh = 0;
   const out = [`SF:${rec.sf}`, ...rec.meta];

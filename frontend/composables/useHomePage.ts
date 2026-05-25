@@ -2,6 +2,26 @@ import type { TaskList } from '~/stores/lists'
 
 import { isRuntimeClient } from '~/utils/runtime-flags'
 
+/** Changement de liste sélectionnée (testable + watch). */
+export async function handleSelectedListIdChange(
+  listId: string | null,
+  prev: string | null | undefined,
+  ctx: {
+    switchList: (listId: string, prev: string | null) => void
+    loadTasksForList: (listId: string) => Promise<void>
+    tasksStore: ReturnType<typeof useTasksStore>
+  },
+) {
+  if (!listId || listId === prev) return
+  ctx.switchList(listId, prev ?? null)
+  await ctx.loadTasksForList(listId)
+  const stillVisible = ctx.tasksStore.tasks.some((t) => t.id === ctx.tasksStore.selectedTaskId)
+  if (ctx.tasksStore.selectedTaskId && !stillVisible) {
+    const inAll = ctx.tasksStore.allTasks.some((t) => t.id === ctx.tasksStore.selectedTaskId)
+    if (!inAll) ctx.tasksStore.selectTask(null)
+  }
+}
+
 /** Logique de la page d’accueil (listes, socket, vues calendrier/kanban). */
 export function useHomePage() {
   const api = useApi()
@@ -39,16 +59,12 @@ export function useHomePage() {
 
   watch(
     () => listsStore.selectedListId,
-    async (listId, prev) => {
-      if (!listId || listId === prev) return
-      switchList(listId, prev ?? null)
-      await loadTasksForList(listId)
-      const stillVisible = tasksStore.tasks.some((t) => t.id === tasksStore.selectedTaskId)
-      if (tasksStore.selectedTaskId && !stillVisible) {
-        const inAll = tasksStore.allTasks.some((t) => t.id === tasksStore.selectedTaskId)
-        if (!inAll) tasksStore.selectTask(null)
-      }
-    },
+    (listId, prev) =>
+      handleSelectedListIdChange(listId, prev, {
+        switchList,
+        loadTasksForList,
+        tasksStore,
+      }),
   )
 
   watch(
