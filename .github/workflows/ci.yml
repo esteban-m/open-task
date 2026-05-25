@@ -400,7 +400,7 @@ jobs:
             --package "Couverture-Scripts:Scripts (docs + CI):scripts/docs/coverage/coverage-summary.json:wiki-fragments/scripts-lines.md:wiki-fragments/scripts-badge.md"
 
       - name: Codecov · backend
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage/lcov.info
@@ -411,7 +411,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Codecov · frontend
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: frontend/coverage/lcov.info
@@ -422,7 +422,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Codecov · scripts
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
