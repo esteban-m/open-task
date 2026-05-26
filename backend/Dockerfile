@@ -1,5 +1,4 @@
-# Identique à l'image backend qui tournait ce matin (node:20-bookworm + openssl)
-FROM node:20-bookworm-slim AS builder
+FROM node:24-bookworm-slim AS builder
 
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
@@ -12,7 +11,7 @@ COPY . .
 RUN npx prisma generate
 RUN npm run build
 
-FROM node:20-bookworm-slim AS production
+FROM node:24-bookworm-slim AS production
 
 RUN apt-get update && apt-get install -y openssl wget && rm -rf /var/lib/apt/lists/*
 

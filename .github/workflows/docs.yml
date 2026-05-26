@@ -28,10 +28,6 @@ concurrency:
   group: docs-manual-${{ github.run_id }}
   cancel-in-progress: false
 
-env:
-  NODE_VERSION: '22'
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   e2e-gifs:
     name: Playwright → GIF (manuel)
@@ -67,7 +63,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           cache: npm
           cache-dependency-path: |
             backend/package-lock.json
@@ -106,7 +102,7 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version-file: '.nvmrc'
           cache: npm
           cache-dependency-path: scripts/docs/package-lock.json
 

@@ -72,7 +72,7 @@ body:
       label: Environnement
       description: OS, Node, Docker, navigateur
       placeholder: |
-        macOS 14, Docker Compose, Node 20
+        macOS 14, Docker Compose, Node 24
         Chrome 124
     validations:
       required: true
