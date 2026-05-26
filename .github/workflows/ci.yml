@@ -104,7 +104,7 @@ jobs:
             backend/coverage-e2e/coverage-summary.json
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-backend
           retention-days: 1
@@ -142,7 +142,7 @@ jobs:
         run: npm run test:coverage -- --silent
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-frontend
           retention-days: 1
@@ -189,7 +189,7 @@ jobs:
           cp scripts/docs/coverage/coverage-summary.merged.json scripts/docs/coverage/coverage-summary.json
 
       - name: Artefacts coverage
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-scripts
           retention-days: 1
@@ -245,7 +245,7 @@ jobs:
 
       - name: Cache navigateur Playwright
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: ms-playwright-${{ runner.os }}-chromium-${{ hashFiles('e2e/package-lock.json') }}
@@ -273,7 +273,7 @@ jobs:
 
       - name: Artefact GIF (push main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: demo-gifs
           retention-days: 14
@@ -281,7 +281,7 @@ jobs:
 
       - name: Artefacts Playwright (échec)
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-report
           retention-days: 7
@@ -291,7 +291,7 @@ jobs:
 
       - name: Vidéos démo brutes (échec, push main)
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-demo-videos
           retention-days: 7
@@ -308,19 +308,19 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Télécharger coverage backend
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-backend
           path: _cov/backend
 
       - name: Télécharger coverage frontend
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-frontend
           path: _cov/frontend
 
       - name: Télécharger coverage scripts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: coverage-scripts
           path: _cov/scripts
@@ -411,7 +411,7 @@ jobs:
             --package "Couverture-Scripts:Scripts (docs + CI):scripts/docs/coverage/coverage-summary.json:wiki-fragments/scripts-lines.md:wiki-fragments/scripts-badge.md"
 
       - name: Codecov · backend
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage/lcov.info
@@ -422,7 +422,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Codecov · frontend
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: frontend/coverage/lcov.info
@@ -433,7 +433,7 @@ jobs:
           fail_ci_if_error: true
 
       - name: Codecov · scripts
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
@@ -497,7 +497,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: GIF démo (artefact e2e-playwright)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: demo-gifs
           path: docs/public/demo
@@ -584,7 +584,7 @@ jobs:
           fi
 
       - name: Upload artefact Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs-site
 
@@ -602,4 +602,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
