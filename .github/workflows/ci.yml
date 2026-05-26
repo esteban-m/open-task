@@ -412,7 +412,7 @@ jobs:
 
       - name: Codecov · backend
         if: github.actor != 'dependabot[bot]'
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: backend/coverage/lcov.info
@@ -424,7 +424,7 @@ jobs:
 
       - name: Codecov · frontend
         if: github.actor != 'dependabot[bot]'
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: frontend/coverage/lcov.info
@@ -436,7 +436,7 @@ jobs:
 
       - name: Codecov · scripts
         if: github.actor != 'dependabot[bot]'
-        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5.4.3
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v5.4.3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: scripts/docs/coverage/lcov.info,scripts/ci/coverage/lcov.info
@@ -587,7 +587,7 @@ jobs:
           fi
 
       - name: Upload artefact Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: docs-site
 
@@ -605,4 +605,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
