@@ -239,8 +239,24 @@ jobs:
             frontend/package-lock.json
             e2e/package-lock.json
 
-      - name: Dépendances Playwright (navigateur)
-        run: cd e2e && npm ci && npx playwright install --with-deps chromium
+      - name: Dépendances e2e
+        working-directory: e2e
+        run: npm ci
+
+      - name: Cache navigateur Playwright
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-${{ runner.os }}-chromium-${{ hashFiles('e2e/package-lock.json') }}
+
+      - name: Navigateur Playwright (Chromium)
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        working-directory: e2e
+        timeout-minutes: 15
+        run: |
+          npx playwright install-deps chromium
+          npx playwright install chromium
 
       - name: ffmpeg (GIF, push main uniquement)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
