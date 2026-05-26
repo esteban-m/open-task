@@ -1,37 +1,19 @@
 version: 2
 updates:
   - package-ecosystem: npm
-    directory: /backend
+    directories:
+      - /backend
+      - /frontend
     schedule:
       interval: weekly
       day: monday
     open-pull-requests-limit: 1
     labels:
       - dependencies
-      - backend
     commit-message:
       prefix: deps
     groups:
-      backend:
-        patterns: ['*']
-        update-types: ['minor', 'patch']
-    ignore:
-      - dependency-name: '*'
-        update-types: ['version-update:semver-major']
-
-  - package-ecosystem: npm
-    directory: /frontend
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 1
-    labels:
-      - dependencies
-      - frontend
-    commit-message:
-      prefix: deps
-    groups:
-      frontend:
+      deps:
         patterns: ['*']
         update-types: ['minor', 'patch']
     ignore:
@@ -46,9 +28,9 @@ updates:
     open-pull-requests-limit: 1
     labels:
       - dependencies
-      - ci
+      - github-actions
     commit-message:
-      prefix: ci
+      prefix: actions
     groups:
-      ci:
+      actions:
         patterns: ['*']
